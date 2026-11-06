@@ -5,9 +5,7 @@ import uvicorn
 
 from app.domain.exceptions.domain_exceptions import (
     DomainException,
-    PatientNotFoundException,
-    PatientAlreadyExistsException,
-    InvalidPatientAgeException,
+    InvalidPPRException,
 )
 from app.infrastructure.config.settings import settings
 from app.infrastructure.database.session import Base, engine
@@ -31,8 +29,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Pediatría PPR API - Clean Architecture",
-    description="Backend con Arquitectura Limpia en Python usando SQL Server con SQLAlchemy y FastAPI.",
+    title="Pediatría PPR1001 API - Clean Architecture",
+    description="Backend con Arquitectura Limpia en Python para procesamiento de indicadores PPR1001.",
     version="1.0.0",
     lifespan=lifespan,
 )
@@ -40,27 +38,11 @@ app = FastAPI(
 # -------------------------------------------------------------
 # Manejadores de Excepciones de Dominio (Mapeo a HTTP Status)
 # -------------------------------------------------------------
-@app.exception_handler(PatientNotFoundException)
-async def patient_not_found_handler(request: Request, exc: PatientNotFoundException):
-    return JSONResponse(
-        status_code=status.HTTP_404_NOT_FOUND,
-        content={"detail": str(exc), "error_type": "PatientNotFound"},
-    )
-
-
-@app.exception_handler(PatientAlreadyExistsException)
-async def patient_already_exists_handler(request: Request, exc: PatientAlreadyExistsException):
-    return JSONResponse(
-        status_code=status.HTTP_409_CONFLICT,
-        content={"detail": str(exc), "error_type": "PatientAlreadyExists"},
-    )
-
-
-@app.exception_handler(InvalidPatientAgeException)
-async def invalid_patient_age_handler(request: Request, exc: InvalidPatientAgeException):
+@app.exception_handler(InvalidPPRException)
+async def invalid_ppr_handler(request: Request, exc: InvalidPPRException):
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        content={"detail": str(exc), "error_type": "InvalidPatientAge"},
+        content={"detail": str(exc), "error_type": "InvalidPPRData"},
     )
 
 
@@ -82,7 +64,7 @@ app.include_router(api_v1_router, prefix="/api/v1")
 def health_check():
     return {
         "status": "online",
-        "service": "Pediatría PPR API",
+        "service": "Pediatría PPR1001 API",
         "architecture": "Clean Architecture (Hexagonal)",
         "database": "Microsoft SQL Server con SQLAlchemy",
         "presentation": "FastAPI",

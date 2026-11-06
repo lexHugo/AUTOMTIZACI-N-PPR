@@ -1,11 +1,6 @@
-from app.presentation.schemas.patient_schema import (
-    PatientCreateRequest,
-    PatientResponse,
+from app.presentation.schemas.indicadores_schema import (
+    IndicadoresResponse,
+    HistoricoPPRResponse,
 )
-from app.presentation.schemas.excel_schema import ImportResultResponse
 
-__all__ = [
-    "PatientCreateRequest",
-    "PatientResponse",
-    "ImportResultResponse",
-]
+__all__ = ["IndicadoresResponse", "HistoricoPPRResponse"]

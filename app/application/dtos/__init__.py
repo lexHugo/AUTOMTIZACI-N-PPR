@@ -1,13 +1,3 @@
-from app.application.dtos.patient_dto import (
-    PatientCreateDTO,
-    PatientResponseDTO,
-    PatientUpdateDTO,
-    PatientImportResultDTO,
-)
+from app.application.dtos.indicadores_dto import IndicadorDTO
 
-__all__ = [
-    "PatientCreateDTO",
-    "PatientResponseDTO",
-    "PatientUpdateDTO",
-    "PatientImportResultDTO",
-]
+__all__ = ["IndicadorDTO"]

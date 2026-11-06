@@ -1,147 +1,84 @@
-# Pediatría PPR - Arquitectura Limpia (Clean Architecture)
+# Pediatría PPR1001 - Arquitectura Limpia (Clean Architecture)
 
-Proyecto base implementado bajo los principios de **Clean Architecture** (Arquitectura Limpia / Hexagonal) utilizando:
-- **Lógica de Dominio y Aplicación:** Python puro (desacoplado de frameworks y librerías externas)
-- **Procesamiento de Archivos Excel:** **Pandas** y **OpenPyXL** encapsulados en la capa de Infraestructura
-- **Capa de Persistencia:** Microsoft SQL Server mediante **SQLAlchemy** y `pyodbc`
-- **Capa de Presentación / Entrada:** **FastAPI** (con esquemas Pydantic, subida/descarga de archivos y documentación Swagger/OpenAPI)
+Sistema especializado para el procesamiento de tramas HIS MINSA, cálculo de las 9 actividades operativas e indicadores del programa presupuestal **PPR1001** y persistencia histórica en **SQL Server**.
 
 ---
 
 ## 🏛️ Estructura del Proyecto
-
-El proyecto sigue la regla fundamental de Clean Architecture: **las capas internas no conocen a las capas externas**. Los casos de uso dependen de puertos abstractos (`PatientExcelPort`, `PatientRepositoryInterface`), mientras que Pandas y SQLAlchemy son simples adaptadores intercambiables en la infraestructura.
 
 ```
 PEDIATRIA_PPR/
 │
 ├── app/
 │   │
-│   ├── domain/                         # CAPA DE DOMINIO (Reglas de negocio puras)
-│   │   ├── entities/patient.py         # Entidad Patient (cálculo de edad, validación pediátrica)
-│   │   ├── repositories/               # Contratos abstractos de persistencia
-│   │   │   └── patient_repository.py  # PatientRepositoryInterface (ABC)
-│   │   └── exceptions/                 # Excepciones de negocio
+│   ├── domain/                         # CAPA DE DOMINIO (El núcleo puro)
+│   │   ├── entities/
+│   │   │   ├── variables_ppr.py        # Entidad VariablesPPR (datos del HIS filtrados)
+│   │   │   └── historico_ppr.py        # Entidad HistoricoPPR (datos consolidados para BD)
+│   │   ├── repositories/
+│   │   │   └── historico_ppr_repository.py # Interfaz abstracta del repositorio histórico
+│   │   └── exceptions/
 │   │       └── domain_exceptions.py
 │   │
-│   ├── application/                    # CAPA DE APLICACIÓN (Casos de uso)
-│   │   ├── dtos/patient_dto.py         # DTOs de entrada, salida y resultado de importación
-│   │   ├── ports/                      # Puertos de salida (interfaces abstractas)
-│   │   │   └── patient_excel_port.py  # PatientExcelPort (ABC)
-│   │   └── use_cases/                  # Casos de uso específicos
-│   │       ├── create_patient.py       # Registrar paciente
-│   │       ├── get_patient.py          # Consultar paciente por ID
-│   │       ├── list_patients.py        # Listar pacientes
-│   │       ├── export_patients_excel.py # Exportar pacientes a .xlsx
-│   │       ├── import_patients_excel.py # Importar masivamente desde .xlsx con validaciones
-│   │       └── generate_patient_template.py # Generar plantilla oficial descargable
+│   ├── application/                    # CAPA DE APLICACIÓN
+│   │   ├── dtos/
+│   │   │   └── indicadores_dto.py      # IndicadorDTO con las 9 actividades operativas
+│   │   ├── ports/
+│   │   │   ├── ppr1001_interface.py    # Puerto con los métodos de cálculo de cada actividad
+│   │   │   └── his_excel_reader_port.py # Puerto abstracto para la lectura del Excel HIS
+│   │   └── use_cases/
+│   │       └── procesar_ppr1001_use_case.py # CASO DE USO PRINCIPAL (Orquestador único)
 │   │
-│   ├── infrastructure/                 # CAPA DE INFRAESTRUCTURA (Herramientas y adaptadores)
-│   │   ├── config/settings.py          # Variables de entorno y connection string SQL Server
-│   │   ├── database/session.py         # Sesión y Engine SQLAlchemy
-│   │   ├── models/patient_model.py     # Modelo ORM mapeado a SQL Server
-│   │   ├── repositories/               # Implementación concreta del repositorio
-│   │   │   └── sqlalchemy_patient_repository.py
-│   │   └── services/                   # Adaptadores de servicios externos
-│   │       └── pandas_patient_excel_service.py # Implementación con Pandas y OpenPyXL
+│   ├── infrastructure/                 # CAPA DE INFRAESTRUCTURA
+│   │   ├── config/settings.py          # Conexión SQL Server con pyodbc
+│   │   ├── database/session.py         # SQLAlchemy Base y SessionLocal
+│   │   ├── models/
+│   │   │   └── historico_ppr_model.py  # Modelo ORM mapeado a SQL Server (historico_ppr1001)
+│   │   ├── repositories/
+│   │   │   └── sqlalchemy_historico_ppr_repository.py # Guardado y consulta histórica
+│   │   └── services/
+│   │       ├── pandas_his_excel_reader.py # Lector y filtro de columnas con Pandas
+│   │       └── ppr1001.py              # SERVICIO DONDE SE INYECTAN LAS 9 FÓRMULAS
 │   │
-│   └── presentation/                   # CAPA DE PRESENTACIÓN / ENTRADA (FastAPI)
+│   └── presentation/                   # CAPA DE PRESENTACIÓN (FastAPI)
 │       ├── api/
-│       │   ├── dependencies.py         # Inyección de dependencias (DI)
+│       │   ├── dependencies.py         # Inyección de dependencias
 │       │   └── v1/
-│       │       ├── router.py           # Agrupador de rutas API v1
+│       │       ├── router.py
 │       │       └── endpoints/
-│       │           └── patients.py     # Endpoints CRUD y de importación/exportación Excel
+│       │           └── ppr1001.py      # Endpoints HTTP (/procesar y /historico)
 │       └── schemas/
-│           ├── patient_schema.py       # Modelos Pydantic de pacientes
-│           └── excel_schema.py         # Modelo Pydantic para el resumen de importación
+│           └── indicadores_schema.py   # Esquemas Pydantic para el Frontend
 │
-├── main.py                             # Punto de entrada de la aplicación FastAPI
-├── requirements.txt                    # Dependencias del proyecto
-├── .env.example                        # Ejemplo de configuración
-└── README.md                           # Documentación técnica
+├── main.py                             # Punto de entrada de FastAPI
+├── requirements.txt                    # Dependencias
+├── .env.example / .env                 # Configuración de SQL Server
+└── README.md
 ```
 
 ---
 
-## 📊 Módulo de Hojas de Cálculo con Pandas
+## 🎯 ¿Dónde inyectar la lógica de cada actividad operativa?
 
-El procesamiento de Excel está desacoplado mediante el puerto [`PatientExcelPort`](file:///C:/Users/hugo_/Desktop/PEDIATRIA_PPR/app/application/ports/patient_excel_port.py):
+Toda la lógica de las fórmulas reside en el archivo:
+👉 [`app/infrastructure/services/ppr1001.py`](file:///C:/Users/hugo_/Desktop/PEDIATRIA_PPR/app/infrastructure/services/ppr1001.py)
 
-1. **Exportación a Excel (`GET /api/v1/patients/export/excel`):**
-   - Extrae los pacientes de la base de datos SQL Server.
-   - Genera dinámicamente un archivo `.xlsx` en memoria (`io.BytesIO`) utilizando **Pandas** y **OpenPyXL**.
-   - Incluye auto-ajuste de ancho de columnas y cabeceras descriptivas en español.
-   - Se descarga como archivo adjunto (`Content-Disposition: attachment`).
-
-2. **Importación Masiva desde Excel (`POST /api/v1/patients/import/excel`):**
-   - Recibe un archivo `.xlsx` subido vía `multipart/form-data`.
-   - Pandas procesa las filas, normaliza los nombres de columna y valida los formatos de fecha.
-   - El caso de uso evalúa fila por fila:
-     - Unicidad de historia clínica.
-     - Límite de edad pediátrica (< 18 años).
-   - Retorna un resumen con el total de filas, cantidad exitosa, cantidad fallida y lista de errores detallada por número de fila.
-
-3. **Descarga de Plantilla Oficial (`GET /api/v1/patients/template/excel`):**
-   - Genera una plantilla `.xlsx` lista para rellenar con un registro de ejemplo.
+Encontrarás un método dedicado para cada actividad:
+- `calcular_3325401(variables: List[VariablesPPR]) -> str`
+- `calcular_3325402(variables: List[VariablesPPR]) -> str`
+- `calcular_3325403(variables: List[VariablesPPR]) -> str`
+- `calcular_3325404(variables: List[VariablesPPR]) -> str`
+- `calcular_3325405(variables: List[VariablesPPR]) -> str`
+- `calcular_3325406(variables: List[VariablesPPR]) -> str`
+- `calcular_3325407(variables: List[VariablesPPR]) -> str`
+- `calcular_3325408(variables: List[VariablesPPR]) -> str`
+- `calcular_3325508(variables: List[VariablesPPR]) -> str`
 
 ---
 
-## 🚀 Requisitos e Instalación
-
-### 1. Requisitos Previos
-- **Python 3.10 o superior**
-- **Microsoft ODBC Driver 17 o 18 for SQL Server**
-
-### 2. Crear entorno virtual e instalar librerías
-
-```bash
-# Crear entorno virtual
-python -m venv venv
-
-# Activar en Windows PowerShell:
-.\venv\Scripts\Activate.ps1
-
-# Instalar dependencias (FastAPI, SQLAlchemy, PyODBC, Pandas, OpenPyXL, etc.)
-pip install -r requirements.txt
-```
-
-### 3. Configurar `.env`
-
-```env
-DB_DRIVER=ODBC Driver 17 for SQL Server
-DB_SERVER=localhost
-DB_PORT=1433
-DB_NAME=PediatriaDB
-DB_USER=sa
-DB_PASSWORD=TuPasswordSeguro123!
-DB_TRUST_SERVER_CERTIFICATE=yes
-
-API_HOST=127.0.0.1
-API_PORT=8000
-API_DEBUG=True
-```
-
----
-
-## ▶️ Ejecución y Documentación Interactiva
-
-Inicia el servidor con recarga en vivo:
-
-```bash
-uvicorn main:app --reload
-```
-
-Accede a Swagger UI en el navegador: **[http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)**
-
-### Endpoints Disponibles:
+## 🌐 Endpoints Disponibles en FastAPI
 
 | Método | Endpoint | Descripción |
 | :--- | :--- | :--- |
-| `GET` | `/` | Health check del servicio |
-| `GET` | `/api/v1/patients/template/excel` | Descarga la plantilla oficial en Excel |
-| `GET` | `/api/v1/patients/export/excel` | Exporta todos los pacientes a un archivo `.xlsx` |
-| `POST` | `/api/v1/patients/import/excel` | Sube un archivo Excel para registrar pacientes masivamente |
-| `POST` | `/api/v1/patients` | Registra un paciente individual |
-| `GET` | `/api/v1/patients/{patient_id}` | Consulta un paciente por ID |
-| `GET` | `/api/v1/patients` | Lista pacientes con paginación (`skip`, `limit`) |
+| `POST` | `/api/v1/ppr1001/procesar` | Recibe el archivo `.xlsx` del HIS, calcula los 9 indicadores, guarda el registro histórico en SQL Server y retorna el JSON al frontend. |
+| `GET` | `/api/v1/ppr1001/historico` | Retorna los procesamientos guardados en SQL Server para visualización histórica o auditoría. |

@@ -1,3 +1,3 @@
-from app.infrastructure.models.patient_model import PatientModel
+from app.infrastructure.models.historico_ppr_model import HistoricoPPRModel
 
-__all__ = ["PatientModel"]
+__all__ = ["HistoricoPPRModel"]

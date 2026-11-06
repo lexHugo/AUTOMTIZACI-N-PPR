@@ -2,69 +2,42 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from app.infrastructure.database.session import get_db
-from app.infrastructure.repositories.sqlalchemy_patient_repository import SqlAlchemyPatientRepository
-from app.infrastructure.services.pandas_patient_excel_service import PandasPatientExcelService
-from app.domain.repositories.patient_repository import PatientRepositoryInterface
-from app.application.ports.patient_excel_port import PatientExcelPort
-from app.application.use_cases.create_patient import CreatePatientUseCase
-from app.application.use_cases.get_patient import GetPatientByIdUseCase
-from app.application.use_cases.list_patients import ListPatientsUseCase
-from app.application.use_cases.export_patients_excel import ExportPatientsExcelUseCase
-from app.application.use_cases.import_patients_excel import ImportPatientsExcelUseCase
-from app.application.use_cases.generate_patient_template import GeneratePatientTemplateUseCase
+from app.infrastructure.services.ppr1001 import PPR1001Service
+from app.infrastructure.services.pandas_his_excel_reader import PandasHISExcelReader
+from app.infrastructure.repositories.sqlalchemy_historico_ppr_repository import (
+    SqlAlchemyHistoricoPPRRepository,
+)
+from app.domain.repositories.historico_ppr_repository import HistoricoPPRRepositoryInterface
+from app.application.ports.ppr1001_interface import PPR1001Interface
+from app.application.ports.his_excel_reader_port import HISExcelReaderPort
+from app.application.use_cases.procesar_ppr1001_use_case import ProcesarPPR1001UseCase
 
 
-def get_patient_repository(
-    db: Session = Depends(get_db)
-) -> PatientRepositoryInterface:
-    """Provee la implementación concreta del repositorio de SQL Server."""
-    return SqlAlchemyPatientRepository(db_session=db)
+def get_his_excel_reader() -> HISExcelReaderPort:
+    """Provee el lector y filtro de archivos Excel HIS."""
+    return PandasHISExcelReader()
 
 
-def get_patient_excel_service() -> PatientExcelPort:
-    """Provee el servicio de manipulación de hojas de cálculo con Pandas."""
-    return PandasPatientExcelService()
+def get_ppr1001_service() -> PPR1001Interface:
+    """Provee el servicio de cálculo de actividades operativas e indicadores."""
+    return PPR1001Service()
 
 
-def get_create_patient_use_case(
-    repo: PatientRepositoryInterface = Depends(get_patient_repository),
-) -> CreatePatientUseCase:
-    """Inyecta el caso de uso para crear pacientes."""
-    return CreatePatientUseCase(patient_repository=repo)
+def get_historico_repository(
+    db: Session = Depends(get_db),
+) -> HistoricoPPRRepositoryInterface:
+    """Provee el repositorio de almacenamiento histórico en SQL Server."""
+    return SqlAlchemyHistoricoPPRRepository(db_session=db)
 
 
-def get_patient_by_id_use_case(
-    repo: PatientRepositoryInterface = Depends(get_patient_repository),
-) -> GetPatientByIdUseCase:
-    """Inyecta el caso de uso para consultar pacientes por ID."""
-    return GetPatientByIdUseCase(patient_repository=repo)
-
-
-def get_list_patients_use_case(
-    repo: PatientRepositoryInterface = Depends(get_patient_repository),
-) -> ListPatientsUseCase:
-    """Inyecta el caso de uso para listar pacientes."""
-    return ListPatientsUseCase(patient_repository=repo)
-
-
-def get_export_patients_excel_use_case(
-    repo: PatientRepositoryInterface = Depends(get_patient_repository),
-    excel_service: PatientExcelPort = Depends(get_patient_excel_service),
-) -> ExportPatientsExcelUseCase:
-    """Inyecta el caso de uso para exportar a Excel."""
-    return ExportPatientsExcelUseCase(patient_repository=repo, excel_port=excel_service)
-
-
-def get_import_patients_excel_use_case(
-    repo: PatientRepositoryInterface = Depends(get_patient_repository),
-    excel_service: PatientExcelPort = Depends(get_patient_excel_service),
-) -> ImportPatientsExcelUseCase:
-    """Inyecta el caso de uso para importar desde Excel."""
-    return ImportPatientsExcelUseCase(patient_repository=repo, excel_port=excel_service)
-
-
-def get_generate_patient_template_use_case(
-    excel_service: PatientExcelPort = Depends(get_patient_excel_service),
-) -> GeneratePatientTemplateUseCase:
-    """Inyecta el caso de uso para descargar la plantilla de Excel."""
-    return GeneratePatientTemplateUseCase(excel_port=excel_service)
+def get_procesar_ppr1001_use_case(
+    reader: HISExcelReaderPort = Depends(get_his_excel_reader),
+    calculator: PPR1001Interface = Depends(get_ppr1001_service),
+    repo: HistoricoPPRRepositoryInterface = Depends(get_historico_repository),
+) -> ProcesarPPR1001UseCase:
+    """Inyecta el caso de uso principal para procesar el Excel y calcular indicadores."""
+    return ProcesarPPR1001UseCase(
+        his_reader=reader,
+        ppr_calculator=calculator,
+        historico_repo=repo,
+    )

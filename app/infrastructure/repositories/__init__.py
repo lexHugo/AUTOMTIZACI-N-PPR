@@ -1,3 +1,5 @@
-from app.infrastructure.repositories.sqlalchemy_patient_repository import SqlAlchemyPatientRepository
+from app.infrastructure.repositories.sqlalchemy_historico_ppr_repository import (
+    SqlAlchemyHistoricoPPRRepository,
+)
 
-__all__ = ["SqlAlchemyPatientRepository"]
+__all__ = ["SqlAlchemyHistoricoPPRRepository"]

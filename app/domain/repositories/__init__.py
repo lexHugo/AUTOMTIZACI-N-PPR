@@ -1,3 +1,3 @@
-from app.domain.repositories.patient_repository import PatientRepositoryInterface
+from app.domain.repositories.historico_ppr_repository import HistoricoPPRRepositoryInterface
 
-__all__ = ["PatientRepositoryInterface"]
+__all__ = ["HistoricoPPRRepositoryInterface"]
