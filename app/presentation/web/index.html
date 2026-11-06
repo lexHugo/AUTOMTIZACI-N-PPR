@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PPR 1001 - Pediatría HIS MINSA</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .gradient-bg {
+      background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
+    }
+  </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 flex flex-col font-sans">
+
+  <!-- Header -->
+  <header class="gradient-bg text-white shadow-md">
+    <div class="max-w-6xl mx-auto px-4 py-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div class="flex items-center gap-3">
+        <div class="bg-white/20 p-3 rounded-xl backdrop-blur-sm">
+          <i class="fa-solid fa-hospital-user text-3xl"></i>
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight">PPR 1001: Pediatría & Inmunizaciones</h1>
+          <p class="text-sky-100 text-sm">Monitor de Actividades Operativas - Trama HIS MINSA</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full border border-white/20 text-xs">
+        <span class="w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse"></span>
+        <span>Modo Procesamiento Rápido (En Memoria)</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-6xl mx-auto px-4 py-8 flex-1 w-full space-y-8">
+
+    <!-- Upload Card -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+      <h2 class="text-lg font-bold text-slate-900 mb-1 flex items-center gap-2">
+        <i class="fa-solid fa-file-excel text-emerald-600"></i>
+        Cargar Trama HIS (.xlsx / .xls)
+      </h2>
+      <p class="text-sm text-slate-500 mb-6">
+        Selecciona o arrastra el archivo exportado de HIS MINSA. El sistema filtrará las columnas automáticamente y calculará las 9 actividades operativas.
+      </p>
+
+      <!-- Dropzone -->
+      <div id="dropzone" class="border-2 border-dashed border-slate-300 hover:border-sky-500 hover:bg-sky-50/50 transition-all rounded-xl p-8 text-center cursor-pointer flex flex-col items-center justify-center gap-3">
+        <input type="file" id="fileInput" accept=".xlsx, .xls" class="hidden" />
+        <div class="w-14 h-14 bg-sky-100 text-sky-600 rounded-full flex items-center justify-center text-2xl">
+          <i class="fa-solid fa-cloud-arrow-up"></i>
+        </div>
+        <div>
+          <p class="font-medium text-slate-700" id="fileLabel">Arrastra tu archivo Excel aquí o <span class="text-sky-600 underline">haz clic para examinar</span></p>
+          <p class="text-xs text-slate-400 mt-1">Soporta tramas planas estándar HIS (.xlsx o .xls)</p>
+        </div>
+        <div id="fileInfo" class="hidden text-sm font-semibold text-emerald-700 bg-emerald-50 px-4 py-1.5 rounded-lg border border-emerald-200 items-center gap-2">
+          <i class="fa-solid fa-check"></i> <span id="fileName">archivo.xlsx</span>
+        </div>
+      </div>
+
+      <!-- Action Button -->
+      <div class="mt-6 flex flex-col sm:flex-row justify-end items-center gap-3">
+        <button id="resetBtn" class="hidden px-4 py-2.5 text-sm text-slate-600 hover:text-slate-900 font-medium transition">
+          <i class="fa-solid fa-trash-can mr-1"></i> Limpiar
+        </button>
+        <button id="processBtn" disabled class="w-full sm:w-auto px-6 py-2.5 bg-sky-600 hover:bg-sky-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-medium rounded-xl shadow-sm transition flex items-center justify-center gap-2">
+          <i class="fa-solid fa-calculator"></i>
+          <span>Procesar Indicadores</span>
+        </button>
+      </div>
+
+      <!-- Error / Alert Message -->
+      <div id="alertBox" class="hidden mt-4 p-4 rounded-xl text-sm border flex items-start gap-3"></div>
+    </div>
+
+    <!-- Results Section -->
+    <div id="resultsSection" class="hidden space-y-6">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-200 pb-4">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-chart-pie text-sky-600"></i>
+            Resultados de Actividades Operativas (AO)
+          </h2>
+          <p class="text-xs text-slate-500">Total de atenciones que cumplen con el criterio técnico según norma MINSA</p>
+        </div>
+        <span id="processedTime" class="text-xs bg-slate-100 text-slate-600 px-3 py-1 rounded-full font-mono"></span>
+      </div>
+
+      <!-- Grid de las 9 Actividades Operativas -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+
+        <!-- AO 3325401 -->
+        <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
+          <div class="flex justify-between items-start">
+            <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-200">AO 3325401</span>
+            <i class="fa-solid fa-syringe text-slate-400"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-slate-800 mt-3">Vacunación Niño &lt; 1 Año</h3>
+          <p class="text-xs text-slate-500 mb-4">Pentavalente 3 (CPT 90723/90722, Lab 3)</p>
+          <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
+            <span class="text-3xl font-extrabold text-blue-600 font-mono" id="val_3325401">0</span>
+            <span class="text-xs text-slate-400">niños cumplieron</span>
+          </div>
+        </div>
+
+        <!-- AO 3325402 -->
+        <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
+          <div class="flex justify-between items-start">
+            <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200">AO 3325402</span>
+            <i class="fa-solid fa-shield-virus text-slate-400"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-slate-800 mt-3">Vacunación Niño = 1 Año</h3>
+          <p class="text-xs text-slate-500 mb-4">SPR 1 (CPT 90707, Lab 1, D1, B1)</p>
+          <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
+            <span class="text-3xl font-extrabold text-indigo-600 font-mono" id="val_3325402">0</span>
+            <span class="text-xs text-slate-400">niños cumplieron</span>
+          </div>
+        </div>
+
+        <!-- AO 3325403 -->
+        <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
+          <div class="flex justify-between items-start">
+            <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-purple-50 text-purple-700 border border-purple-200">AO 3325403</span>
+            <i class="fa-solid fa-shield-halved text-slate-400"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-slate-800 mt-3">Vacunación Niño = 4 Años</h3>
+          <p class="text-xs text-slate-500 mb-4">2º Refuerzo DPT (CPT 90701, Lab DA)</p>
+          <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
+            <span class="text-3xl font-extrabold text-purple-600 font-mono" id="val_3325403">0</span>
+            <span class="text-xs text-slate-400">niños cumplieron</span>
+          </div>
+        </div>
+
+        <!-- AO 3325404 -->
+        <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
+          <div class="flex justify-between items-start">
+            <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">AO 3325404</span>
+            <i class="fa-solid fa-baby text-slate-400"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-slate-800 mt-3">Vacunación Recién Nacido</h3>
+          <p class="text-xs text-slate-500 mb-4">BCG + HvB juntos (&le; 28 días de vida)</p>
+          <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
+            <span class="text-3xl font-extrabold text-emerald-600 font-mono" id="val_3325404">0</span>
+            <span class="text-xs text-slate-400">niños cumplieron</span>
+          </div>
+        </div>
+
+        <!-- AO 3325405 -->
+        <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
+          <div class="flex justify-between items-start">
+            <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-amber-50 text-amber-700 border border-amber-200">AO 3325405</span>
+            <i class="fa-solid fa-virus-covid text-slate-400"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-slate-800 mt-3">Vacunación Niño = 2 Años</h3>
+          <p class="text-xs text-slate-500 mb-4">Influenza Pediátrica (CPT 90657)</p>
+          <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
+            <span class="text-3xl font-extrabold text-amber-600 font-mono" id="val_3325405">0</span>
+            <span class="text-xs text-slate-400">niños cumplieron</span>
+          </div>
+        </div>
+
+        <!-- AO 3325406 -->
+        <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
+          <div class="flex justify-between items-start">
+            <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-teal-50 text-teal-700 border border-teal-200">AO 3325406</span>
+            <i class="fa-solid fa-lungs text-slate-400"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-slate-800 mt-3">Vacunación Niño = 3 Años</h3>
+          <p class="text-xs text-slate-500 mb-4">Influenza (CPT 90658 / 90657)</p>
+          <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
+            <span class="text-3xl font-extrabold text-teal-600 font-mono" id="val_3325406">0</span>
+            <span class="text-xs text-slate-400">niños cumplieron</span>
+          </div>
+        </div>
+
+        <!-- AO 3325407 -->
+        <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
+          <div class="flex justify-between items-start">
+            <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-rose-50 text-rose-700 border border-rose-200">AO 3325407</span>
+            <i class="fa-solid fa-ribbon text-slate-400"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-slate-800 mt-3">Niño Madre con VIH</h3>
+          <p class="text-xs text-slate-500 mb-4">Neumococo 3 + Comorbilidad asociada</p>
+          <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
+            <span class="text-3xl font-extrabold text-rose-600 font-mono" id="val_3325407">0</span>
+            <span class="text-xs text-slate-400">niños cumplieron</span>
+          </div>
+        </div>
+
+        <!-- AO 3325408 -->
+        <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
+          <div class="flex justify-between items-start">
+            <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-orange-50 text-orange-700 border border-orange-200">AO 3325408</span>
+            <i class="fa-solid fa-triangle-exclamation text-slate-400"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-slate-800 mt-3">Eventos Adversos (ESAVI)</h3>
+          <p class="text-xs text-slate-500 mb-4">Atención de reacciones post-vacunales</p>
+          <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
+            <span class="text-3xl font-extrabold text-orange-600 font-mono" id="val_3325408">0</span>
+            <span class="text-xs text-slate-400">eventos atendidos</span>
+          </div>
+        </div>
+
+        <!-- AO 3325508 -->
+        <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
+          <div class="flex justify-between items-start">
+            <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-cyan-50 text-cyan-700 border border-cyan-200">AO 3325508</span>
+            <i class="fa-solid fa-clipboard-check text-slate-400"></i>
+          </div>
+          <h3 class="text-sm font-semibold text-slate-800 mt-3">Niño de Alto Riesgo</h3>
+          <p class="text-xs text-slate-500 mb-4">Seguimiento CRED integral (UPS 301202 / 99344)</p>
+          <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
+            <span class="text-3xl font-extrabold text-cyan-600 font-mono" id="val_3325508">0</span>
+            <span class="text-xs text-slate-400">seguimientos</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 py-4 mt-auto">
+    <div class="max-w-6xl mx-auto px-4 text-center text-xs text-slate-400">
+      Programa Presupuestal PPR1001 &bull; Pediatría &bull; Arquitectura Limpia en Python
+    </div>
+  </footer>
+
+  <!-- Script Lógica Frontend -->
+  <script>
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    const fileLabel = document.getElementById('fileLabel');
+    const fileInfo = document.getElementById('fileInfo');
+    const fileName = document.getElementById('fileName');
+    const processBtn = document.getElementById('processBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const alertBox = document.getElementById('alertBox');
+    const resultsSection = document.getElementById('resultsSection');
+    const processedTime = document.getElementById('processedTime');
+
+    let currentFile = null;
+
+    dropzone.addEventListener('click', () => fileInput.click());
+
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('border-sky-500', 'bg-sky-50');
+    });
+
+    dropzone.addEventListener('dragleave', () => {
+      dropzone.classList.remove('border-sky-500', 'bg-sky-50');
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('border-sky-500', 'bg-sky-50');
+      if (e.dataTransfer.files.length) {
+        handleFile(e.dataTransfer.files[0]);
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length) {
+        handleFile(e.target.files[0]);
+      }
+    });
+
+    function handleFile(file) {
+      if (!file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
+        showAlert('Formato inválido. Por favor selecciona un archivo Excel (.xlsx o .xls).', 'error');
+        return;
+      }
+      currentFile = file;
+      fileName.textContent = `${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)`;
+      fileLabel.classList.add('hidden');
+      fileInfo.classList.remove('hidden');
+      fileInfo.classList.add('inline-flex');
+      processBtn.disabled = false;
+      resetBtn.classList.remove('hidden');
+      hideAlert();
+    }
+
+    resetBtn.addEventListener('click', () => {
+      currentFile = null;
+      fileInput.value = '';
+      fileLabel.classList.remove('hidden');
+      fileInfo.classList.add('hidden');
+      fileInfo.classList.remove('inline-flex');
+      processBtn.disabled = true;
+      resetBtn.classList.add('hidden');
+      resultsSection.classList.add('hidden');
+      hideAlert();
+    });
+
+    processBtn.addEventListener('click', async () => {
+      if (!currentFile) return;
+
+      const formData = new FormData();
+      formData.append('file', currentFile);
+
+      processBtn.disabled = true;
+      processBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Procesando...</span>';
+      hideAlert();
+
+      try {
+        const response = await fetch('/api/v1/ppr1001/procesar', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.detail || 'Ocurrió un error al procesar el archivo Excel.');
+        }
+
+        // Mostrar valores en las cards
+        document.getElementById('val_3325401').textContent = data.act_operativa_3325401;
+        document.getElementById('val_3325402').textContent = data.act_operativa_3325402;
+        document.getElementById('val_3325403').textContent = data.act_operativa_3325403;
+        document.getElementById('val_3325404').textContent = data.act_operativa_3325404;
+        document.getElementById('val_3325405').textContent = data.act_operativa_3325405;
+        document.getElementById('val_3325406').textContent = data.act_operativa_3325406;
+        document.getElementById('val_3325407').textContent = data.act_operativa_3325407;
+        document.getElementById('val_3325408').textContent = data.act_operativa_3325408;
+        document.getElementById('val_3325508').textContent = data.act_operativa_3325508;
+
+        processedTime.textContent = `Procesado: ${new Date().toLocaleTimeString()}`;
+        resultsSection.classList.remove('hidden');
+        showAlert('Archivo procesado con éxito. Se calcularon las 9 actividades operativas.', 'success');
+
+        // Scroll suave hacia los resultados
+        resultsSection.scrollIntoView({ behavior: 'smooth' });
+
+      } catch (err) {
+        showAlert(err.message, 'error');
+      } finally {
+        processBtn.disabled = false;
+        processBtn.innerHTML = '<i class="fa-solid fa-calculator"></i> <span>Procesar Indicadores</span>';
+      }
+    });
+
+    function showAlert(message, type) {
+      alertBox.className = 'mt-4 p-4 rounded-xl text-sm border flex items-start gap-3 ';
+      if (type === 'error') {
+        alertBox.className += 'bg-rose-50 border-rose-200 text-rose-800';
+        alertBox.innerHTML = `<i class="fa-solid fa-circle-exclamation text-rose-600 mt-0.5"></i> <div>${message}</div>`;
+      } else {
+        alertBox.className += 'bg-emerald-50 border-emerald-200 text-emerald-800';
+        alertBox.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 mt-0.5"></i> <div>${message}</div>`;
+      }
+      alertBox.classList.remove('hidden');
+    }
+
+    function hideAlert() {
+      alertBox.classList.add('hidden');
+    }
+  </script>
+</body>
+</html>

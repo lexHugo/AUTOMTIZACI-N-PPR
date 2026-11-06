@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, status
-from fastapi.responses import JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse
+from pathlib import Path
 import uvicorn
 
 from app.domain.exceptions.domain_exceptions import (
@@ -8,29 +9,19 @@ from app.domain.exceptions.domain_exceptions import (
     InvalidPPRException,
 )
 from app.infrastructure.config.settings import settings
-from app.infrastructure.database.session import Base, engine
 from app.presentation.api.v1.router import api_v1_router
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """
-    Manejo del ciclo de vida de la aplicación.
-    Intenta crear las tablas si la base de datos está disponible.
-    """
-    try:
-        # Crea las tablas en SQL Server si no existen
-        Base.metadata.create_all(bind=engine)
-        print(">> [Database] Conexión y tablas verificadas con éxito en SQL Server.")
-    except Exception as exc:
-        print(f">> [Database Warning] No se pudo conectar a SQL Server al iniciar: {exc}")
-        print(">> Asegúrate de configurar correctamente el archivo .env con las credenciales de SQL Server.")
+    """Ciclo de vida de la aplicación. Conexión a BD pausada temporalmente."""
+    print(">> [App] Pediatría PPR1001 API iniciada correctamente.")
     yield
 
 
 app = FastAPI(
-    title="Pediatría PPR1001 API - Clean Architecture",
-    description="Backend con Arquitectura Limpia en Python para procesamiento de indicadores PPR1001.",
+    title="Pediatría PPR1001 - Monitor de Actividades Operativas",
+    description="Panel interactivo y API para cálculo de indicadores del programa presupuestal PPR1001 con tramas HIS MINSA.",
     version="1.0.0",
     lifespan=lifespan,
 )
@@ -55,21 +46,23 @@ async def domain_exception_handler(request: Request, exc: DomainException):
 
 
 # -------------------------------------------------------------
-# Registro de Routers
+# Registro de Routers API
 # -------------------------------------------------------------
 app.include_router(api_v1_router, prefix="/api/v1")
 
 
-@app.get("/", tags=["Health"])
-def health_check():
-    return {
-        "status": "online",
-        "service": "Pediatría PPR1001 API",
-        "architecture": "Clean Architecture (Hexagonal)",
-        "database": "Microsoft SQL Server con SQLAlchemy",
-        "presentation": "FastAPI",
-        "docs_url": "/docs",
-    }
+# -------------------------------------------------------------
+# Frontend UI (Servido directamente por FastAPI)
+# -------------------------------------------------------------
+UI_FILE_PATH = Path(__file__).parent / "app" / "presentation" / "web" / "index.html"
+
+
+@app.get("/", response_class=HTMLResponse, tags=["Frontend UI"])
+def serve_ui():
+    """Sirve la interfaz web simple para cargar el Excel y ver los indicadores."""
+    if UI_FILE_PATH.exists():
+        return HTMLResponse(content=UI_FILE_PATH.read_text(encoding="utf-8"))
+    return HTMLResponse(content="<h1>UI en construcción</h1>")
 
 
 if __name__ == "__main__":

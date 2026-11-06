@@ -1,44 +1,67 @@
+import os
 import urllib.parse
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from dotenv import load_dotenv
 
+load_dotenv()
 
-class Settings(BaseSettings):
-    # Base de Datos SQL Server
-    DB_DRIVER: str = "ODBC Driver 17 for SQL Server"
-    DB_SERVER: str = "localhost"
-    DB_PORT: int = 1433
-    DB_NAME: str = "PediatriaDB"
-    DB_USER: str = "sa"
-    DB_PASSWORD: str = "TuPasswordSeguro123!"
-    DB_TRUST_SERVER_CERTIFICATE: str = "yes"
+try:
+    from pydantic_settings import BaseSettings, SettingsConfigDict
 
-    # API FastAPI
-    API_HOST: str = "127.0.0.1"
-    API_PORT: int = 8000
-    API_DEBUG: bool = True
+    class Settings(BaseSettings):
+        DB_DRIVER: str = "ODBC Driver 17 for SQL Server"
+        DB_SERVER: str = "localhost"
+        DB_PORT: int = 1433
+        DB_NAME: str = "PediatriaDB"
+        DB_USER: str = "sa"
+        DB_PASSWORD: str = "TuPasswordSeguro123!"
+        DB_TRUST_SERVER_CERTIFICATE: str = "yes"
+        API_HOST: str = "127.0.0.1"
+        API_PORT: int = 8000
+        API_DEBUG: bool = True
 
-    model_config = SettingsConfigDict(
-        env_file=".env",
-        env_file_encoding="utf-8",
-        extra="ignore"
-    )
-
-    @property
-    def database_url(self) -> str:
-        """
-        Genera la URL de conexión SQLAlchemy con mssql+pyodbc usando connection string ODBC.
-        Este formato es el más confiable y compatible para SQL Server en Windows y Linux.
-        """
-        odbc_str = (
-            f"DRIVER={{{self.DB_DRIVER}}};"
-            f"SERVER={self.DB_SERVER},{self.DB_PORT};"
-            f"DATABASE={self.DB_NAME};"
-            f"UID={self.DB_USER};"
-            f"PWD={self.DB_PASSWORD};"
-            f"TrustServerCertificate={self.DB_TRUST_SERVER_CERTIFICATE};"
+        model_config = SettingsConfigDict(
+            env_file=".env",
+            env_file_encoding="utf-8",
+            extra="ignore"
         )
-        encoded_odbc = urllib.parse.quote_plus(odbc_str)
-        return f"mssql+pyodbc:///?odbc_connect={encoded_odbc}"
 
+        @property
+        def database_url(self) -> str:
+            odbc_str = (
+                f"DRIVER={{{self.DB_DRIVER}}};"
+                f"SERVER={self.DB_SERVER},{self.DB_PORT};"
+                f"DATABASE={self.DB_NAME};"
+                f"UID={self.DB_USER};"
+                f"PWD={self.DB_PASSWORD};"
+                f"TrustServerCertificate={self.DB_TRUST_SERVER_CERTIFICATE};"
+            )
+            return f"mssql+pyodbc:///?odbc_connect={urllib.parse.quote_plus(odbc_str)}"
 
-settings = Settings()
+    settings = Settings()
+
+except ImportError:
+    class Settings:  # type: ignore
+        DB_DRIVER: str = os.getenv("DB_DRIVER", "ODBC Driver 17 for SQL Server")
+        DB_SERVER: str = os.getenv("DB_SERVER", "localhost")
+        DB_PORT: int = int(os.getenv("DB_PORT", "1433"))
+        DB_NAME: str = os.getenv("DB_NAME", "PediatriaDB")
+        DB_USER: str = os.getenv("DB_USER", "sa")
+        DB_PASSWORD: str = os.getenv("DB_PASSWORD", "TuPasswordSeguro123!")
+        DB_TRUST_SERVER_CERTIFICATE: str = os.getenv("DB_TRUST_SERVER_CERTIFICATE", "yes")
+        API_HOST: str = os.getenv("API_HOST", "127.0.0.1")
+        API_PORT: int = int(os.getenv("API_PORT", "8000"))
+        API_DEBUG: bool = os.getenv("API_DEBUG", "True").lower() in ("true", "1")
+
+        @property
+        def database_url(self) -> str:
+            odbc_str = (
+                f"DRIVER={{{self.DB_DRIVER}}};"
+                f"SERVER={self.DB_SERVER},{self.DB_PORT};"
+                f"DATABASE={self.DB_NAME};"
+                f"UID={self.DB_USER};"
+                f"PWD={self.DB_PASSWORD};"
+                f"TrustServerCertificate={self.DB_TRUST_SERVER_CERTIFICATE};"
+            )
+            return f"mssql+pyodbc:///?odbc_connect={urllib.parse.quote_plus(odbc_str)}"
+
+    settings = Settings()

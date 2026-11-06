@@ -1,30 +1,62 @@
 from dataclasses import dataclass
-from datetime import date, datetime
+from datetime import date
+from typing import Optional
+
 
 @dataclass
 class VariablesPPR:
-
+    """
+    Entidad pura del dominio que representa una fila procesada de la trama HIS.
+    """
     Id_cita: str
     Fecha_Atencion: date
     Lote: str
     Id_ups: str
     Edad: int
-    Tipo_Edad: str
+    Tipo_Edad: str  # "A" = Años, "M" = Meses, "D" = Días
     Codigo_Item: str
     Tipo_Diagnostico: str
-    Valor_Lab: str | None = None
-    Correlativo1: int | None = None
-    Correlativo2: int | None = None
-    Correlativo3: int | None = None
-    Lab1: int | None = None
-    Lab2: int | None = None
-    Lab3: int | None = None
-    
-    
+    Valor_Lab: Optional[str] = None
+    Correlativo1: Optional[int] = None
+    Correlativo2: Optional[int] = None
+    Correlativo3: Optional[int] = None
+    Lab1: Optional[int] = None
+    Lab2: Optional[int] = None
+    Lab3: Optional[int] = None
+
     def estandarizar_edad(self) -> int:
-        if self.Tipo_Edad == "A":
+        """Alias para obtener la edad en meses."""
+        return self.edad_en_meses()
+
+    def edad_en_meses(self) -> int:
+        """Retorna la edad calculada en meses completos."""
+        tipo = self.Tipo_Edad.strip().upper() if self.Tipo_Edad else ""
+        if tipo == "A":
             return self.Edad * 12
-        elif self.Tipo_Edad == "M":
+        elif tipo == "M":
             return self.Edad
-        elif self.Tipo_Edad == "D":
+        elif tipo == "D":
             return self.Edad // 30
+        return self.Edad
+
+    def edad_en_dias(self) -> int:
+        """Retorna la edad calculada en días."""
+        tipo = self.Tipo_Edad.strip().upper() if self.Tipo_Edad else ""
+        if tipo == "D":
+            return self.Edad
+        elif tipo == "M":
+            return self.Edad * 30
+        elif tipo == "A":
+            return self.Edad * 365
+        return self.Edad
+
+    def edad_en_anios(self) -> int:
+        """Retorna la edad calculada en años completos."""
+        tipo = self.Tipo_Edad.strip().upper() if self.Tipo_Edad else ""
+        if tipo == "A":
+            return self.Edad
+        elif tipo == "M":
+            return self.Edad // 12
+        elif tipo == "D":
+            return self.Edad // 365
+        return self.Edad

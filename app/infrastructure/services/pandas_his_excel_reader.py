@@ -19,7 +19,7 @@ class PandasHISExcelReader(HISExcelReaderPort):
         "Id_cita": ["id_cita", "idcita"],
         "Fecha_Atencion": ["fecha_atencion", "f_atencion"],
         "Lote": ["lote"],
-        "Id_ups": ["id_ups", "idups"],
+        "Id_ups": ["id_ups", "idups", "ups"],
         "Edad": ["edad_reg", "edad"],
         "Tipo_Edad": ["tipo_edad"],
         "Codigo_Item": ["codigo_item", "codigoitem", "item"],
@@ -43,6 +43,9 @@ class PandasHISExcelReader(HISExcelReaderPort):
         "Codigo_Item",
         "Tipo_Diagnostico",
     ]
+
+    # Filtro de UPS pediátricas: 301204 (Inmunizaciones) y 301202 (CRED)
+    UPS_PERMITIDAS = {"301204", "301202"}
 
     def read_his_excel(self, file_content: bytes) -> List[VariablesPPR]:
         """
@@ -106,7 +109,22 @@ class PandasHISExcelReader(HISExcelReaderPort):
         col_to_field = {original_col: field for field, original_col in fields_to_excel_col.items()}
         df.rename(columns=col_to_field, inplace=True)
 
-        # 5. Normalizar Fechas
+        # 5. Filtrar de inmediato en Pandas solo las UPS pediátricas: 301204 (Inmunizaciones) y 301202 (CRED)
+        def normalizar_ups(val: Any) -> str:
+            if pd.isna(val) or val is None:
+                return ""
+            s = str(val).strip()
+            if s.endswith(".0"):
+                s = s[:-2]
+            return s
+
+        df["Id_ups"] = df["Id_ups"].apply(normalizar_ups)
+        df = df[df["Id_ups"].isin(self.UPS_PERMITIDAS)]
+
+        if df.empty:
+            return []
+
+        # 6. Normalizar Fechas
         df["Fecha_Atencion"] = pd.to_datetime(df["Fecha_Atencion"], errors="coerce")
 
         # 6. Construir entidades VariablesPPR
