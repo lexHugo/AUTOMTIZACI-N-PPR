@@ -7,6 +7,7 @@ from typing import Optional
 class VariablesPPR:
     """
     Entidad pura del dominio que representa una fila procesada de la trama HIS.
+    Cada instancia corresponde a un ítem/diagnóstico registrado en una atención médica.
     """
     Id_cita: str
     Fecha_Atencion: date
@@ -17,12 +18,8 @@ class VariablesPPR:
     Codigo_Item: str
     Tipo_Diagnostico: str
     Valor_Lab: Optional[str] = None
-    Correlativo1: Optional[int] = None
-    Correlativo2: Optional[int] = None
-    Correlativo3: Optional[int] = None
-    Lab1: Optional[int] = None
-    Lab2: Optional[int] = None
-    Lab3: Optional[int] = None
+    Id_Correlativo: Optional[int] = None      # Posición correlativa del ítem/diagnóstico (1, 2, ..., 7...)
+    Id_Correlativo_Lab: Optional[int] = None  # Posición correlativa del laboratorio (1, 2, 3...)
 
     def estandarizar_edad(self) -> int:
         """Alias para obtener la edad en meses."""

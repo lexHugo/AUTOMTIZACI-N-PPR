@@ -25,12 +25,8 @@ class PandasHISExcelReader(HISExcelReaderPort):
         "Codigo_Item": ["codigo_item", "codigoitem", "item"],
         "Tipo_Diagnostico": ["tipo_diagnostico", "tipodiagnostico"],
         "Valor_Lab": ["valor_lab", "valorlab"],
-        "Correlativo1": ["correlativo1", "id_correlativo", "idcorrelativo"],
-        "Correlativo2": ["correlativo2"],
-        "Correlativo3": ["correlativo3"],
-        "Lab1": ["lab1", "id_correlativo_lab", "idcorrelativolab"],
-        "Lab2": ["lab2"],
-        "Lab3": ["lab3"],
+        "Id_Correlativo": ["id_correlativo", "idcorrelativo", "correlativo"],
+        "Id_Correlativo_Lab": ["id_correlativo_lab", "idcorrelativolab", "correlativo_lab", "correlativolab"],
     }
 
     REQUIRED_FIELDS = [
@@ -91,6 +87,8 @@ class PandasHISExcelReader(HISExcelReaderPort):
             fields_to_excel_col["Tipo_Diagnostico"]: str,
             fields_to_excel_col["Tipo_Edad"]: str,
         }
+        if "Valor_Lab" in fields_to_excel_col:
+            dtype_spec[fields_to_excel_col["Valor_Lab"]] = str
 
         try:
             df = pd.read_excel(
@@ -153,7 +151,17 @@ class PandasHISExcelReader(HISExcelReaderPort):
             def clean_optional_str(val: Any) -> Optional[str]:
                 if pd.isna(val) or val is None or str(val).strip() == "":
                     return None
-                return str(val).strip()
+                s = str(val).strip()
+                if isinstance(val, float) and val.is_integer():
+                    return str(int(val))
+                if s.endswith(".0"):
+                    try:
+                        f = float(s)
+                        if f.is_integer():
+                            return str(int(f))
+                    except ValueError:
+                        pass
+                return s
 
             def clean_optional_int(val: Any) -> Optional[int]:
                 if pd.isna(val) or val is None or str(val).strip() == "":
@@ -179,12 +187,8 @@ class PandasHISExcelReader(HISExcelReaderPort):
                 Codigo_Item=clean_str(row["Codigo_Item"]),
                 Tipo_Diagnostico=clean_str(row["Tipo_Diagnostico"]),
                 Valor_Lab=clean_optional_str(row.get("Valor_Lab")),
-                Correlativo1=clean_optional_int(row.get("Correlativo1")),
-                Correlativo2=clean_optional_int(row.get("Correlativo2")),
-                Correlativo3=clean_optional_int(row.get("Correlativo3")),
-                Lab1=clean_optional_int(row.get("Lab1")),
-                Lab2=clean_optional_int(row.get("Lab2")),
-                Lab3=clean_optional_int(row.get("Lab3")),
+                Id_Correlativo=clean_optional_int(row.get("Id_Correlativo")),
+                Id_Correlativo_Lab=clean_optional_int(row.get("Id_Correlativo_Lab")),
             )
             entities.append(entity)
 
