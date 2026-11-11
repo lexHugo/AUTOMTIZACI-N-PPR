@@ -40,8 +40,8 @@ class PandasHISExcelReader(HISExcelReaderPort):
         "Tipo_Diagnostico",
     ]
 
-    # Filtro de UPS pediátricas: 301204 (Inmunizaciones) y 301202 (CRED)
-    UPS_PERMITIDAS = {"301204", "301202"}
+    # Filtro de UPS pediátricas: 301204 (Inmunizaciones), 301202 (CRED) y 303712 (Pediatría)
+    UPS_PERMITIDAS = {"301204", "301202", "303712"}
 
     def read_his_excel(self, file_content: bytes) -> List[VariablesPPR]:
         """
@@ -191,5 +191,22 @@ class PandasHISExcelReader(HISExcelReaderPort):
                 Id_Correlativo_Lab=clean_optional_int(row.get("Id_Correlativo_Lab")),
             )
             entities.append(entity)
+
+        # Salida por terminal: Muestra las primeras entidades pobladas para inspección
+        print("\n" + "=" * 105)
+        print(f"📋 [HIS MINSA - INSPECCIÓN DE POBLADO] Total entidades generadas: {len(entities)}")
+        print(f"👉 Mostrando las primeras {min(20, len(entities))} filas cargadas en VariablesPPR:")
+        print("-" * 105)
+        header = f"{'#':<3} | {'Id_Cita':<12} | {'Fecha':<10} | {'UPS':<6} | {'Edad':<4} | {'T.E':<3} | {'Item':<7} | {'Dx':<2} | {'Valor_Lab':<9} | {'Corr':<4} | {'Corr_Lab':<8}"
+        print(header)
+        print("-" * 105)
+        for i, e in enumerate(entities[:20], start=1):
+            f_str = e.Fecha_Atencion.strftime("%Y-%m-%d") if hasattr(e.Fecha_Atencion, "strftime") else str(e.Fecha_Atencion)
+            v_lab = str(e.Valor_Lab) if e.Valor_Lab is not None else "-"
+            c_diag = str(e.Id_Correlativo) if e.Id_Correlativo is not None else "-"
+            c_lab = str(e.Id_Correlativo_Lab) if e.Id_Correlativo_Lab is not None else "-"
+            row_str = f"{i:<3} | {e.Id_cita:<12} | {f_str:<10} | {e.Id_ups:<6} | {e.Edad:<4} | {e.Tipo_Edad:<3} | {e.Codigo_Item:<7} | {e.Tipo_Diagnostico:<2} | {v_lab:<9} | {c_diag:<4} | {c_lab:<8}"
+            print(row_str)
+        print("=" * 105 + "\n")
 
         return entities

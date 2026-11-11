@@ -27,33 +27,45 @@ class VariablesPPR:
 
     def edad_en_meses(self) -> int:
         """Retorna la edad calculada en meses completos."""
+        try:
+            edad_num = int(self.Edad)
+        except (ValueError, TypeError):
+            return 0
         tipo = self.Tipo_Edad.strip().upper() if self.Tipo_Edad else ""
         if tipo == "A":
-            return self.Edad * 12
+            return edad_num * 12
         elif tipo == "M":
-            return self.Edad
+            return edad_num
         elif tipo == "D":
-            return self.Edad // 30
-        return self.Edad
+            return edad_num // 30
+        return edad_num
 
     def edad_en_dias(self) -> int:
         """Retorna la edad calculada en días."""
+        try:
+            edad_num = int(self.Edad)
+        except (ValueError, TypeError):
+            return 0
         tipo = self.Tipo_Edad.strip().upper() if self.Tipo_Edad else ""
         if tipo == "D":
-            return self.Edad
+            return edad_num
         elif tipo == "M":
-            return self.Edad * 30
+            return edad_num * 30
         elif tipo == "A":
-            return self.Edad * 365
-        return self.Edad
+            return edad_num * 365
+        return edad_num
 
     def edad_en_anios(self) -> int:
         """Retorna la edad calculada en años completos."""
+        try:
+            edad_num = int(self.Edad)
+        except (ValueError, TypeError):
+            return 0
         tipo = self.Tipo_Edad.strip().upper() if self.Tipo_Edad else ""
         if tipo == "A":
-            return self.Edad
+            return edad_num
         elif tipo == "M":
-            return self.Edad // 12
+            return edad_num // 12
         elif tipo == "D":
-            return self.Edad // 365
-        return self.Edad
+            return edad_num // 365
+        return edad_num

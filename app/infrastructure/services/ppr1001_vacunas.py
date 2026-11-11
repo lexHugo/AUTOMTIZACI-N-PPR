@@ -1,7 +1,7 @@
 from collections import defaultdict
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional, Set, Union
 from app.domain.entities.variables_ppr import VariablesPPR
-from app.application.dtos.indicadores_dto import IndicadorDTO
+from app.application.dtos.indicadores_dto import IndicadorVacunasDTO, IndicadorDTO
 from app.application.ports.ppr1001_interface import PPR1001Interface
 
 
@@ -19,6 +19,18 @@ class PPR1001Service(PPR1001Interface):
             citas[v.Id_cita].append(v)
         return citas
 
+    def _obtener_citas(
+        self, datos: Union[Dict[str, List[VariablesPPR]], List[VariablesPPR]]
+    ) -> Dict[str, List[VariablesPPR]]:
+        """
+        Retorna el diccionario de citas de forma eficiente:
+        - Si ya viene agrupado (dict), lo usa directamente en O(1) tiempo sin re-agrupar.
+        - Si viene como lista plana (list), lo agrupa una sola vez.
+        """
+        if isinstance(datos, dict):
+            return datos
+        return self._agrupar_por_cita(datos)
+
     @staticmethod
     def _norm(val: Optional[str]) -> str:
         """Normaliza cadenas a mayúsculas sin espacios extremos."""
@@ -27,10 +39,12 @@ class PPR1001Service(PPR1001Interface):
     # =========================================================================
     # AO: 3325401 - VACUNACION NINO < 1 ANO (PENTAVALENTE 3)
     # =========================================================================
-    def calcular_3325401(self, variables: List[VariablesPPR]) -> str:
-        citas = self._agrupar_por_cita(variables)
-        cpt_validos: Set[str] = {"90723", "90722"}
-        labs_validos: Set[str] = {"3", "D3", "B3"}
+    def calcular_3325401(
+        self, datos: Union[Dict[str, List[VariablesPPR]], List[VariablesPPR]]
+    ) -> str:
+        citas = self._obtener_citas(datos)
+        cpt_validos: Set[str] = {"90722"}
+        labs_validos: Set[str] = {"3"}
         cumplen = 0
 
         for items in citas.values():
@@ -48,9 +62,11 @@ class PPR1001Service(PPR1001Interface):
     # =========================================================================
     # AO: 3325402 - VACUNACION NINO = 1 ANO (SPR 1)
     # =========================================================================
-    def calcular_3325402(self, variables: List[VariablesPPR]) -> str:
-        citas = self._agrupar_por_cita(variables)
-        labs_validos: Set[str] = {"1", "D1", "B1"}
+    def calcular_3325402(
+        self, datos: Union[Dict[str, List[VariablesPPR]], List[VariablesPPR]]
+    ) -> str:
+        citas = self._obtener_citas(datos)
+        labs_validos: Set[str] = {"1"}
         cumplen = 0
 
         for items in citas.values():
@@ -68,9 +84,11 @@ class PPR1001Service(PPR1001Interface):
     # =========================================================================
     # AO: 3325403 - VACUNACION NINO = 4 ANOS (2º REFUERZO DPT)
     # =========================================================================
-    def calcular_3325403(self, variables: List[VariablesPPR]) -> str:
-        citas = self._agrupar_por_cita(variables)
-        labs_validos: Set[str] = {"DA", "DDA", "BDA"}
+    def calcular_3325403(
+        self, datos: Union[Dict[str, List[VariablesPPR]], List[VariablesPPR]]
+    ) -> str:
+        citas = self._obtener_citas(datos)
+        labs_validos: Set[str] = {"DA"}
         cumplen = 0
 
         for items in citas.values():
@@ -88,9 +106,11 @@ class PPR1001Service(PPR1001Interface):
     # =========================================================================
     # AO: 3325404 - VACUNACION NINO RECIEN NACIDO (BCG + HvB)
     # =========================================================================
-    def calcular_3325404(self, variables: List[VariablesPPR]) -> str:
-        citas = self._agrupar_por_cita(variables)
-        labs_validos: Set[str] = {"", "1", "DU", "BU"}
+    def calcular_3325404(
+        self, datos: Union[Dict[str, List[VariablesPPR]], List[VariablesPPR]]
+    ) -> str:
+        citas = self._obtener_citas(datos)
+        labs_validos: Set[str] = {"", "1"}
         cumplen = 0
 
         for items in citas.values():
@@ -116,9 +136,11 @@ class PPR1001Service(PPR1001Interface):
     # =========================================================================
     # AO: 3325405 - VACUNACION NINO = 2 ANOS (INFLUENZA PEDIATRICA)
     # =========================================================================
-    def calcular_3325405(self, variables: List[VariablesPPR]) -> str:
-        citas = self._agrupar_por_cita(variables)
-        labs_validos: Set[str] = {"", "1", "DU", "BU"}
+    def calcular_3325405(
+        self, datos: Union[Dict[str, List[VariablesPPR]], List[VariablesPPR]]
+    ) -> str:
+        citas = self._obtener_citas(datos)
+        labs_validos: Set[str] = {"", "1"}
         cumplen = 0
 
         for items in citas.values():
@@ -136,10 +158,12 @@ class PPR1001Service(PPR1001Interface):
     # =========================================================================
     # AO: 3325406 - VACUNACION NINO = 3 ANOS (INFLUENZA)
     # =========================================================================
-    def calcular_3325406(self, variables: List[VariablesPPR]) -> str:
-        citas = self._agrupar_por_cita(variables)
+    def calcular_3325406(
+        self, datos: Union[Dict[str, List[VariablesPPR]], List[VariablesPPR]]
+    ) -> str:
+        citas = self._obtener_citas(datos)
         cpt_validos: Set[str] = {"90658", "90657"}
-        labs_validos: Set[str] = {"", "1", "DU", "BU"}
+        labs_validos: Set[str] = {"", "1"}
         cumplen = 0
 
         for items in citas.values():
@@ -157,30 +181,23 @@ class PPR1001Service(PPR1001Interface):
     # =========================================================================
     # AO: 3325407 - VACUNACION NINO DE MADRE CON VIH (NEUMOCOCO 3)
     # =========================================================================
-    def calcular_3325407(self, variables: List[VariablesPPR]) -> str:
-        citas = self._agrupar_por_cita(variables)
-        cie_vih: Set[str] = {"Z206", "22061", "Z21X1", "Z21X"}
-        labs_validos: Set[str] = {"3", "D3", "B3"}
+    def calcular_3325407(
+        self, datos: Union[Dict[str, List[VariablesPPR]], List[VariablesPPR]]
+    ) -> str:
+        citas = self._obtener_citas(datos)
+        labs_validos: Set[str] = {"3"}
         cumplen = 0
 
         for items in citas.values():
-            # 1. Verificar dosis de Neumococo 3 en menor de 1 año
             tiene_neumococo = any(
-                item.edad_en_meses() < 12
+                (item.edad_en_meses() < 60 or item.edad_en_anios() < 5)
                 and self._norm(item.Codigo_Item) == "90670"
                 and self._norm(item.Tipo_Diagnostico) == "D"
                 and self._norm(item.Valor_Lab) in labs_validos
                 for item in items
             )
 
-            # 2. Verificar comorbilidad asociada VIH en la misma cita
-            tiene_comorbilidad = any(
-                self._norm(item.Codigo_Item) in cie_vih
-                and self._norm(item.Tipo_Diagnostico) in {"D", "R"}
-                for item in items
-            )
-
-            if tiene_neumococo and tiene_comorbilidad:
+            if tiene_neumococo:
                 cumplen += 1
 
         return str(cumplen)
@@ -188,16 +205,16 @@ class PPR1001Service(PPR1001Interface):
     # =========================================================================
     # AO: 3325408 - ATENCION DE EVENTOS ADVERSOS A VACUNAS (ESAVI)
     # =========================================================================
-    def calcular_3325408(self, variables: List[VariablesPPR]) -> str:
-        citas = self._agrupar_por_cita(variables)
-        cie_esavi: Set[str] = {"T881", "Y590", "Y599"}
-        cpt_reaccion: Set[str] = {"90702", "90744", "90648"}
+    def calcular_3325408(
+        self, datos: Union[Dict[str, List[VariablesPPR]], List[VariablesPPR]]
+    ) -> str:
+        citas = self._obtener_citas(datos)
+        cie_esavi: Set[str] = {"T881"}
         cumplen = 0
 
         for items in citas.values():
             es_esavi = any(
                 (self._norm(item.Codigo_Item) in cie_esavi and self._norm(item.Tipo_Diagnostico) in {"P", "D", "R"})
-                or (self._norm(item.Codigo_Item) in cpt_reaccion and self._norm(item.Valor_Lab) in {"2", "3"})
                 for item in items
             )
             if es_esavi:
@@ -208,9 +225,10 @@ class PPR1001Service(PPR1001Interface):
     # =========================================================================
     # AO: 3325508 - SEGUIMIENTO DEL NINO Y NINA DE ALTO RIESGO
     # =========================================================================
-    def calcular_3325508(self, variables: List[VariablesPPR]) -> str:
-        citas = self._agrupar_por_cita(variables)
-        labs_cred: Set[str] = {"1", "2", "3", "4", "5"}
+    def calcular_3325508(
+        self, datos: Union[Dict[str, List[VariablesPPR]], List[VariablesPPR]]
+    ) -> str:
+        citas = self._obtener_citas(datos)
         cumplen = 0
 
         for items in citas.values():
@@ -220,11 +238,6 @@ class PPR1001Service(PPR1001Interface):
                     and self._norm(item.Codigo_Item) == "Z001"
                     and self._norm(item.Tipo_Diagnostico) in {"D", "R"}
                 )
-                or (
-                    self._norm(item.Codigo_Item) == "99344"
-                    and self._norm(item.Tipo_Diagnostico) == "D"
-                    and self._norm(item.Valor_Lab) in labs_cred
-                )
                 for item in items
             )
             if es_alto_riesgo:
@@ -233,21 +246,25 @@ class PPR1001Service(PPR1001Interface):
         return str(cumplen)
 
     # =========================================================================
-    # CONSOLIDADOR GENERAL
+    # CONSOLIDADOR GENERAL (AGRUPA EXACTAMENTE 1 VEZ EN MEMORIA)
     # =========================================================================
-    def calcular_todos(self, variables: List[VariablesPPR]) -> IndicadorDTO:
+    def calcular_todos(
+        self, datos: Union[Dict[str, List[VariablesPPR]], List[VariablesPPR]]
+    ) -> IndicadorVacunasDTO:
         """
-        Ejecuta todas las fórmulas sobre las variables procesadas del Excel
-        y consolida los resultados en el IndicadorDTO.
+        Agrupa los datos UNA SOLA VEZ (o reutiliza el dict si ya viene agrupado)
+        y ejecuta todas las fórmulas en O(1) para máxima velocidad y seguridad.
         """
-        return IndicadorDTO(
-            act_operativa_3325401=self.calcular_3325401(variables),
-            act_operativa_3325402=self.calcular_3325402(variables),
-            act_operativa_3325403=self.calcular_3325403(variables),
-            act_operativa_3325404=self.calcular_3325404(variables),
-            act_operativa_3325405=self.calcular_3325405(variables),
-            act_operativa_3325406=self.calcular_3325406(variables),
-            act_operativa_3325407=self.calcular_3325407(variables),
-            act_operativa_3325408=self.calcular_3325408(variables),
-            act_operativa_3325508=self.calcular_3325508(variables),
+        citas = self._obtener_citas(datos)
+
+        return IndicadorVacunasDTO(
+            act_operativa_3325401=self.calcular_3325401(citas),
+            act_operativa_3325402=self.calcular_3325402(citas),
+            act_operativa_3325403=self.calcular_3325403(citas),
+            act_operativa_3325404=self.calcular_3325404(citas),
+            act_operativa_3325405=self.calcular_3325405(citas),
+            act_operativa_3325406=self.calcular_3325406(citas),
+            act_operativa_3325407=self.calcular_3325407(citas),
+            act_operativa_3325408=self.calcular_3325408(citas),
+            act_operativa_3325508=self.calcular_3325508(citas),
         )

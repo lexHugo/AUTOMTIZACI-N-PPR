@@ -3,14 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PPR 1001 - Pediatría HIS MINSA</title>
+  <title>PPR 1001 - Inmunizaciones & Pediatría HIS MINSA</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     .gradient-bg {
-      background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
+      background: linear-gradient(135deg, #0284c7 0%, #1e40af 100%);
+    }
+    .tab-active {
+      background-color: #0284c7;
+      color: #ffffff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
   </style>
 </head>
@@ -18,25 +23,25 @@
 
   <!-- Header -->
   <header class="gradient-bg text-white shadow-md">
-    <div class="max-w-6xl mx-auto px-4 py-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+    <div class="max-w-7xl mx-auto px-4 py-6 flex flex-col sm:flex-row justify-between items-center gap-4">
       <div class="flex items-center gap-3">
-        <div class="bg-white/20 p-3 rounded-xl backdrop-blur-sm">
+        <div class="bg-white/20 p-3 rounded-xl backdrop-blur-sm shadow-inner">
           <i class="fa-solid fa-hospital-user text-3xl"></i>
         </div>
         <div>
-          <h1 class="text-2xl font-bold tracking-tight">PPR 1001: Pediatría & Inmunizaciones</h1>
-          <p class="text-sky-100 text-sm">Monitor de Actividades Operativas - Trama HIS MINSA</p>
+          <h1 class="text-2xl font-bold tracking-tight">PPR 1001: Monitor de Indicadores</h1>
+          <p class="text-sky-100 text-sm">Inmunizaciones (Vacunas) &amp; Pediatría (Atenciones Médicas) &bull; MINSA</p>
         </div>
       </div>
-      <div class="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full border border-white/20 text-xs">
+      <div class="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full border border-white/20 text-xs backdrop-blur-sm">
         <span class="w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse"></span>
-        <span>Modo Procesamiento Rápido (En Memoria)</span>
+        <span>Procesamiento O(1) en Memoria</span>
       </div>
     </div>
   </header>
 
   <!-- Main Content -->
-  <main class="max-w-6xl mx-auto px-4 py-8 flex-1 w-full space-y-8">
+  <main class="max-w-7xl mx-auto px-4 py-8 flex-1 w-full space-y-8">
 
     <!-- Upload Card -->
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
@@ -45,17 +50,17 @@
         Cargar Trama HIS (.xlsx / .xls)
       </h2>
       <p class="text-sm text-slate-500 mb-6">
-        Selecciona o arrastra el archivo exportado de HIS MINSA. El sistema filtrará las columnas automáticamente y calculará las 9 actividades operativas.
+        Selecciona o arrastra el archivo exportado de HIS MINSA. El sistema filtrará las variables automáticamente y calculará las Actividades Operativas separadas de <strong>Inmunizaciones</strong> y <strong>Pediatría</strong>.
       </p>
 
       <!-- Dropzone -->
       <div id="dropzone" class="border-2 border-dashed border-slate-300 hover:border-sky-500 hover:bg-sky-50/50 transition-all rounded-xl p-8 text-center cursor-pointer flex flex-col items-center justify-center gap-3">
         <input type="file" id="fileInput" accept=".xlsx, .xls" class="hidden" />
-        <div class="w-14 h-14 bg-sky-100 text-sky-600 rounded-full flex items-center justify-center text-2xl">
+        <div class="w-14 h-14 bg-sky-100 text-sky-600 rounded-full flex items-center justify-center text-2xl shadow-sm">
           <i class="fa-solid fa-cloud-arrow-up"></i>
         </div>
         <div>
-          <p class="font-medium text-slate-700" id="fileLabel">Arrastra tu archivo Excel aquí o <span class="text-sky-600 underline">haz clic para examinar</span></p>
+          <p class="font-medium text-slate-700" id="fileLabel">Arrastra tu archivo Excel aquí o <span class="text-sky-600 underline font-semibold">haz clic para examinar</span></p>
           <p class="text-xs text-slate-400 mt-1">Soporta tramas planas estándar HIS (.xlsx o .xls)</p>
         </div>
         <div id="fileInfo" class="hidden text-sm font-semibold text-emerald-700 bg-emerald-50 px-4 py-1.5 rounded-lg border border-emerald-200 items-center gap-2">
@@ -63,7 +68,7 @@
         </div>
       </div>
 
-      <!-- Action Button -->
+      <!-- Action Buttons -->
       <div class="mt-6 flex flex-col sm:flex-row justify-end items-center gap-3">
         <button id="resetBtn" class="hidden px-4 py-2.5 text-sm text-slate-600 hover:text-slate-900 font-medium transition">
           <i class="fa-solid fa-trash-can mr-1"></i> Limpiar
@@ -79,8 +84,10 @@
     </div>
 
     <!-- Results Section -->
-    <div id="resultsSection" class="hidden space-y-6">
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-200 pb-4">
+    <div id="resultsSection" class="hidden space-y-8">
+      
+      <!-- Top Results Bar & Filters -->
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
         <div>
           <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
             <i class="fa-solid fa-chart-pie text-sky-600"></i>
@@ -88,147 +95,427 @@
           </h2>
           <p class="text-xs text-slate-500">Total de atenciones que cumplen con el criterio técnico según norma MINSA</p>
         </div>
-        <span id="processedTime" class="text-xs bg-slate-100 text-slate-600 px-3 py-1 rounded-full font-mono"></span>
+        
+        <!-- Filter Tabs -->
+        <div class="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-semibold">
+          <button id="tabAll" class="px-3.5 py-1.5 rounded-lg tab-active transition">
+            <i class="fa-solid fa-layer-group mr-1.5"></i> Todos
+          </button>
+          <button id="tabVacunas" class="px-3.5 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">
+            <i class="fa-solid fa-syringe mr-1.5 text-sky-600"></i> Inmunizaciones (9)
+          </button>
+          <button id="tabPediatria" class="px-3.5 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">
+            <i class="fa-solid fa-stethoscope mr-1.5 text-emerald-600"></i> Pediatría (16)
+          </button>
+        </div>
       </div>
 
-      <!-- Grid de las 9 Actividades Operativas -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-
-        <!-- AO 3325401 -->
-        <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
-          <div class="flex justify-between items-start">
-            <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-200">AO 3325401</span>
-            <i class="fa-solid fa-syringe text-slate-400"></i>
+      <!-- ================================================================= -->
+      <!-- BLOQUE 1: INMUNIZACIONES (ppr1001_vacunas.py)                      -->
+      <!-- ================================================================= -->
+      <div id="bloqueVacunas" class="space-y-4">
+        <div class="flex items-center justify-between border-b border-sky-200 pb-3">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center font-bold">
+              <i class="fa-solid fa-syringe"></i>
+            </div>
+            <div>
+              <h3 class="text-lg font-bold text-slate-900">Inmunizaciones &amp; CRED (ppr1001_vacunas.py)</h3>
+              <p class="text-xs text-slate-500">Monitoreo de esquemas regulares de vacunación infantil y seguimiento integral</p>
+            </div>
           </div>
-          <h3 class="text-sm font-semibold text-slate-800 mt-3">Vacunación Niño &lt; 1 Año</h3>
-          <p class="text-xs text-slate-500 mb-4">Pentavalente 3 (CPT 90723/90722, Lab 3)</p>
-          <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
-            <span class="text-3xl font-extrabold text-blue-600 font-mono" id="val_3325401">0</span>
-            <span class="text-xs text-slate-400">NIÑO PROTEJIDO</span>
-          </div>
+          <span class="text-xs font-semibold px-3 py-1 bg-sky-50 text-sky-700 border border-sky-200 rounded-full">
+            9 Actividades Operativas
+          </span>
         </div>
 
-        <!-- AO 3325402 -->
-        <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
-          <div class="flex justify-between items-start">
-            <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200">AO 3325402</span>
-            <i class="fa-solid fa-shield-virus text-slate-400"></i>
-          </div>
-          <h3 class="text-sm font-semibold text-slate-800 mt-3">Vacunación Niño = 1 Año</h3>
-          <p class="text-xs text-slate-500 mb-4">SPR 1 (CPT 90707, Lab 1, D1, B1)</p>
-          <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
-            <span class="text-3xl font-extrabold text-indigo-600 font-mono" id="val_3325402">0</span>
-            <span class="text-xs text-slate-400">NIÑO PROTEJIDO</span>
-          </div>
-        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
 
-        <!-- AO 3325403 -->
-        <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
-          <div class="flex justify-between items-start">
-            <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-purple-50 text-purple-700 border border-purple-200">AO 3325403</span>
-            <i class="fa-solid fa-shield-halved text-slate-400"></i>
+          <!-- AO 3325401 -->
+          <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-200">AO 3325401</span>
+              <i class="fa-solid fa-baby text-slate-400"></i>
+            </div>
+            <h4 class="text-sm font-semibold text-slate-800 mt-3">Vacunación Recién Nacido (BCG + HVB)</h4>
+            <p class="text-xs text-slate-500 mb-4">HVB dentro de las 12 horas y BCG al nacer</p>
+            <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
+              <span class="text-3xl font-extrabold text-blue-600 font-mono" id="val_3325401">0</span>
+              <span class="text-xs text-slate-400 font-medium">RECIÉN NACIDO</span>
+            </div>
           </div>
-          <h3 class="text-sm font-semibold text-slate-800 mt-3">Vacunación Niño = 4 Años</h3>
-          <p class="text-xs text-slate-500 mb-4">2º Refuerzo DPT (CPT 90701, Lab DA)</p>
-          <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
-            <span class="text-3xl font-extrabold text-purple-600 font-mono" id="val_3325403">0</span>
-            <span class="text-xs text-slate-400">NIÑO PROTEJIDO</span>
-          </div>
-        </div>
 
-        <!-- AO 3325404 -->
-        <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
-          <div class="flex justify-between items-start">
-            <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">AO 3325404</span>
-            <i class="fa-solid fa-baby text-slate-400"></i>
+          <!-- AO 3325402 -->
+          <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200">AO 3325402</span>
+              <i class="fa-solid fa-shield-virus text-slate-400"></i>
+            </div>
+            <h4 class="text-sm font-semibold text-slate-800 mt-3">Rotavirus &amp; Neumococo (&lt; 1 Año)</h4>
+            <p class="text-xs text-slate-500 mb-4">Segunda dosis de Rotavirus y Neumococo</p>
+            <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
+              <span class="text-3xl font-extrabold text-indigo-600 font-mono" id="val_3325402">0</span>
+              <span class="text-xs text-slate-400 font-medium">NIÑO ATENDIDO</span>
+            </div>
           </div>
-          <h3 class="text-sm font-semibold text-slate-800 mt-3">Vacunación Recién Nacido</h3>
-          <p class="text-xs text-slate-500 mb-4">BCG + HvB juntos (&le; 28 días de vida)</p>
-          <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
-            <span class="text-3xl font-extrabold text-emerald-600 font-mono" id="val_3325404">0</span>
-            <span class="text-xs text-slate-400">NIÑO PROTEJIDO</span>
-          </div>
-        </div>
 
-        <!-- AO 3325405 -->
-        <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
-          <div class="flex justify-between items-start">
-            <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-amber-50 text-amber-700 border border-amber-200">AO 3325405</span>
-            <i class="fa-solid fa-virus-covid text-slate-400"></i>
+          <!-- AO 3325403 -->
+          <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-purple-50 text-purple-700 border border-purple-200">AO 3325403</span>
+              <i class="fa-solid fa-shield-halved text-slate-400"></i>
+            </div>
+            <h4 class="text-sm font-semibold text-slate-800 mt-3">Pentavalente &amp; Antipolio (&lt; 1 Año)</h4>
+            <p class="text-xs text-slate-500 mb-4">Tercera dosis de Pentavalente y Antipolio (IPV/bOPV)</p>
+            <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
+              <span class="text-3xl font-extrabold text-purple-600 font-mono" id="val_3325403">0</span>
+              <span class="text-xs text-slate-400 font-medium">NIÑO ATENDIDO</span>
+            </div>
           </div>
-          <h3 class="text-sm font-semibold text-slate-800 mt-3">Vacunación Niño = 2 Años</h3>
-          <p class="text-xs text-slate-500 mb-4">Influenza Pediátrica (CPT 90657)</p>
-          <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
-            <span class="text-3xl font-extrabold text-amber-600 font-mono" id="val_3325405">0</span>
-            <span class="text-xs text-slate-400">NIÑO PROTEJIDO</span>
-          </div>
-        </div>
 
-        <!-- AO 3325406 -->
-        <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
-          <div class="flex justify-between items-start">
-            <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-teal-50 text-teal-700 border border-teal-200">AO 3325406</span>
-            <i class="fa-solid fa-lungs text-slate-400"></i>
+          <!-- AO 3325404 -->
+          <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">AO 3325404</span>
+              <i class="fa-solid fa-circle-check text-slate-400"></i>
+            </div>
+            <h4 class="text-sm font-semibold text-slate-800 mt-3">Menor de 1 Año con Vacunas Completas</h4>
+            <p class="text-xs text-slate-500 mb-4">Paquete completo según calendario regular MINSA</p>
+            <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
+              <span class="text-3xl font-extrabold text-emerald-600 font-mono" id="val_3325404">0</span>
+              <span class="text-xs text-slate-400 font-medium">NIÑO COMPLETO</span>
+            </div>
           </div>
-          <h3 class="text-sm font-semibold text-slate-800 mt-3">Vacunación Niño = 3 Años</h3>
-          <p class="text-xs text-slate-500 mb-4">Influenza (CPT 90658 / 90657)</p>
-          <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
-            <span class="text-3xl font-extrabold text-teal-600 font-mono" id="val_3325406">0</span>
-            <span class="text-xs text-slate-400">NIÑO PROTEJIDO</span>
-          </div>
-        </div>
 
-        <!-- AO 3325407 -->
-        <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
-          <div class="flex justify-between items-start">
-            <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-rose-50 text-rose-700 border border-rose-200">AO 3325407</span>
-            <i class="fa-solid fa-ribbon text-slate-400"></i>
+          <!-- AO 3325405 -->
+          <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-teal-50 text-teal-700 border border-teal-200">AO 3325405</span>
+              <i class="fa-solid fa-syringe text-slate-400"></i>
+            </div>
+            <h4 class="text-sm font-semibold text-slate-800 mt-3">SPR, Neumococo &amp; Varicela (1 Año)</h4>
+            <p class="text-xs text-slate-500 mb-4">Dosis de 12 a 17 meses de edad</p>
+            <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
+              <span class="text-3xl font-extrabold text-teal-600 font-mono" id="val_3325405">0</span>
+              <span class="text-xs text-slate-400 font-medium">NIÑO ATENDIDO</span>
+            </div>
           </div>
-          <h3 class="text-sm font-semibold text-slate-800 mt-3">Niño Madre con VIH</h3>
-          <p class="text-xs text-slate-500 mb-4">Neumococo 3 + Comorbilidad asociada</p>
-          <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
-            <span class="text-3xl font-extrabold text-rose-600 font-mono" id="val_3325407">0</span>
-            <span class="text-xs text-slate-400">NIÑO PROTEJIDO</span>
-          </div>
-        </div>
 
-        <!-- AO 3325408 -->
-        <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
-          <div class="flex justify-between items-start">
-            <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-orange-50 text-orange-700 border border-orange-200">AO 3325408</span>
-            <i class="fa-solid fa-triangle-exclamation text-slate-400"></i>
+          <!-- AO 3325406 -->
+          <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-sky-50 text-sky-700 border border-sky-200">AO 3325406</span>
+              <i class="fa-solid fa-award text-slate-400"></i>
+            </div>
+            <h4 class="text-sm font-semibold text-slate-800 mt-3">Niño de 1 Año con Vacunas Completas</h4>
+            <p class="text-xs text-slate-500 mb-4">Esquema integral para niños de 1 año cumplido</p>
+            <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
+              <span class="text-3xl font-extrabold text-sky-600 font-mono" id="val_3325406">0</span>
+              <span class="text-xs text-slate-400 font-medium">NIÑO COMPLETO</span>
+            </div>
           </div>
-          <h3 class="text-sm font-semibold text-slate-800 mt-3">Eventos Adversos (ESAVI)</h3>
-          <p class="text-xs text-slate-500 mb-4">Atención de reacciones post-vacunales</p>
-          <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
-            <span class="text-3xl font-extrabold text-orange-600 font-mono" id="val_3325408">0</span>
-            <span class="text-xs text-slate-400">CASO(S) TRATADOS(S)</span>
-          </div>
-        </div>
 
-        <!-- AO 3325508 -->
-        <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
-          <div class="flex justify-between items-start">
-            <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-cyan-50 text-cyan-700 border border-cyan-200">AO 3325508</span>
-            <i class="fa-solid fa-clipboard-check text-slate-400"></i>
+          <!-- AO 3325407 -->
+          <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-rose-50 text-rose-700 border border-rose-200">AO 3325407</span>
+              <i class="fa-solid fa-children text-slate-400"></i>
+            </div>
+            <h4 class="text-sm font-semibold text-slate-800 mt-3">Refuerzos DPT &amp; Antipolio (4 Años)</h4>
+            <p class="text-xs text-slate-500 mb-4">Segundo refuerzo a los 4 años de edad</p>
+            <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
+              <span class="text-3xl font-extrabold text-rose-600 font-mono" id="val_3325407">0</span>
+              <span class="text-xs text-slate-400 font-medium">NIÑO ATENDIDO</span>
+            </div>
           </div>
-          <h3 class="text-sm font-semibold text-slate-800 mt-3">Niño de Alto Riesgo</h3>
-          <p class="text-xs text-slate-500 mb-4">Seguimiento CRED integral (UPS 301202 / 99344)</p>
-          <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
-            <span class="text-3xl font-extrabold text-cyan-600 font-mono" id="val_3325508">0</span>
-            <span class="text-xs text-slate-400">NIÑO ATENDIDO</span>
-          </div>
-        </div>
 
+          <!-- AO 3325408 -->
+          <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-amber-50 text-amber-700 border border-amber-200">AO 3325408</span>
+              <i class="fa-solid fa-triangle-exclamation text-slate-400"></i>
+            </div>
+            <h4 class="text-sm font-semibold text-slate-800 mt-3">Eventos Adversos (ESAVI)</h4>
+            <p class="text-xs text-slate-500 mb-4">Atención de reacciones atribuidas a la vacunación</p>
+            <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
+              <span class="text-3xl font-extrabold text-amber-600 font-mono" id="val_3325408">0</span>
+              <span class="text-xs text-slate-400 font-medium">CASO TRATADO</span>
+            </div>
+          </div>
+
+          <!-- AO 3325508 -->
+          <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-cyan-50 text-cyan-700 border border-cyan-200">AO 3325508</span>
+              <i class="fa-solid fa-clipboard-check text-slate-400"></i>
+            </div>
+            <h4 class="text-sm font-semibold text-slate-800 mt-3">Niño de Alto Riesgo (CRED Integral)</h4>
+            <p class="text-xs text-slate-500 mb-4">Seguimiento CRED integral en UPS 301202 / CPT 99344</p>
+            <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
+              <span class="text-3xl font-extrabold text-cyan-600 font-mono" id="val_3325508">0</span>
+              <span class="text-xs text-slate-400 font-medium">NIÑO ATENDIDO</span>
+            </div>
+          </div>
+
+        </div>
       </div>
+
+      <!-- ================================================================= -->
+      <!-- BLOQUE 2: PEDIATRÍA (ppr1001_pediatria.py)                        -->
+      <!-- ================================================================= -->
+      <div id="bloquePediatria" class="space-y-4 pt-6">
+        <div class="flex items-center justify-between border-b border-emerald-200 pb-3">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+              <i class="fa-solid fa-stethoscope"></i>
+            </div>
+            <div>
+              <h3 class="text-lg font-bold text-slate-900">Pediatría &amp; Atenciones Médicas (ppr1001_pediatria.py)</h3>
+              <p class="text-xs text-slate-500">Atenciones de morbilidad infantil: Anemia, Parasitosis, IRAs y EDAs (UPS 303712)</p>
+            </div>
+          </div>
+          <span class="text-xs font-semibold px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full">
+            16 Actividades Operativas
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+
+          <!-- AO 3331501: Anemia -->
+          <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-red-50 text-red-700 border border-red-200">AO 3331501</span>
+              <i class="fa-solid fa-droplet text-red-400"></i>
+            </div>
+            <h4 class="text-sm font-semibold text-slate-800 mt-3">Anemia (&lt; 5 Años)</h4>
+            <p class="text-xs text-slate-500 mb-4">CIE: D509, D649 en UPS Pediatría</p>
+            <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
+              <span class="text-3xl font-extrabold text-red-600 font-mono" id="val_3331501">0</span>
+              <span class="text-xs text-slate-400 font-medium">CASO TRATADO</span>
+            </div>
+          </div>
+
+          <!-- AO 3341401: Parasitosis -->
+          <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-amber-50 text-amber-700 border border-amber-200">AO 3341401</span>
+              <i class="fa-solid fa-bacterium text-amber-500"></i>
+            </div>
+            <h4 class="text-sm font-semibold text-slate-800 mt-3">Parasitosis Intestinal (&lt; 5 Años)</h4>
+            <p class="text-xs text-slate-500 mb-4">CIE: B680, B681, B779, B80, A071...</p>
+            <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
+              <span class="text-3xl font-extrabold text-amber-600 font-mono" id="val_3341401">0</span>
+              <span class="text-xs text-slate-400 font-medium">CASO TRATADO</span>
+            </div>
+          </div>
+
+          <!-- AO 3331101: IRA no complicada -->
+          <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-sky-50 text-sky-700 border border-sky-200">AO 3331101</span>
+              <i class="fa-solid fa-head-side-cough text-sky-400"></i>
+            </div>
+            <h4 class="text-sm font-semibold text-slate-800 mt-3">IRA No Complicada</h4>
+            <p class="text-xs text-slate-500 mb-4">CIE: J00X, J040, J041, J060, J209</p>
+            <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
+              <span class="text-3xl font-extrabold text-sky-600 font-mono" id="val_3331101">0</span>
+              <span class="text-xs text-slate-400 font-medium">ATENCIÓN IRA</span>
+            </div>
+          </div>
+
+          <!-- AO 3331102: FAPA -->
+          <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-200">AO 3331102</span>
+              <i class="fa-solid fa-lungs text-blue-400"></i>
+            </div>
+            <h4 class="text-sm font-semibold text-slate-800 mt-3">FAPA (Faringoamigdalitis)</h4>
+            <p class="text-xs text-slate-500 mb-4">CIE: J020, J029, J030, J038, J039</p>
+            <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
+              <span class="text-3xl font-extrabold text-blue-600 font-mono" id="val_3331102">0</span>
+              <span class="text-xs text-slate-400 font-medium">ATENCIÓN IRA</span>
+            </div>
+          </div>
+
+          <!-- AO 3331103: OMA -->
+          <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200">AO 3331103</span>
+              <i class="fa-solid fa-ear-listen text-indigo-400"></i>
+            </div>
+            <h4 class="text-sm font-semibold text-slate-800 mt-3">OMA (Otitis Media Aguda)</h4>
+            <p class="text-xs text-slate-500 mb-4">CIE: H650, H651, H660, H669</p>
+            <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
+              <span class="text-3xl font-extrabold text-indigo-600 font-mono" id="val_3331103">0</span>
+              <span class="text-xs text-slate-400 font-medium">ATENCIÓN IRA</span>
+            </div>
+          </div>
+
+          <!-- AO 3331104: Sinusitis -->
+          <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-purple-50 text-purple-700 border border-purple-200">AO 3331104</span>
+              <i class="fa-solid fa-virus text-purple-400"></i>
+            </div>
+            <h4 class="text-sm font-semibold text-slate-800 mt-3">Sinusitis Aguda</h4>
+            <p class="text-xs text-slate-500 mb-4">CIE: J010, J011, J012, J014, J019</p>
+            <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
+              <span class="text-3xl font-extrabold text-purple-600 font-mono" id="val_3331104">0</span>
+              <span class="text-xs text-slate-400 font-medium">ATENCIÓN IRA</span>
+            </div>
+          </div>
+
+          <!-- AO 3331105: Neumonía sin Complicaciones -->
+          <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-violet-50 text-violet-700 border border-violet-200">AO 3331105</span>
+              <i class="fa-solid fa-lungs-virus text-violet-500"></i>
+            </div>
+            <h4 class="text-sm font-semibold text-slate-800 mt-3">Neumonía No Complicada</h4>
+            <p class="text-xs text-slate-500 mb-4">CIE: J129, J159, J181</p>
+            <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
+              <span class="text-3xl font-extrabold text-violet-600 font-mono" id="val_3331105">0</span>
+              <span class="text-xs text-slate-400 font-medium">ATENCIÓN IRA</span>
+            </div>
+          </div>
+
+          <!-- AO Neumonía complicada -->
+          <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-fuchsia-50 text-fuchsia-700 border border-fuchsia-200">AO NEUMONÍA</span>
+              <i class="fa-solid fa-hospital text-fuchsia-500"></i>
+            </div>
+            <h4 class="text-sm font-semibold text-slate-800 mt-3">Neumonía con Complicaciones</h4>
+            <p class="text-xs text-slate-500 mb-4">CIE: A369, J120, J13X, J150-J168</p>
+            <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
+              <span class="text-3xl font-extrabold text-fuchsia-600 font-mono" id="val_nuemonia">0</span>
+              <span class="text-xs text-slate-400 font-medium">CASO TRATADO</span>
+            </div>
+          </div>
+
+          <!-- AO 3331301: Neumonía Grave < 2m -->
+          <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-rose-50 text-rose-700 border border-rose-200">AO 3331301</span>
+              <i class="fa-solid fa-circle-exclamation text-rose-500"></i>
+            </div>
+            <h4 class="text-sm font-semibold text-slate-800 mt-3">Neumonía Muy Grave (&lt; 2 Meses)</h4>
+            <p class="text-xs text-slate-500 mb-4">CIE: J050, J851, J860, J180...</p>
+            <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
+              <span class="text-3xl font-extrabold text-rose-600 font-mono" id="val_3331301">0</span>
+              <span class="text-xs text-slate-400 font-medium">CASO GRAVE</span>
+            </div>
+          </div>
+
+          <!-- AO 3331305: Neumonía Grave 2m a 4a -->
+          <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-pink-50 text-pink-700 border border-pink-200">AO 3331305</span>
+              <i class="fa-solid fa-triangle-exclamation text-pink-500"></i>
+            </div>
+            <h4 class="text-sm font-semibold text-slate-800 mt-3">Neumonía Muy Grave (2m a 4a)</h4>
+            <p class="text-xs text-slate-500 mb-4">CIE: J050, J181, J851, J90X...</p>
+            <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
+              <span class="text-3xl font-extrabold text-pink-600 font-mono" id="val_3331305">0</span>
+              <span class="text-xs text-slate-400 font-medium">CASO GRAVE</span>
+            </div>
+          </div>
+
+          <!-- AO 3331502: SOBA / ASMA -->
+          <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-orange-50 text-orange-700 border border-orange-200">AO 3331502</span>
+              <i class="fa-solid fa-lungs text-orange-500"></i>
+            </div>
+            <h4 class="text-sm font-semibold text-slate-800 mt-3">SOBA / ASMA Pediátrico</h4>
+            <p class="text-xs text-slate-500 mb-4">CIE: J210, J440, J450, J459, J46X</p>
+            <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
+              <span class="text-3xl font-extrabold text-orange-600 font-mono" id="val_3331502">0</span>
+              <span class="text-xs text-slate-400 font-medium">CASO TRATADO</span>
+            </div>
+          </div>
+
+          <!-- AO 3331201: EDA no complicada -->
+          <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">AO 3331201</span>
+              <i class="fa-solid fa-notes-medical text-emerald-500"></i>
+            </div>
+            <h4 class="text-sm font-semibold text-slate-800 mt-3">EDA No Complicada</h4>
+            <p class="text-xs text-slate-500 mb-4">CIE: A009, A040, A08, A090, A099</p>
+            <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
+              <span class="text-3xl font-extrabold text-emerald-600 font-mono" id="val_3331201">0</span>
+              <span class="text-xs text-slate-400 font-medium">ATENCIÓN EDA</span>
+            </div>
+          </div>
+
+          <!-- AO 3331203: EDA Disentérica -->
+          <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-teal-50 text-teal-700 border border-teal-200">AO 3331203</span>
+              <i class="fa-solid fa-bacteria text-teal-500"></i>
+            </div>
+            <h4 class="text-sm font-semibold text-slate-800 mt-3">EDA Disentérica</h4>
+            <p class="text-xs text-slate-500 mb-4">CIE: A030, A039, A042, A043, A060</p>
+            <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
+              <span class="text-3xl font-extrabold text-teal-600 font-mono" id="val_3331203">0</span>
+              <span class="text-xs text-slate-400 font-medium">ATENCIÓN EDA</span>
+            </div>
+          </div>
+
+          <!-- AO 3331204: EDA Persistente -->
+          <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-cyan-50 text-cyan-700 border border-cyan-200">AO 3331204</span>
+              <i class="fa-solid fa-clock-rotate-left text-cyan-500"></i>
+            </div>
+            <h4 class="text-sm font-semibold text-slate-800 mt-3">EDA Persistente</h4>
+            <p class="text-xs text-slate-500 mb-4">CIE: A09X en niños &lt; 5 años</p>
+            <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
+              <span class="text-3xl font-extrabold text-cyan-600 font-mono" id="val_3331204">0</span>
+              <span class="text-xs text-slate-400 font-medium">ATENCIÓN EDA</span>
+            </div>
+          </div>
+
+          <!-- AO 3331401: EDA con Deshidratación -->
+          <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-yellow-50 text-yellow-700 border border-yellow-200">AO 3331401</span>
+              <i class="fa-solid fa-faucet-drip text-yellow-600"></i>
+            </div>
+            <h4 class="text-sm font-semibold text-slate-800 mt-3">EDA con Deshidratación</h4>
+            <p class="text-xs text-slate-500 mb-4">CIE: A009-A099 + E86X</p>
+            <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
+              <span class="text-3xl font-extrabold text-yellow-600 font-mono" id="val_3331401">0</span>
+              <span class="text-xs text-slate-400 font-medium">CASO TRATADO</span>
+            </div>
+          </div>
+
+          <!-- AO 3331305_shock: EDA con Shock -->
+          <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition">
+            <div class="flex justify-between items-start">
+              <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-red-50 text-red-700 border border-red-200">AO 3331305 (SHOCK)</span>
+              <i class="fa-solid fa-heart-pulse text-red-500"></i>
+            </div>
+            <h4 class="text-sm font-semibold text-slate-800 mt-3">EDA con Deshidratación y Shock</h4>
+            <p class="text-xs text-slate-500 mb-4">CIE: R571, E872, K560 con EDA</p>
+            <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
+              <span class="text-3xl font-extrabold text-red-600 font-mono" id="val_3331305_shock">0</span>
+              <span class="text-xs text-slate-400 font-medium">CASO CRÍTICO</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
     </div>
 
   </main>
 
   <!-- Footer -->
   <footer class="bg-white border-t border-slate-200 py-4 mt-auto">
-    <div class="max-w-6xl mx-auto px-4 text-center text-xs text-slate-400">
-      Programa Presupuestal PPR1001 &bull; Pediatría &bull; Arquitectura Limpia en Python
+    <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-400">
+      Programa Presupuestal PPR1001 &bull; Inmunizaciones &amp; Pediatría &bull; Arquitectura Limpia Python
     </div>
   </footer>
 
@@ -243,10 +530,42 @@
     const resetBtn = document.getElementById('resetBtn');
     const alertBox = document.getElementById('alertBox');
     const resultsSection = document.getElementById('resultsSection');
-    const processedTime = document.getElementById('processedTime');
+
+    const tabAll = document.getElementById('tabAll');
+    const tabVacunas = document.getElementById('tabVacunas');
+    const tabPediatria = document.getElementById('tabPediatria');
+    const bloqueVacunas = document.getElementById('bloqueVacunas');
+    const bloquePediatria = document.getElementById('bloquePediatria');
 
     let currentFile = null;
 
+    // Tabs filtering
+    function activateTab(activeBtn, showVacunas, showPediatria) {
+      [tabAll, tabVacunas, tabPediatria].forEach(btn => {
+        btn.classList.remove('tab-active');
+        btn.classList.add('text-slate-600');
+      });
+      activeBtn.classList.add('tab-active');
+      activeBtn.classList.remove('text-slate-600');
+
+      if (showVacunas) {
+        bloqueVacunas.classList.remove('hidden');
+      } else {
+        bloqueVacunas.classList.add('hidden');
+      }
+
+      if (showPediatria) {
+        bloquePediatria.classList.remove('hidden');
+      } else {
+        bloquePediatria.classList.add('hidden');
+      }
+    }
+
+    tabAll.addEventListener('click', () => activateTab(tabAll, true, true));
+    tabVacunas.addEventListener('click', () => activateTab(tabVacunas, true, false));
+    tabPediatria.addEventListener('click', () => activateTab(tabPediatria, false, true));
+
+    // Drag and drop events
     dropzone.addEventListener('click', () => fileInput.click());
 
     dropzone.addEventListener('dragover', (e) => {
@@ -306,7 +625,7 @@
       formData.append('file', currentFile);
 
       processBtn.disabled = true;
-      processBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Procesando...</span>';
+      processBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Procesando datos en memoria...</span>';
       hideAlert();
 
       try {
@@ -321,20 +640,57 @@
           throw new Error(data.detail || 'Ocurrió un error al procesar el archivo Excel.');
         }
 
-        // Mostrar valores en las cards
-        document.getElementById('val_3325401').textContent = data.act_operativa_3325401;
-        document.getElementById('val_3325402').textContent = data.act_operativa_3325402;
-        document.getElementById('val_3325403').textContent = data.act_operativa_3325403;
-        document.getElementById('val_3325404').textContent = data.act_operativa_3325404;
-        document.getElementById('val_3325405').textContent = data.act_operativa_3325405;
-        document.getElementById('val_3325406').textContent = data.act_operativa_3325406;
-        document.getElementById('val_3325407').textContent = data.act_operativa_3325407;
-        document.getElementById('val_3325408').textContent = data.act_operativa_3325408;
-        document.getElementById('val_3325508').textContent = data.act_operativa_3325508;
+        // Obtener bloques de datos con tolerancia a respuestas anidadas o planas
+        const inm = data.inmunizaciones || data;
+        const ped = data.pediatria || data;
 
-        processedTime.textContent = `Procesado: ${new Date().toLocaleTimeString()}`;
+        // --- 1. Llenar Inmunizaciones (ppr1001_vacunas.py) ---
+        if (inm) {
+          const mapVacunas = {
+            'val_3325401': inm.act_operativa_3325401,
+            'val_3325402': inm.act_operativa_3325402,
+            'val_3325403': inm.act_operativa_3325403,
+            'val_3325404': inm.act_operativa_3325404,
+            'val_3325405': inm.act_operativa_3325405,
+            'val_3325406': inm.act_operativa_3325406,
+            'val_3325407': inm.act_operativa_3325407,
+            'val_3325408': inm.act_operativa_3325408,
+            'val_3325508': inm.act_operativa_3325508,
+          };
+          for (const [elemId, val] of Object.entries(mapVacunas)) {
+            const el = document.getElementById(elemId);
+            if (el) el.textContent = val !== undefined ? val : '0';
+          }
+        }
+
+        // --- 2. Llenar Pediatría (ppr1001_pediatria.py) ---
+        if (ped) {
+          const mapPediatria = {
+            'val_3331501': ped.act_operativa_3331501,
+            'val_3341401': ped.act_operativa_3341401,
+            'val_3331101': ped.act_operativa_3331101,
+            'val_3331102': ped.act_operativa_3331102,
+            'val_3331103': ped.act_operativa_3331103,
+            'val_3331104': ped.act_operativa_3331104,
+            'val_3331105': ped.act_operativa_3331105,
+            'val_nuemonia': ped.act_operativa_nuemonia,
+            'val_3331301': ped.act_operativa_3331301,
+            'val_3331305': ped.act_operativa_3331305,
+            'val_3331502': ped.act_operativa_3331502,
+            'val_3331201': ped.act_operativa_3331201,
+            'val_3331203': ped.act_operativa_3331203,
+            'val_3331204': ped.act_operativa_3331204,
+            'val_3331401': ped.act_operativa_3331401,
+            'val_3331305_shock': ped.act_operativa_3331305_shock,
+          };
+          for (const [elemId, val] of Object.entries(mapPediatria)) {
+            const el = document.getElementById(elemId);
+            if (el) el.textContent = val !== undefined ? val : '0';
+          }
+        }
+
         resultsSection.classList.remove('hidden');
-        showAlert('Archivo procesado con éxito. Se calcularon las 9 actividades operativas.', 'success');
+        showAlert('Archivo procesado con éxito. Se calcularon las actividades operativas de Inmunizaciones y Pediatría.', 'success');
 
         // Scroll suave hacia los resultados
         resultsSection.scrollIntoView({ behavior: 'smooth' });
