@@ -55,6 +55,7 @@ app.include_router(api_v1_router, prefix="/api/v1")
 # Frontend UI (Servido directamente por FastAPI)
 # -------------------------------------------------------------
 UI_FILE_PATH = Path(__file__).parent / "app" / "presentation" / "web" / "index.html"
+CIE10_FILE_PATH = Path(__file__).parent / "app" / "presentation" / "web" / "cie10.html"
 
 
 @app.get("/", response_class=HTMLResponse, tags=["Frontend UI"])
@@ -63,6 +64,15 @@ def serve_ui():
     if UI_FILE_PATH.exists():
         return HTMLResponse(content=UI_FILE_PATH.read_text(encoding="utf-8"))
     return HTMLResponse(content="<h1>UI en construcción</h1>")
+
+
+@app.get("/desglose-cie10", response_class=HTMLResponse, tags=["Frontend UI"])
+@app.get("/cie10", response_class=HTMLResponse, tags=["Frontend UI"])
+def serve_cie10_ui():
+    """Sirve la página a parte con el desglose de códigos CIE-10 y sus contadores."""
+    if CIE10_FILE_PATH.exists():
+        return HTMLResponse(content=CIE10_FILE_PATH.read_text(encoding="utf-8"))
+    return HTMLResponse(content="<h1>Página de Desglose CIE-10 en construcción</h1>")
 
 
 if __name__ == "__main__":

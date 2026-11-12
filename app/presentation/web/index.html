@@ -33,9 +33,15 @@
           <p class="text-sky-100 text-sm">Inmunizaciones (Vacunas) &amp; Pediatría (Atenciones Médicas) &bull; MINSA</p>
         </div>
       </div>
-      <div class="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full border border-white/20 text-xs backdrop-blur-sm">
-        <span class="w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse"></span>
-        <span>Procesamiento O(1) en Memoria</span>
+      <div class="flex items-center gap-3">
+        <a href="/desglose-cie10" class="flex items-center gap-2 bg-white/20 hover:bg-white/30 px-3.5 py-2 rounded-xl border border-white/30 text-xs font-semibold backdrop-blur-sm transition text-white shadow-sm">
+          <i class="fa-solid fa-table-list"></i>
+          <span>Ver Desglose CIE-10</span>
+        </a>
+        <div class="flex items-center gap-2 bg-white/10 px-3.5 py-2 rounded-full border border-white/20 text-xs backdrop-blur-sm">
+          <span class="w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse"></span>
+          <span>Modo O(1)</span>
+        </div>
       </div>
     </div>
   </header>
@@ -107,6 +113,9 @@
           <button id="tabPediatria" class="px-3.5 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">
             <i class="fa-solid fa-stethoscope mr-1.5 text-emerald-600"></i> Pediatría (16)
           </button>
+          <a href="/desglose-cie10" class="ml-2 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold transition flex items-center gap-1.5 shadow-sm">
+            <i class="fa-solid fa-table-list"></i> Ver Desglose CIE-10
+          </a>
         </div>
       </div>
 
@@ -638,6 +647,12 @@
 
         if (!response.ok) {
           throw new Error(data.detail || 'Ocurrió un error al procesar el archivo Excel.');
+        }
+
+        // Guardar en sessionStorage para que la página de Desglose CIE-10 lo use inmediatamente
+        sessionStorage.setItem('ultimoResultadoPPR', JSON.stringify(data));
+        if (currentFile) {
+          sessionStorage.setItem('ultimoNombreArchivo', currentFile.name);
         }
 
         // Obtener bloques de datos con tolerancia a respuestas anidadas o planas

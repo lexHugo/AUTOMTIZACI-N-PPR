@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Desglose de Códigos CIE-10 &bull; Pediatría PPR1001</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .gradient-bg {
+      background: linear-gradient(135deg, #059669 0%, #0d9488 50%, #0284c7 100%);
+    }
+  </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 flex flex-col font-sans">
+
+  <!-- Header -->
+  <header class="gradient-bg text-white shadow-md">
+    <div class="max-w-7xl mx-auto px-4 py-5 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div class="flex items-center gap-3">
+        <a href="/" class="bg-white/20 hover:bg-white/30 p-2.5 rounded-xl backdrop-blur-sm transition flex items-center justify-center text-white" title="Volver al Monitor Principal">
+          <i class="fa-solid fa-arrow-left text-xl"></i>
+        </a>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-2xl font-bold tracking-tight">Desglose de Códigos CIE-10</h1>
+            <span class="bg-emerald-400/30 text-emerald-100 text-xs font-semibold px-2.5 py-0.5 rounded-full border border-emerald-300/30">Pediatría</span>
+          </div>
+          <p class="text-emerald-100 text-xs sm:text-sm">Frecuencia y conteo individual de diagnósticos por Actividad Operativa</p>
+        </div>
+      </div>
+      
+      <div class="flex items-center gap-2">
+        <a href="/" class="bg-white text-slate-800 hover:bg-slate-100 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-sm">
+          <i class="fa-solid fa-chart-pie text-sky-600"></i>
+          <span>Monitor PPR 1001</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-4 py-8 flex-1 w-full space-y-6">
+
+    <!-- Subir Archivo Rápido (si no hay datos o si desea cambiar) -->
+    <div id="quickUploadBox" class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
+          <i class="fa-solid fa-file-excel"></i>
+        </div>
+        <div>
+          <p class="text-sm font-bold text-slate-800" id="currentFileTitle">Archivo actual: Ninguno cargado</p>
+          <p class="text-xs text-slate-400" id="currentFileSub">Sube una trama HIS para ver los contadores de cada código CIE-10</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 w-full sm:w-auto">
+        <input type="file" id="fileInput" accept=".xlsx, .xls" class="hidden" />
+        <button id="uploadBtn" class="w-full sm:w-auto px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm">
+          <i class="fa-solid fa-cloud-arrow-up"></i>
+          <span>Cargar otra Trama HIS</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Barra de Métricas y Buscador -->
+    <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4">
+      
+      <!-- Resumen Estadístico -->
+      <div class="flex items-center gap-6 overflow-x-auto pb-2 md:pb-0 text-xs">
+        <div>
+          <span class="text-slate-400 block font-medium">Total Códigos CIE-10</span>
+          <span class="text-lg font-bold text-slate-800 font-mono" id="statTotalCodigos">0</span>
+        </div>
+        <div class="h-8 w-px bg-slate-200"></div>
+        <div>
+          <span class="text-slate-400 block font-medium">Con Registros (&ge; 1)</span>
+          <span class="text-lg font-bold text-emerald-600 font-mono" id="statConRegistros">0</span>
+        </div>
+        <div class="h-8 w-px bg-slate-200"></div>
+        <div>
+          <span class="text-slate-400 block font-medium">En Cero (= 0)</span>
+          <span class="text-lg font-bold text-rose-500 font-mono" id="statEnCero">0</span>
+        </div>
+        <div class="h-8 w-px bg-slate-200"></div>
+        <div>
+          <span class="text-slate-400 block font-medium">AOs Analizadas</span>
+          <span class="text-lg font-bold text-sky-600 font-mono">16 Actividades</span>
+        </div>
+      </div>
+
+      <!-- Buscador y Filtro -->
+      <div class="flex items-center gap-2">
+        <div class="relative w-full sm:w-64">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+          <input type="text" id="searchInput" placeholder="Buscar CIE-10 o nombre..." class="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-slate-300 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" />
+        </div>
+        <select id="filterSelect" class="text-xs py-1.5 px-3 rounded-xl border border-slate-300 focus:outline-none focus:border-emerald-500 bg-white">
+          <option value="all">Ver Todos</option>
+          <option value="con_registros">Solo con registros (> 0)</option>
+          <option value="en_cero">Solo en cero (= 0)</option>
+        </select>
+      </div>
+
+    </div>
+
+    <!-- Mensaje de Carga / Spinner -->
+    <div id="loadingBox" class="hidden bg-white p-12 rounded-2xl border border-slate-200 text-center space-y-3">
+      <i class="fa-solid fa-spinner fa-spin text-3xl text-emerald-600"></i>
+      <p class="text-sm font-semibold text-slate-700">Procesando trama HIS y calculando frecuencias...</p>
+    </div>
+
+    <!-- Mensaje Vacío (Sin datos) -->
+    <div id="emptyBox" class="hidden bg-white p-12 rounded-2xl border border-slate-200 text-center space-y-4">
+      <div class="w-16 h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center text-2xl mx-auto">
+        <i class="fa-solid fa-table"></i>
+      </div>
+      <div>
+        <h3 class="text-base font-bold text-slate-800">No hay datos para mostrar</h3>
+        <p class="text-xs text-slate-500 mt-1 max-w-md mx-auto">
+          Carga un archivo Excel exportado de HIS MINSA para visualizar el desglose detallado de todos los códigos CIE-10 y sus frecuencias.
+        </p>
+      </div>
+      <button onclick="document.getElementById('fileInput').click()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition inline-flex items-center gap-2">
+        <i class="fa-solid fa-cloud-arrow-up"></i>
+        <span>Cargar Archivo Excel</span>
+      </button>
+    </div>
+
+    <!-- Contenedor Principal de Actividades Operativas -->
+    <div id="aoContainer" class="space-y-6">
+      <!-- Se puebla dinámicamente con JavaScript -->
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 py-4 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-400">
+      Desglose de Códigos CIE-10 &bull; Programa Presupuestal PPR1001 Pediatría &bull; MINSA
+    </div>
+  </footer>
+
+  <!-- Lógica JavaScript -->
+  <script>
+    // Catálogo de descripciones amigables para los códigos CIE-10 pediátricos
+    const CATALOGO_CIE = {
+      // Anemia
+      "D509": "Anemia por deficiencia de hierro sin especificación (Ferropénica)",
+      "D649": "Anemia de tipo no especificado",
+      // Parasitosis
+      "B680": "Teniasis debida a Taenia solium (cerdo)",
+      "B681": "Teniasis debida a Taenia saginata (vaca)",
+      "B689": "Teniasis no especificada",
+      "B779": "Ascariasis no especificada",
+      "B780": "Estrongiloidiasis intestinal",
+      "B79": "Tricocefalosis (Trichuris trichiura)",
+      "B80": "Oxiuriasis / Enterobiasis",
+      "A071": "Giardiasis [lambliasis]",
+      "A06": "Amebiasis",
+      "B829": "Parasitosis intestinal sin especificación",
+      // IRA No Complicada
+      "J00X": "Rinofaringitis aguda [resfriado común]",
+      "J040": "Laringitis aguda",
+      "J041": "Traqueítis aguda",
+      "J042": "Laringotraqueítis aguda",
+      "J060": "Faringitis aguda",
+      "J068": "Otras infecciones respiratorias agudas",
+      "J069": "Infección respiratoria aguda de sitios no especificados",
+      "J209": "Bronquitis aguda",
+      // FAPA
+      "J020": "Faringitis estreptocócica",
+      "J029": "Faringitis aguda no especificada",
+      "J030": "Amigdalitis estreptocócica",
+      "J038": "Amigdalitis aguda debida a otros microorganismos",
+      "J039": "Amigdalitis aguda no especificada",
+      // OMA
+      "H650": "Otitis media aguda no supurativa",
+      "H651": "Otras otitis medias agudas no supurativas",
+      "H660": "Otitis media aguda supurativa",
+      "H669": "Otitis media supurativa y no especificada",
+      // Sinusitis
+      "J010": "Sinusitis maxilar aguda",
+      "J011": "Sinusitis frontal aguda",
+      "J012": "Sinusitis etmoidal aguda",
+      "J013": "Sinusitis esfenoidal aguda",
+      "J014": "Pansinusitis aguda",
+      "J019": "Sinusitis aguda no especificada",
+      // Neumonía no complicada
+      "J129": "Neumonía viral no especificada",
+      "J159": "Neumonía bacteriana no especificada",
+      "J181": "Neumonía lobar no especificada",
+      // Neumonía complicada
+      "A369": "Difteria no especificada",
+      "A370": "Tos ferina debida a Bordetella pertussis",
+      "A371": "Tos ferina debida a Bordetella parapertussis",
+      "A378": "Tos ferina debida a otras especies de Bordetella",
+      "A379": "Tos ferina no especificada",
+      "J120": "Neumonía por adenovirus",
+      "J121": "Neumonía por VSR",
+      "J122": "Neumonía por virus parainfluenza",
+      "J123": "Neumonía por metapneumovirus",
+      "J128": "Otras neumonías virales",
+      "J13X": "Neumonía debida a Streptococcus pneumoniae",
+      "J14X": "Neumonía debida a Haemophilus influenzae",
+      "J150": "Neumonía debida a Klebsiella pneumoniae",
+      "J151": "Neumonía debida a Pseudomonas",
+      "J152": "Neumonía debida a Staphylococcus",
+      "J153": "Neumonía debida a Streptococcus del grupo B",
+      "J154": "Neumonía debida a otros estreptococos",
+      "J157": "Neumonía debida a Mycoplasma pneumoniae",
+      "J158": "Otras neumonías bacterianas",
+      "J160": "Neumonía por Chlamydia",
+      "J168": "Neumonía por otros microorganismos especificados",
+      // Neumonía Grave
+      "J050": "Laringitis obstructiva aguda [crup]",
+      "J051": "Epiglotitis aguda",
+      "J851": "Absceso del pulmón con neumonía",
+      "J860": "Piotórax con fístula",
+      "J869": "Piotórax sin fístula",
+      "J90X": "Derrame pleural no clasificado",
+      "J939": "Neumotórax no especificado",
+      "J100": "Influenza con neumonía",
+      "J110": "Influenza con neumonía (virus no identificado)",
+      "J155": "Neumonía debida a Escherichia coli",
+      "J156": "Neumonía por otras bacterias gramnegativas",
+      "J180": "Bronconeumonía no especificada",
+      "J182": "Neumonía hipostática no especificada",
+      "J188": "Otras neumonías de microorganismo no especificado",
+      // SOBA / ASMA
+      "J210": "Bronquiolitis aguda por VSR",
+      "J211": "Bronquiolitis aguda por metapneumovirus",
+      "J218": "Bronquiolitis aguda por otros microorganismos",
+      "J219": "Bronquiolitis aguda no especificada",
+      "J440": "Enfermedad pulmonar obstructiva con infección aguda",
+      "J441": "Enfermedad pulmonar obstructiva con exacerbación aguda",
+      "J448": "Otras enfermedades pulmonares obstructivas crónicas",
+      "J449": "Enfermedad pulmonar obstructiva crónica no especificada",
+      "J450": "Asma predominantemente alérgica",
+      "J451": "Asma no alérgica",
+      "J459": "Asma no especificada",
+      "J46X": "Estado asmático agudo severo",
+      // EDA No Complicada
+      "A009": "Cólera no especificado",
+      "A010": "Fiebre tifoidea",
+      "A011": "Fiebre paratifoidea A",
+      "A012": "Fiebre paratifoidea B",
+      "A013": "Fiebre paratifoidea C",
+      "A014": "Fiebre paratifoidea no especificada",
+      "A020": "Enteritis debida a Salmonella",
+      "A040": "Infección debida a Escherichia coli enteropatógena",
+      "A041": "Infección debida a Escherichia coli enterotoxígena",
+      "A049": "Infección bacteriana intestinal no especificada",
+      "A059": "Intoxicación alimentaria bacteriana no especificada",
+      "A070": "Balantidiasis",
+      "A072": "Criptosporidiosis",
+      "A08": "Infecciones intestinales víricas y otras",
+      "A082": "Enteritis debida a adenovirus",
+      "A083": "Otras enteritis virales",
+      "A084": "Infección intestinal viral sin especificación",
+      "A090": "Otras gastroenteritis y colitis de origen infeccioso",
+      "A099": "Gastroenteritis y colitis de origen no especificado",
+      // EDA Disentérica
+      "A030": "Shigelosis debida a Shigella dysenteriae",
+      "A039": "Shigelosis de tipo no especificado",
+      "A042": "Infección debida a Escherichia coli enteroinvasiva",
+      "A043": "Infección debida a Escherichia coli enterohemorrágica",
+      "A045": "Enteritis debida a Campylobacter",
+      "A060": "Disentería amebiana aguda",
+      // EDA Persistente
+      "A09X": "Diarrea y gastroenteritis de presunto origen infeccioso",
+      // Complicaciones
+      "E86X": "Depleción del volumen [deshidratación]",
+      "R571": "Choque hipovolémico",
+      "E872": "Acidosis",
+      "K560": "Íleo paralítico"
+    };
+
+    // Metadatos de Actividades Operativas
+    const INFO_AO = {
+      "3331501": { titulo: "Anemia en < 5 Años", categoria: "Nutrición & Prevalentes", icon: "fa-droplet", color: "red" },
+      "3341401": { titulo: "Parasitosis Intestinal en < 5 Años", categoria: "Nutrición & Prevalentes", icon: "fa-bacterium", color: "amber" },
+      "3331101": { titulo: "IRA No Complicada", categoria: "Infecciones Respiratorias (IRAs)", icon: "fa-head-side-cough", color: "sky" },
+      "3331102": { titulo: "FAPA (Faringoamigdalitis)", categoria: "Infecciones Respiratorias (IRAs)", icon: "fa-lungs", color: "blue" },
+      "3331103": { titulo: "OMA (Otitis Media Aguda)", categoria: "Infecciones Respiratorias (IRAs)", icon: "fa-ear-listen", color: "indigo" },
+      "3331104": { titulo: "Sinusitis Aguda", categoria: "Infecciones Respiratorias (IRAs)", icon: "fa-virus", color: "purple" },
+      "3331105": { titulo: "Neumonía No Complicada", categoria: "Infecciones Respiratorias (IRAs)", icon: "fa-lungs-virus", color: "violet" },
+      "neumonia": { titulo: "Neumonía con Complicaciones", categoria: "Infecciones Respiratorias (IRAs)", icon: "fa-hospital", color: "fuchsia" },
+      "3331301": { titulo: "Neumonía Muy Grave (< 2 Meses)", categoria: "Infecciones Respiratorias (IRAs)", icon: "fa-circle-exclamation", color: "rose" },
+      "3331305": { titulo: "Neumonía Muy Grave (2m a 4a)", categoria: "Infecciones Respiratorias (IRAs)", icon: "fa-triangle-exclamation", color: "pink" },
+      "3331502": { titulo: "SOBA / ASMA Pediátrico", categoria: "Infecciones Respiratorias (IRAs)", icon: "fa-lungs", color: "orange" },
+      "3331201": { titulo: "EDA No Complicada", categoria: "Enfermedades Diarreicas (EDAs)", icon: "fa-notes-medical", color: "emerald" },
+      "3331203": { titulo: "EDA Disentérica", categoria: "Enfermedades Diarreicas (EDAs)", icon: "fa-bacteria", color: "teal" },
+      "3331204": { titulo: "EDA Persistente", categoria: "Enfermedades Diarreicas (EDAs)", icon: "fa-clock-rotate-left", color: "cyan" },
+      "3331401": { titulo: "EDA con Deshidratación", categoria: "Enfermedades Diarreicas (EDAs)", icon: "fa-faucet-drip", color: "yellow" },
+      "3331305_shock": { titulo: "EDA con Deshidratación y Shock", categoria: "Enfermedades Diarreicas (EDAs)", icon: "fa-heart-pulse", color: "red" }
+    };
+
+    let datosGlobales = null;
+
+    // Inicializar al cargar la página
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Revisar si hay datos previos en sessionStorage
+      const guardado = sessionStorage.getItem('ultimoResultadoPPR');
+      const nombreArchivo = sessionStorage.getItem('ultimoNombreArchivo');
+
+      if (guardado) {
+        try {
+          const data = JSON.parse(guardado);
+          if (nombreArchivo) {
+            document.getElementById('currentFileTitle').textContent = `Archivo: ${nombreArchivo}`;
+            document.getElementById('currentFileSub').textContent = 'Datos cargados desde la última sesión';
+          }
+          renderizarDesglose(data);
+        } catch (e) {
+          console.error("Error al leer datos guardados:", e);
+          mostrarVacio();
+        }
+      } else {
+        mostrarVacio();
+      }
+
+      // Eventos de subida rápida
+      const fileInput = document.getElementById('fileInput');
+      const uploadBtn = document.getElementById('uploadBtn');
+
+      uploadBtn.addEventListener('click', () => fileInput.click());
+
+      fileInput.addEventListener('change', async (e) => {
+        if (e.target.files.length) {
+          await procesarArchivo(e.target.files[0]);
+        }
+      });
+
+      // Filtros y búsqueda
+      document.getElementById('searchInput').addEventListener('input', filtrarTarjetas);
+      document.getElementById('filterSelect').addEventListener('change', filtrarTarjetas);
+    });
+
+    async function procesarArchivo(file) {
+      if (!file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
+        alert('Por favor selecciona un archivo Excel (.xlsx o .xls)');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      document.getElementById('loadingBox').classList.remove('hidden');
+      document.getElementById('emptyBox').classList.add('hidden');
+      document.getElementById('aoContainer').innerHTML = '';
+
+      try {
+        const response = await fetch('/api/v1/ppr1001/procesar', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.detail || 'Error al procesar archivo');
+
+        sessionStorage.setItem('ultimoResultadoPPR', JSON.stringify(data));
+        sessionStorage.setItem('ultimoNombreArchivo', file.name);
+
+        document.getElementById('currentFileTitle').textContent = `Archivo: ${file.name}`;
+        document.getElementById('currentFileSub').textContent = `Procesado: ${new Date().toLocaleTimeString()}`;
+
+        renderizarDesglose(data);
+      } catch (err) {
+        alert(err.message);
+        mostrarVacio();
+      } finally {
+        document.getElementById('loadingBox').classList.add('hidden');
+      }
+    }
+
+    function mostrarVacio() {
+      document.getElementById('emptyBox').classList.remove('hidden');
+      document.getElementById('aoContainer').innerHTML = '';
+      document.getElementById('statTotalCodigos').textContent = '0';
+      document.getElementById('statConRegistros').textContent = '0';
+      document.getElementById('statEnCero').textContent = '0';
+    }
+
+    function renderizarDesglose(data) {
+      datosGlobales = data;
+      const ped = data.pediatria || data;
+      const conteos = (ped && ped.conteos_cie) ? ped.conteos_cie : {};
+
+      const container = document.getElementById('aoContainer');
+      container.innerHTML = '';
+
+      let totalCodigos = 0;
+      let conRegistros = 0;
+      let enCero = 0;
+
+      // Recorrer las 16 actividades
+      for (const [keyAO, meta] of Object.entries(INFO_AO)) {
+        const codigosDict = conteos[keyAO] || {};
+        const codigosKeys = Object.keys(codigosDict);
+
+        // Si no vinieron conteos para esta clave, omitir o mostrar vacía
+        if (codigosKeys.length === 0) continue;
+
+        // Calcular estado de la AO
+        const valorAO = (ped && ped[`act_operativa_${keyAO}`]) || (ped && ped[`act_operativa_nuemonia`] && keyAO === 'neumonia') || '0';
+        
+        let sumAOConRegistros = 0;
+        let sumAOEnCero = 0;
+
+        for (const [cie, cnt] of Object.entries(codigosDict)) {
+          totalCodigos++;
+          if (cnt > 0) {
+            conRegistros++;
+            sumAOConRegistros++;
+          } else {
+            enCero++;
+            sumAOEnCero++;
+          }
+        }
+
+        // Crear Tarjeta de la Actividad Operativa
+        const aoCard = document.createElement('div');
+        aoCard.className = 'bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden ao-block transition hover:shadow-md';
+        aoCard.dataset.aoKey = keyAO;
+
+        aoCard.innerHTML = `
+          <!-- Cabecera de la Actividad Operativa -->
+          <div class="p-5 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 bg-slate-50/50">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-${meta.color}-100 text-${meta.color}-600 flex items-center justify-center text-lg shadow-sm">
+                <i class="fa-solid ${meta.icon}"></i>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-slate-200 text-slate-700">AO ${keyAO.toUpperCase()}</span>
+                  <span class="text-xs text-slate-400 font-medium">${meta.categoria}</span>
+                </div>
+                <h3 class="text-base font-bold text-slate-800 mt-0.5">${meta.titulo}</h3>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3 self-end md:self-auto">
+              <div class="text-right">
+                <span class="text-xs text-slate-400 block font-medium">Contador Principal (Cumplen)</span>
+                <span class="text-xl font-extrabold text-${meta.color}-600 font-mono">${valorAO}</span>
+              </div>
+              <div class="h-8 w-px bg-slate-200"></div>
+              <div class="text-right">
+                <span class="text-xs text-slate-400 block font-medium">Códigos CIE-10</span>
+                <span class="text-xs font-semibold px-2 py-0.5 rounded-full ${sumAOConRegistros === codigosKeys.length ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'}">
+                  ${sumAOConRegistros}/${codigosKeys.length} activos
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabla de Códigos CIE-10 -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-100">
+                <tr>
+                  <th class="py-3 px-5 w-28">Código CIE-10</th>
+                  <th class="py-3 px-5">Descripción Clínica</th>
+                  <th class="py-3 px-5 w-36 text-center">Frecuencia</th>
+                  <th class="py-3 px-5 w-32 text-right">Estado</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                ${codigosKeys.map(cie => {
+                  const cnt = codigosDict[cie] || 0;
+                  const desc = CATALOGO_CIE[cie] || 'Diagnóstico según especificación técnica MINSA';
+                  const tieneRegistros = cnt > 0;
+                  
+                  return `
+                    <tr class="cie-row hover:bg-slate-50/80 transition" data-cie="${cie}" data-desc="${desc.toLowerCase()}" data-cnt="${cnt}">
+                      <td class="py-3 px-5 font-mono font-bold">
+                        <span class="px-2.5 py-1 rounded-lg ${tieneRegistros ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600'}">
+                          ${cie}
+                        </span>
+                      </td>
+                      <td class="py-3 px-5 text-slate-700 font-medium">${desc}</td>
+                      <td class="py-3 px-5 text-center font-mono font-bold text-sm ${tieneRegistros ? 'text-slate-900' : 'text-slate-400'}">
+                        ${cnt}
+                      </td>
+                      <td class="py-3 px-5 text-right">
+                        ${tieneRegistros 
+                          ? '<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800"><i class="fa-solid fa-check text-[10px]"></i> Con registro</span>'
+                          : '<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-400"><i class="fa-solid fa-minus text-[10px]"></i> En cero</span>'
+                        }
+                      </td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+
+        container.appendChild(aoCard);
+      }
+
+      // Actualizar contadores globales
+      document.getElementById('statTotalCodigos').textContent = totalCodigos;
+      document.getElementById('statConRegistros').textContent = conRegistros;
+      document.getElementById('statEnCero').textContent = enCero;
+
+      document.getElementById('emptyBox').classList.add('hidden');
+    }
+
+    // Filtrar en tiempo real por texto o por select
+    function filtrarTarjetas() {
+      const q = document.getElementById('searchInput').value.trim().toLowerCase();
+      const f = document.getElementById('filterSelect').value;
+
+      const rows = document.querySelectorAll('.cie-row');
+      const blocks = document.querySelectorAll('.ao-block');
+
+      blocks.forEach(block => {
+        let blockHasMatch = false;
+        const blockRows = block.querySelectorAll('.cie-row');
+
+        blockRows.forEach(row => {
+          const cie = row.dataset.cie.toLowerCase();
+          const desc = row.dataset.desc;
+          const cnt = parseInt(row.dataset.cnt, 10);
+
+          let matchText = !q || cie.includes(q) || desc.includes(q);
+          let matchFilter = true;
+
+          if (f === 'con_registros') matchFilter = cnt > 0;
+          if (f === 'en_cero') matchFilter = cnt === 0;
+
+          if (matchText && matchFilter) {
+            row.classList.remove('hidden');
+            blockHasMatch = true;
+          } else {
+            row.classList.add('hidden');
+          }
+        });
+
+        if (blockHasMatch) {
+          block.classList.remove('hidden');
+        } else {
+          block.classList.add('hidden');
+        }
+      });
+    }
+  </script>
+</body>
+</html>

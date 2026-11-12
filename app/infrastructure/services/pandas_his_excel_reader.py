@@ -48,11 +48,17 @@ class PandasHISExcelReader(HISExcelReaderPort):
         Lee el Excel HIS aplicando usecols para optimizar memoria,
         sanitiza tipos de datos y retorna la lista de VariablesPPR.
         """
+        # Determinar el motor de lectura: usar calamine (Rust) por velocidad; fallback a openpyxl
         try:
             # 1. Leer solo los encabezados (nrows=0) para identificar las columnas presentes
-            sample_df = pd.read_excel(io.BytesIO(file_content), nrows=0, engine="openpyxl")
-        except Exception as exc:
-            raise DomainException(f"Error al abrir el archivo Excel HIS: {exc}")
+            sample_df = pd.read_excel(io.BytesIO(file_content), nrows=0, engine="calamine")
+            engine_to_use = "calamine"
+        except Exception:
+            try:
+                sample_df = pd.read_excel(io.BytesIO(file_content), nrows=0, engine="openpyxl")
+                engine_to_use = "openpyxl"
+            except Exception as exc:
+                raise DomainException(f"Error al abrir el archivo Excel HIS: {exc}")
 
         # Normalizar los nombres de columnas del Excel para búsqueda insensible a mayúsculas/espacios
         excel_columns = {str(col).strip().lower(): col for col in sample_df.columns}
@@ -95,10 +101,19 @@ class PandasHISExcelReader(HISExcelReaderPort):
                 io.BytesIO(file_content),
                 usecols=cols_to_read,
                 dtype=dtype_spec,
-                engine="openpyxl",
+                engine=engine_to_use,
             )
-        except Exception as exc:
-            raise DomainException(f"Error procesando columnas del Excel HIS: {exc}")
+        except Exception:
+            # Fallback a openpyxl por seguridad
+            try:
+                df = pd.read_excel(
+                    io.BytesIO(file_content),
+                    usecols=cols_to_read,
+                    dtype=dtype_spec,
+                    engine="openpyxl",
+                )
+            except Exception as exc:
+                raise DomainException(f"Error procesando columnas del Excel HIS: {exc}")
 
         if df.empty:
             return []
@@ -107,7 +122,7 @@ class PandasHISExcelReader(HISExcelReaderPort):
         col_to_field = {original_col: field for field, original_col in fields_to_excel_col.items()}
         df.rename(columns=col_to_field, inplace=True)
 
-        # 5. Filtrar de inmediato en Pandas solo las UPS pediátricas: 301204 (Inmunizaciones) y 301202 (CRED)
+        # 5. Filtrar de inmediato en Pandas solo las UPS pediátricas: 301204 (Inmunizaciones), 301202 (CRED) y 303712 (Pediatría)
         def normalizar_ups(val: Any) -> str:
             if pd.isna(val) or val is None:
                 return ""
@@ -125,15 +140,40 @@ class PandasHISExcelReader(HISExcelReaderPort):
         # 6. Normalizar Fechas
         df["Fecha_Atencion"] = pd.to_datetime(df["Fecha_Atencion"], errors="coerce")
 
-        # 6. Construir entidades VariablesPPR
+        # 7. Funciones de limpieza de tipos (definidas fuera del bucle para máxima velocidad)
+        def clean_str(val: Any) -> str:
+            if pd.isna(val) or val is None:
+                return ""
+            return str(val).strip()
+
+        def clean_optional_str(val: Any) -> Optional[str]:
+            if pd.isna(val) or val is None or str(val).strip() == "":
+                return None
+            s = str(val).strip()
+            if isinstance(val, float) and val.is_integer():
+                return str(int(val))
+            if s.endswith(".0"):
+                try:
+                    f = float(s)
+                    if f.is_integer():
+                        return str(int(f))
+                except ValueError:
+                    pass
+            return s
+
+        def clean_optional_int(val: Any) -> Optional[int]:
+            if pd.isna(val) or val is None or str(val).strip() == "":
+                return None
+            try:
+                return int(float(val))
+            except (ValueError, TypeError):
+                return None
+
+        # 8. Construir entidades VariablesPPR usando to_dict('records') de alta velocidad
         entities: List[VariablesPPR] = []
 
-        for index, row in df.iterrows():
-            # Descartar filas vacías
-            if row.isna().all():
-                continue
-
-            fecha_atencion = row["Fecha_Atencion"]
+        for row in df.to_dict("records"):
+            fecha_atencion = row.get("Fecha_Atencion")
             if pd.isna(fecha_atencion):
                 parsed_fecha = date.today()
             elif isinstance(fecha_atencion, (datetime, pd.Timestamp)):
@@ -143,49 +183,21 @@ class PandasHISExcelReader(HISExcelReaderPort):
             else:
                 parsed_fecha = date.today()
 
-            def clean_str(val: Any) -> str:
-                if pd.isna(val) or val is None:
-                    return ""
-                return str(val).strip()
-
-            def clean_optional_str(val: Any) -> Optional[str]:
-                if pd.isna(val) or val is None or str(val).strip() == "":
-                    return None
-                s = str(val).strip()
-                if isinstance(val, float) and val.is_integer():
-                    return str(int(val))
-                if s.endswith(".0"):
-                    try:
-                        f = float(s)
-                        if f.is_integer():
-                            return str(int(f))
-                    except ValueError:
-                        pass
-                return s
-
-            def clean_optional_int(val: Any) -> Optional[int]:
-                if pd.isna(val) or val is None or str(val).strip() == "":
-                    return None
-                try:
-                    return int(float(val))
-                except (ValueError, TypeError):
-                    return None
-
+            raw_edad = row.get("Edad")
             try:
-                raw_edad = row["Edad"]
                 edad = int(float(raw_edad)) if not pd.isna(raw_edad) else 0
             except (ValueError, TypeError):
                 edad = 0
 
             entity = VariablesPPR(
-                Id_cita=clean_str(row["Id_cita"]),
+                Id_cita=clean_str(row.get("Id_cita")),
                 Fecha_Atencion=parsed_fecha,
-                Lote=clean_str(row["Lote"]),
-                Id_ups=clean_str(row["Id_ups"]),
+                Lote=clean_str(row.get("Lote")),
+                Id_ups=clean_str(row.get("Id_ups")),
                 Edad=edad,
-                Tipo_Edad=clean_str(row["Tipo_Edad"]),
-                Codigo_Item=clean_str(row["Codigo_Item"]),
-                Tipo_Diagnostico=clean_str(row["Tipo_Diagnostico"]),
+                Tipo_Edad=clean_str(row.get("Tipo_Edad")),
+                Codigo_Item=clean_str(row.get("Codigo_Item")),
+                Tipo_Diagnostico=clean_str(row.get("Tipo_Diagnostico")),
                 Valor_Lab=clean_optional_str(row.get("Valor_Lab")),
                 Id_Correlativo=clean_optional_int(row.get("Id_Correlativo")),
                 Id_Correlativo_Lab=clean_optional_int(row.get("Id_Correlativo_Lab")),

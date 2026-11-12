@@ -35,6 +35,7 @@ class IndicadorPediatriaDTO:
     act_operativa_3331204: str = "0"       # EDA persistente
     act_operativa_3331401: str = "0"       # EDA con deshidratación
     act_operativa_3331305_shock: str = "0" # EDA con deshidratación y shock
+    conteos_cie: Dict[str, Dict[str, int]] = field(default_factory=dict)
 
 
 @dataclass
