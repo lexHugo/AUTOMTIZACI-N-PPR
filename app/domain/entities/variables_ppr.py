@@ -18,8 +18,8 @@ class VariablesPPR:
     Codigo_Item: str
     Tipo_Diagnostico: str
     Valor_Lab: Optional[str] = None
-    Id_Correlativo: Optional[int] = None      # Posición correlativa del ítem/diagnóstico (1, 2, ..., 7...)
-    Id_Correlativo_Lab: Optional[int] = None  # Posición correlativa del laboratorio (1, 2, 3...)
+    Id_Correlativo: Optional[int] = None  
+    Id_Correlativo_Lab: Optional[int] = None 
 
     def estandarizar_edad(self) -> int:
         """Alias para obtener la edad en meses."""

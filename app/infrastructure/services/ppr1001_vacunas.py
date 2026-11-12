@@ -2,10 +2,10 @@ from collections import defaultdict
 from typing import Dict, List, Optional, Set, Union
 from app.domain.entities.variables_ppr import VariablesPPR
 from app.application.dtos.indicadores_dto import IndicadorVacunasDTO, IndicadorDTO
-from app.application.ports.ppr1001_interface import PPR1001Interface
+from app.application.ports.ppr_calculator_port import PPRCalculatorPort
 
 
-class PPR1001Service(PPR1001Interface):
+class PPR1001Service(PPRCalculatorPort):
     """
     Servicio de cálculo de las 9 Actividades Operativas del PPR1001
     según las especificaciones técnicas oficiales de HIS MINSA.

@@ -2,9 +2,10 @@ from collections import defaultdict
 from typing import Callable, Dict, List, Optional, Set, Union
 from app.domain.entities.variables_ppr import VariablesPPR
 from app.application.dtos.indicadores_dto import IndicadorPediatriaDTO
+from app.application.ports.ppr_calculator_port import PPRCalculatorPort
 
 
-class PPR1001_Atenciones_Service:
+class PPR1001_Atenciones_Service(PPRCalculatorPort):
     """
     Servicio de cálculo de Actividades Operativas de Pediatría (Atenciones Médicas)
     para el Programa Presupuestal PPR1001 según normas técnicas del MINSA.

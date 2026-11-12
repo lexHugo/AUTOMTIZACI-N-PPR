@@ -7,6 +7,7 @@ from app.application.dtos.indicadores_dto import (
     IndicadorPediatriaDTO,
 )
 from app.application.ports.his_excel_reader_port import HISExcelReaderPort
+from app.application.ports.ppr_calculator_port import PPRCalculatorPort
 from app.domain.entities.historico_ppr import HistoricoPPR
 from app.domain.repositories.historico_ppr_repository import HistoricoPPRRepositoryInterface
 
@@ -26,8 +27,8 @@ class ProcesarPPR1001UseCase:
     def __init__(
         self,
         his_reader: HISExcelReaderPort,
-        vacunas_calculator: Any,
-        pediatria_calculator: Optional[Any] = None,
+        vacunas_calculator: PPRCalculatorPort,
+        pediatria_calculator: Optional[PPRCalculatorPort] = None,
         historico_repo: Optional[HistoricoPPRRepositoryInterface] = None,
     ):
         self.his_reader = his_reader
