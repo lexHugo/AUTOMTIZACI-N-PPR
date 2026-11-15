@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, status
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from pathlib import Path
 import uvicorn
 
@@ -66,13 +66,11 @@ def serve_ui():
     return HTMLResponse(content="<h1>UI en construcción</h1>")
 
 
-@app.get("/desglose-cie10", response_class=HTMLResponse, tags=["Frontend UI"])
-@app.get("/cie10", response_class=HTMLResponse, tags=["Frontend UI"])
+@app.get("/desglose-cie10", tags=["Frontend UI"])
+@app.get("/cie10", tags=["Frontend UI"])
 def serve_cie10_ui():
-    """Sirve la página a parte con el desglose de códigos CIE-10 y sus contadores."""
-    if CIE10_FILE_PATH.exists():
-        return HTMLResponse(content=CIE10_FILE_PATH.read_text(encoding="utf-8"))
-    return HTMLResponse(content="<h1>Página de Desglose CIE-10 en construcción</h1>")
+    """Redirige al panel unificado en la pestaña de Desglose CIE-10 para mantener la persistencia y los datos cargados."""
+    return RedirectResponse(url="/?tab=cie10", status_code=status.HTTP_307_TEMPORARY_REDIRECT)
 
 
 if __name__ == "__main__":
