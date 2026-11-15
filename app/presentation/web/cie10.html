@@ -12,27 +12,36 @@
     .gradient-bg {
       background: linear-gradient(135deg, #059669 0%, #0d9488 50%, #0284c7 100%);
     }
+    .cat-tab-active {
+      background-color: #059669;
+      color: #ffffff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    html {
+      scroll-behavior: smooth;
+    }
   </style>
 </head>
 <body class="bg-slate-50 min-h-screen text-slate-800 flex flex-col font-sans">
 
   <!-- Header -->
   <header class="gradient-bg text-white shadow-md">
-    <div class="max-w-7xl mx-auto px-4 py-5 flex flex-col sm:flex-row justify-between items-center gap-4">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
       <div class="flex items-center gap-3">
         <a href="/" class="bg-white/20 hover:bg-white/30 p-2.5 rounded-xl backdrop-blur-sm transition flex items-center justify-center text-white" title="Volver al Monitor Principal">
-          <i class="fa-solid fa-arrow-left text-xl"></i>
+          <i class="fa-solid fa-arrow-left text-lg"></i>
         </a>
         <div>
           <div class="flex items-center gap-2">
-            <h1 class="text-2xl font-bold tracking-tight">Desglose de Códigos CIE-10</h1>
+            <h1 class="text-xl sm:text-2xl font-bold tracking-tight">Desglose de Códigos CIE-10</h1>
             <span class="bg-emerald-400/30 text-emerald-100 text-xs font-semibold px-2.5 py-0.5 rounded-full border border-emerald-300/30">Pediatría</span>
           </div>
-          <p class="text-emerald-100 text-xs sm:text-sm">Frecuencia y conteo individual de diagnósticos por Actividad Operativa</p>
+          <p class="text-emerald-100 text-xs">Frecuencia y conteo individual de diagnósticos por Actividad Operativa</p>
         </div>
       </div>
       
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-3">
+        <span id="headerFileBadge" class="hidden text-xs bg-white/10 px-3 py-1.5 rounded-xl border border-white/20 text-emerald-50 backdrop-blur-sm"></span>
         <a href="/" class="bg-white text-slate-800 hover:bg-slate-100 px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-sm">
           <i class="fa-solid fa-chart-pie text-sky-600"></i>
           <span>Monitor PPR 1001</span>
@@ -42,16 +51,16 @@
   </header>
 
   <!-- Main Content -->
-  <main class="max-w-7xl mx-auto px-4 py-8 flex-1 w-full space-y-6">
+  <main class="max-w-7xl mx-auto px-4 py-6 flex-1 w-full space-y-5">
 
     <!-- Subir Archivo Rápido (si no hay datos o si desea cambiar) -->
-    <div id="quickUploadBox" class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex flex-col sm:flex-row justify-between items-center gap-4">
+    <div id="quickUploadBox" class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex flex-col sm:flex-row justify-between items-center gap-4">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
+        <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shadow-inner">
           <i class="fa-solid fa-file-excel"></i>
         </div>
         <div>
-          <p class="text-sm font-bold text-slate-800" id="currentFileTitle">Archivo actual: Ninguno cargado</p>
+          <p class="text-sm font-bold text-slate-800" id="currentFileTitle">Archivo: Ninguno cargado</p>
           <p class="text-xs text-slate-400" id="currentFileSub">Sube una trama HIS para ver los contadores de cada código CIE-10</p>
         </div>
       </div>
@@ -65,43 +74,115 @@
       </div>
     </div>
 
-    <!-- Barra de Métricas y Buscador -->
-    <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4">
+    <!-- Barra de Estadísticas Clave -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center text-base">
+          <i class="fa-solid fa-list-check"></i>
+        </div>
+        <div>
+          <span class="text-xs text-slate-400 block font-medium">Total Códigos CIE</span>
+          <span class="text-lg font-extrabold text-slate-800 font-mono" id="statTotalCodigos">0</span>
+        </div>
+      </div>
       
-      <!-- Resumen Estadístico -->
-      <div class="flex items-center gap-6 overflow-x-auto pb-2 md:pb-0 text-xs">
-        <div>
-          <span class="text-slate-400 block font-medium">Total Códigos CIE-10</span>
-          <span class="text-lg font-bold text-slate-800 font-mono" id="statTotalCodigos">0</span>
+      <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-base">
+          <i class="fa-solid fa-circle-check"></i>
         </div>
-        <div class="h-8 w-px bg-slate-200"></div>
         <div>
-          <span class="text-slate-400 block font-medium">Con Registros (&ge; 1)</span>
-          <span class="text-lg font-bold text-emerald-600 font-mono" id="statConRegistros">0</span>
-        </div>
-        <div class="h-8 w-px bg-slate-200"></div>
-        <div>
-          <span class="text-slate-400 block font-medium">En Cero (= 0)</span>
-          <span class="text-lg font-bold text-rose-500 font-mono" id="statEnCero">0</span>
-        </div>
-        <div class="h-8 w-px bg-slate-200"></div>
-        <div>
-          <span class="text-slate-400 block font-medium">AOs Analizadas</span>
-          <span class="text-lg font-bold text-sky-600 font-mono">16 Actividades</span>
+          <span class="text-xs text-slate-400 block font-medium">Con Registros (&ge; 1)</span>
+          <span class="text-lg font-extrabold text-emerald-600 font-mono" id="statConRegistros">0</span>
         </div>
       </div>
 
-      <!-- Buscador y Filtro -->
-      <div class="flex items-center gap-2">
-        <div class="relative w-full sm:w-64">
-          <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-          <input type="text" id="searchInput" placeholder="Buscar CIE-10 o nombre..." class="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-slate-300 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" />
+      <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center text-base">
+          <i class="fa-solid fa-circle-minus"></i>
         </div>
-        <select id="filterSelect" class="text-xs py-1.5 px-3 rounded-xl border border-slate-300 focus:outline-none focus:border-emerald-500 bg-white">
-          <option value="all">Ver Todos</option>
-          <option value="con_registros">Solo con registros (> 0)</option>
-          <option value="en_cero">Solo en cero (= 0)</option>
-        </select>
+        <div>
+          <span class="text-xs text-slate-400 block font-medium">En Cero (= 0)</span>
+          <span class="text-lg font-extrabold text-rose-500 font-mono" id="statEnCero">0</span>
+        </div>
+      </div>
+
+      <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-base">
+          <i class="fa-solid fa-stethoscope"></i>
+        </div>
+        <div>
+          <span class="text-xs text-slate-400 block font-medium">Actividades</span>
+          <span class="text-lg font-extrabold text-sky-600 font-mono">16 AO</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- PANEL DE CONTROL FLOTANTE (STICKY): Resuelve el problema del scroll        -->
+    <!-- ========================================================================= -->
+    <div class="sticky top-3 z-30 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200 p-3.5 shadow-md space-y-3">
+      
+      <!-- Fila 1: Pestañas de Categoría & Vistas -->
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+        
+        <!-- Pestañas de Categoría (Filtran para no ver 16 a la vez) -->
+        <div class="flex flex-wrap items-center gap-1.5 text-xs font-semibold" id="categoryTabs">
+          <button data-cat="all" class="cat-tab cat-tab-active px-3 py-1.5 rounded-xl transition">
+            <i class="fa-solid fa-layer-group mr-1"></i> Todas (16)
+          </button>
+          <button data-cat="nutricion" class="cat-tab text-slate-600 hover:text-slate-900 bg-slate-100 px-3 py-1.5 rounded-xl transition">
+            <i class="fa-solid fa-droplet text-red-500 mr-1"></i> Nutrición &amp; Parasitosis (2)
+          </button>
+          <button data-cat="iras" class="cat-tab text-slate-600 hover:text-slate-900 bg-slate-100 px-3 py-1.5 rounded-xl transition">
+            <i class="fa-solid fa-lungs text-sky-500 mr-1"></i> IRAs (9)
+          </button>
+          <button data-cat="edas" class="cat-tab text-slate-600 hover:text-slate-900 bg-slate-100 px-3 py-1.5 rounded-xl transition">
+            <i class="fa-solid fa-notes-medical text-emerald-500 mr-1"></i> EDAs (5)
+          </button>
+        </div>
+
+        <!-- Botones de Acción Rápida: Expandir / Colapsar Todos -->
+        <div class="flex items-center gap-1.5 text-xs">
+          <button id="btnExpandAll" class="px-2.5 py-1 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg font-medium transition flex items-center gap-1" title="Abrir todas las tarjetas">
+            <i class="fa-solid fa-angles-down text-emerald-600"></i> Expandir todo
+          </button>
+          <span class="text-slate-300">|</span>
+          <button id="btnCollapseAll" class="px-2.5 py-1 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg font-medium transition flex items-center gap-1" title="Cerrar todas las tarjetas">
+            <i class="fa-solid fa-angles-up text-slate-500"></i> Colapsar todo
+          </button>
+        </div>
+      </div>
+
+      <!-- Fila 2: Buscador en tiempo real y Filtro de Estado -->
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-2.5">
+        <div class="relative w-full sm:w-80">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+          <input type="text" id="searchInput" placeholder="Buscar CIE-10 (ej: D509, J00X, A09X)..." class="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 bg-slate-50 focus:bg-white" />
+        </div>
+
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+          <select id="filterSelect" class="w-full sm:w-auto text-xs py-1.5 px-3 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 bg-slate-50 font-medium">
+            <option value="all">Filtro: Todos los estados</option>
+            <option value="con_registros">Solo con registros (&ge; 1)</option>
+            <option value="en_cero">Solo en cero (= 0)</option>
+          </select>
+
+          <!-- Toggle de Vista: Acordeones vs Tabla Global -->
+          <div class="flex items-center bg-slate-100 p-0.5 rounded-xl text-xs font-semibold">
+            <button id="viewAccordionBtn" class="px-2.5 py-1 rounded-lg bg-white text-slate-800 shadow-sm transition" title="Vista por Actividades Operativas">
+              <i class="fa-solid fa-bars-staggered"></i>
+            </button>
+            <button id="viewGlobalTableBtn" class="px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-800 transition" title="Vista de Tabla General Única">
+              <i class="fa-solid fa-table"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fila 3: Salto Rápido a AO (Quick Jump Chips) -->
+      <div id="quickJumpBar" class="flex items-center gap-1 overflow-x-auto pb-1 text-[11px] font-mono no-scrollbar">
+        <span class="text-slate-400 font-sans text-xs mr-1 shrink-0 font-medium"><i class="fa-solid fa-bolt text-amber-500"></i> Salto:</span>
+        <!-- Se generan chips de cada AO -->
       </div>
 
     </div>
@@ -109,7 +190,7 @@
     <!-- Mensaje de Carga / Spinner -->
     <div id="loadingBox" class="hidden bg-white p-12 rounded-2xl border border-slate-200 text-center space-y-3">
       <i class="fa-solid fa-spinner fa-spin text-3xl text-emerald-600"></i>
-      <p class="text-sm font-semibold text-slate-700">Procesando trama HIS y calculando frecuencias...</p>
+      <p class="text-sm font-semibold text-slate-700">Procesando trama HIS con Calamine (Rust) y calculando frecuencias...</p>
     </div>
 
     <!-- Mensaje Vacío (Sin datos) -->
@@ -118,23 +199,55 @@
         <i class="fa-solid fa-table"></i>
       </div>
       <div>
-        <h3 class="text-base font-bold text-slate-800">No hay datos para mostrar</h3>
+        <h3 class="text-base font-bold text-slate-800">No hay datos cargados</h3>
         <p class="text-xs text-slate-500 mt-1 max-w-md mx-auto">
           Carga un archivo Excel exportado de HIS MINSA para visualizar el desglose detallado de todos los códigos CIE-10 y sus frecuencias.
         </p>
       </div>
-      <button onclick="document.getElementById('fileInput').click()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition inline-flex items-center gap-2">
+      <button onclick="document.getElementById('fileInput').click()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition inline-flex items-center gap-2 shadow-sm">
         <i class="fa-solid fa-cloud-arrow-up"></i>
         <span>Cargar Archivo Excel</span>
       </button>
     </div>
 
-    <!-- Contenedor Principal de Actividades Operativas -->
-    <div id="aoContainer" class="space-y-6">
-      <!-- Se puebla dinámicamente con JavaScript -->
+    <!-- VISTA 1: Contenedor de Acordeones por AO -->
+    <div id="aoContainer" class="space-y-3">
+      <!-- Se puebla dinámicamente -->
+    </div>
+
+    <!-- VISTA 2: Tabla Consolidada Única (Para quienes no quieren scroll ni acordeones) -->
+    <div id="globalTableContainer" class="hidden bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
+        <div>
+          <h3 class="text-sm font-bold text-slate-800">Tabla General de Códigos CIE-10 Pediátricos</h3>
+          <p class="text-xs text-slate-400">Listado consolidado de todos los códigos analizados</p>
+        </div>
+        <span id="globalTableBadge" class="text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-lg border border-emerald-200"></span>
+      </div>
+      <div class="overflow-x-auto max-h-[70vh]">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-100 text-slate-600 uppercase tracking-wider font-semibold border-b border-slate-200 sticky top-0 z-10">
+            <tr>
+              <th class="py-3 px-4 w-28">Código CIE</th>
+              <th class="py-3 px-4">Descripción Clínica</th>
+              <th class="py-3 px-4 w-44">Actividad Operativa</th>
+              <th class="py-3 px-4 w-28 text-center">Frecuencia</th>
+              <th class="py-3 px-4 w-28 text-right">Estado</th>
+            </tr>
+          </thead>
+          <tbody id="globalTableBody" class="divide-y divide-slate-100">
+            <!-- Se puebla dinámicamente -->
+          </tbody>
+        </table>
+      </div>
     </div>
 
   </main>
+
+  <!-- Botón Flotante "Volver Arriba" -->
+  <button id="btnScrollTop" class="hidden fixed bottom-6 right-6 w-11 h-11 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full shadow-lg transition flex items-center justify-center text-sm z-40" title="Volver al inicio">
+    <i class="fa-solid fa-arrow-up"></i>
+  </button>
 
   <!-- Footer -->
   <footer class="bg-white border-t border-slate-200 py-4 mt-auto">
@@ -145,12 +258,10 @@
 
   <!-- Lógica JavaScript -->
   <script>
-    // Catálogo de descripciones amigables para los códigos CIE-10 pediátricos
+    // Catálogo de descripciones amigables
     const CATALOGO_CIE = {
-      // Anemia
       "D509": "Anemia por deficiencia de hierro sin especificación (Ferropénica)",
       "D649": "Anemia de tipo no especificado",
-      // Parasitosis
       "B680": "Teniasis debida a Taenia solium (cerdo)",
       "B681": "Teniasis debida a Taenia saginata (vaca)",
       "B689": "Teniasis no especificada",
@@ -161,7 +272,6 @@
       "A071": "Giardiasis [lambliasis]",
       "A06": "Amebiasis",
       "B829": "Parasitosis intestinal sin especificación",
-      // IRA No Complicada
       "J00X": "Rinofaringitis aguda [resfriado común]",
       "J040": "Laringitis aguda",
       "J041": "Traqueítis aguda",
@@ -170,29 +280,24 @@
       "J068": "Otras infecciones respiratorias agudas",
       "J069": "Infección respiratoria aguda de sitios no especificados",
       "J209": "Bronquitis aguda",
-      // FAPA
       "J020": "Faringitis estreptocócica",
       "J029": "Faringitis aguda no especificada",
       "J030": "Amigdalitis estreptocócica",
       "J038": "Amigdalitis aguda debida a otros microorganismos",
       "J039": "Amigdalitis aguda no especificada",
-      // OMA
       "H650": "Otitis media aguda no supurativa",
       "H651": "Otras otitis medias agudas no supurativas",
       "H660": "Otitis media aguda supurativa",
       "H669": "Otitis media supurativa y no especificada",
-      // Sinusitis
       "J010": "Sinusitis maxilar aguda",
       "J011": "Sinusitis frontal aguda",
       "J012": "Sinusitis etmoidal aguda",
       "J013": "Sinusitis esfenoidal aguda",
       "J014": "Pansinusitis aguda",
       "J019": "Sinusitis aguda no especificada",
-      // Neumonía no complicada
       "J129": "Neumonía viral no especificada",
       "J159": "Neumonía bacteriana no especificada",
       "J181": "Neumonía lobar no especificada",
-      // Neumonía complicada
       "A369": "Difteria no especificada",
       "A370": "Tos ferina debida a Bordetella pertussis",
       "A371": "Tos ferina debida a Bordetella parapertussis",
@@ -214,7 +319,6 @@
       "J158": "Otras neumonías bacterianas",
       "J160": "Neumonía por Chlamydia",
       "J168": "Neumonía por otros microorganismos especificados",
-      // Neumonía Grave
       "J050": "Laringitis obstructiva aguda [crup]",
       "J051": "Epiglotitis aguda",
       "J851": "Absceso del pulmón con neumonía",
@@ -229,7 +333,6 @@
       "J180": "Bronconeumonía no especificada",
       "J182": "Neumonía hipostática no especificada",
       "J188": "Otras neumonías de microorganismo no especificado",
-      // SOBA / ASMA
       "J210": "Bronquiolitis aguda por VSR",
       "J211": "Bronquiolitis aguda por metapneumovirus",
       "J218": "Bronquiolitis aguda por otros microorganismos",
@@ -242,7 +345,6 @@
       "J451": "Asma no alérgica",
       "J459": "Asma no especificada",
       "J46X": "Estado asmático agudo severo",
-      // EDA No Complicada
       "A009": "Cólera no especificado",
       "A010": "Fiebre tifoidea",
       "A011": "Fiebre paratifoidea A",
@@ -262,16 +364,13 @@
       "A084": "Infección intestinal viral sin especificación",
       "A090": "Otras gastroenteritis y colitis de origen infeccioso",
       "A099": "Gastroenteritis y colitis de origen no especificado",
-      // EDA Disentérica
       "A030": "Shigelosis debida a Shigella dysenteriae",
       "A039": "Shigelosis de tipo no especificado",
       "A042": "Infección debida a Escherichia coli enteroinvasiva",
       "A043": "Infección debida a Escherichia coli enterohemorrágica",
       "A045": "Enteritis debida a Campylobacter",
       "A060": "Disentería amebiana aguda",
-      // EDA Persistente
       "A09X": "Diarrea y gastroenteritis de presunto origen infeccioso",
-      // Complicaciones
       "E86X": "Depleción del volumen [deshidratación]",
       "R571": "Choque hipovolémico",
       "E872": "Acidosis",
@@ -280,29 +379,30 @@
 
     // Metadatos de Actividades Operativas
     const INFO_AO = {
-      "3331501": { titulo: "Anemia en < 5 Años", categoria: "Nutrición & Prevalentes", icon: "fa-droplet", color: "red" },
-      "3341401": { titulo: "Parasitosis Intestinal en < 5 Años", categoria: "Nutrición & Prevalentes", icon: "fa-bacterium", color: "amber" },
-      "3331101": { titulo: "IRA No Complicada", categoria: "Infecciones Respiratorias (IRAs)", icon: "fa-head-side-cough", color: "sky" },
-      "3331102": { titulo: "FAPA (Faringoamigdalitis)", categoria: "Infecciones Respiratorias (IRAs)", icon: "fa-lungs", color: "blue" },
-      "3331103": { titulo: "OMA (Otitis Media Aguda)", categoria: "Infecciones Respiratorias (IRAs)", icon: "fa-ear-listen", color: "indigo" },
-      "3331104": { titulo: "Sinusitis Aguda", categoria: "Infecciones Respiratorias (IRAs)", icon: "fa-virus", color: "purple" },
-      "3331105": { titulo: "Neumonía No Complicada", categoria: "Infecciones Respiratorias (IRAs)", icon: "fa-lungs-virus", color: "violet" },
-      "neumonia": { titulo: "Neumonía con Complicaciones", categoria: "Infecciones Respiratorias (IRAs)", icon: "fa-hospital", color: "fuchsia" },
-      "3331301": { titulo: "Neumonía Muy Grave (< 2 Meses)", categoria: "Infecciones Respiratorias (IRAs)", icon: "fa-circle-exclamation", color: "rose" },
-      "3331305": { titulo: "Neumonía Muy Grave (2m a 4a)", categoria: "Infecciones Respiratorias (IRAs)", icon: "fa-triangle-exclamation", color: "pink" },
-      "3331502": { titulo: "SOBA / ASMA Pediátrico", categoria: "Infecciones Respiratorias (IRAs)", icon: "fa-lungs", color: "orange" },
-      "3331201": { titulo: "EDA No Complicada", categoria: "Enfermedades Diarreicas (EDAs)", icon: "fa-notes-medical", color: "emerald" },
-      "3331203": { titulo: "EDA Disentérica", categoria: "Enfermedades Diarreicas (EDAs)", icon: "fa-bacteria", color: "teal" },
-      "3331204": { titulo: "EDA Persistente", categoria: "Enfermedades Diarreicas (EDAs)", icon: "fa-clock-rotate-left", color: "cyan" },
-      "3331401": { titulo: "EDA con Deshidratación", categoria: "Enfermedades Diarreicas (EDAs)", icon: "fa-faucet-drip", color: "yellow" },
-      "3331305_shock": { titulo: "EDA con Deshidratación y Shock", categoria: "Enfermedades Diarreicas (EDAs)", icon: "fa-heart-pulse", color: "red" }
+      "3331501": { titulo: "Anemia en < 5 Años", categoriaKey: "nutricion", categoria: "Nutrición & Prevalentes", icon: "fa-droplet", color: "red" },
+      "3341401": { titulo: "Parasitosis Intestinal en < 5 Años", categoriaKey: "nutricion", categoria: "Nutrición & Prevalentes", icon: "fa-bacterium", color: "amber" },
+      "3331101": { titulo: "IRA No Complicada", categoriaKey: "iras", categoria: "Infecciones Respiratorias (IRAs)", icon: "fa-head-side-cough", color: "sky" },
+      "3331102": { titulo: "FAPA (Faringoamigdalitis)", categoriaKey: "iras", categoria: "Infecciones Respiratorias (IRAs)", icon: "fa-lungs", color: "blue" },
+      "3331103": { titulo: "OMA (Otitis Media Aguda)", categoriaKey: "iras", categoria: "Infecciones Respiratorias (IRAs)", icon: "fa-ear-listen", color: "indigo" },
+      "3331104": { titulo: "Sinusitis Aguda", categoriaKey: "iras", categoria: "Infecciones Respiratorias (IRAs)", icon: "fa-virus", color: "purple" },
+      "3331105": { titulo: "Neumonía No Complicada", categoriaKey: "iras", categoria: "Infecciones Respiratorias (IRAs)", icon: "fa-lungs-virus", color: "violet" },
+      "neumonia": { titulo: "Neumonía con Complicaciones", categoriaKey: "iras", categoria: "Infecciones Respiratorias (IRAs)", icon: "fa-hospital", color: "fuchsia" },
+      "3331301": { titulo: "Neumonía Muy Grave (< 2 Meses)", categoriaKey: "iras", categoria: "Infecciones Respiratorias (IRAs)", icon: "fa-circle-exclamation", color: "rose" },
+      "3331305": { titulo: "Neumonía Muy Grave (2m a 4a)", categoriaKey: "iras", categoria: "Infecciones Respiratorias (IRAs)", icon: "fa-triangle-exclamation", color: "pink" },
+      "3331502": { titulo: "SOBA / ASMA Pediátrico", categoriaKey: "iras", categoria: "Infecciones Respiratorias (IRAs)", icon: "fa-lungs", color: "orange" },
+      "3331201": { titulo: "EDA No Complicada", categoriaKey: "edas", categoria: "Enfermedades Diarreicas (EDAs)", icon: "fa-notes-medical", color: "emerald" },
+      "3331203": { titulo: "EDA Disentérica", categoriaKey: "edas", categoria: "Enfermedades Diarreicas (EDAs)", icon: "fa-bacteria", color: "teal" },
+      "3331204": { titulo: "EDA Persistente", categoriaKey: "edas", categoria: "Enfermedades Diarreicas (EDAs)", icon: "fa-clock-rotate-left", color: "cyan" },
+      "3331401": { titulo: "EDA con Deshidratación", categoriaKey: "edas", categoria: "Enfermedades Diarreicas (EDAs)", icon: "fa-faucet-drip", color: "yellow" },
+      "3331305_shock": { titulo: "EDA con Deshidratación y Shock", categoriaKey: "edas", categoria: "Enfermedades Diarreicas (EDAs)", icon: "fa-heart-pulse", color: "red" }
     };
 
     let datosGlobales = null;
+    let categoriaActiva = "all";
+    let vistaActual = "accordion"; // 'accordion' o 'table'
 
-    // Inicializar al cargar la página
     document.addEventListener('DOMContentLoaded', () => {
-      // 1. Revisar si hay datos previos en sessionStorage
+      // 1. Cargar datos desde sessionStorage
       const guardado = sessionStorage.getItem('ultimoResultadoPPR');
       const nombreArchivo = sessionStorage.getItem('ultimoNombreArchivo');
 
@@ -311,32 +411,85 @@
           const data = JSON.parse(guardado);
           if (nombreArchivo) {
             document.getElementById('currentFileTitle').textContent = `Archivo: ${nombreArchivo}`;
-            document.getElementById('currentFileSub').textContent = 'Datos cargados desde la última sesión';
+            document.getElementById('currentFileSub').textContent = 'Datos en memoria listos para análisis';
+            document.getElementById('headerFileBadge').textContent = nombreArchivo;
+            document.getElementById('headerFileBadge').classList.remove('hidden');
           }
           renderizarDesglose(data);
         } catch (e) {
-          console.error("Error al leer datos guardados:", e);
+          console.error(e);
           mostrarVacio();
         }
       } else {
         mostrarVacio();
       }
 
-      // Eventos de subida rápida
+      // 2. Eventos de Archivo
       const fileInput = document.getElementById('fileInput');
-      const uploadBtn = document.getElementById('uploadBtn');
-
-      uploadBtn.addEventListener('click', () => fileInput.click());
-
+      document.getElementById('uploadBtn').addEventListener('click', () => fileInput.click());
       fileInput.addEventListener('change', async (e) => {
-        if (e.target.files.length) {
-          await procesarArchivo(e.target.files[0]);
-        }
+        if (e.target.files.length) await procesarArchivo(e.target.files[0]);
       });
 
-      // Filtros y búsqueda
+      // 3. Pestañas de Categoría
+      document.querySelectorAll('#categoryTabs .cat-tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('#categoryTabs .cat-tab').forEach(b => {
+            b.classList.remove('cat-tab-active');
+            b.classList.add('text-slate-600', 'bg-slate-100');
+          });
+          btn.classList.add('cat-tab-active');
+          btn.classList.remove('text-slate-600', 'bg-slate-100');
+          categoriaActiva = btn.dataset.cat;
+          filtrarTarjetas();
+        });
+      });
+
+      // 4. Expandir / Colapsar Todos
+      document.getElementById('btnExpandAll').addEventListener('click', () => {
+        document.querySelectorAll('.ao-table-wrapper').forEach(w => w.classList.remove('hidden'));
+        document.querySelectorAll('.ao-chevron').forEach(c => c.classList.add('rotate-180'));
+      });
+
+      document.getElementById('btnCollapseAll').addEventListener('click', () => {
+        document.querySelectorAll('.ao-table-wrapper').forEach(w => w.classList.add('hidden'));
+        document.querySelectorAll('.ao-chevron').forEach(c => c.classList.remove('rotate-180'));
+      });
+
+      // 5. Toggle de Vista: Acordeón vs Tabla
+      const viewAccBtn = document.getElementById('viewAccordionBtn');
+      const viewTblBtn = document.getElementById('viewGlobalTableBtn');
+
+      viewAccBtn.addEventListener('click', () => {
+        vistaActual = 'accordion';
+        viewAccBtn.className = 'px-2.5 py-1 rounded-lg bg-white text-slate-800 shadow-sm transition';
+        viewTblBtn.className = 'px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-800 transition';
+        document.getElementById('aoContainer').classList.remove('hidden');
+        document.getElementById('globalTableContainer').classList.add('hidden');
+      });
+
+      viewTblBtn.addEventListener('click', () => {
+        vistaActual = 'table';
+        viewTblBtn.className = 'px-2.5 py-1 rounded-lg bg-white text-slate-800 shadow-sm transition';
+        viewAccBtn.className = 'px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-800 transition';
+        document.getElementById('aoContainer').classList.add('hidden');
+        document.getElementById('globalTableContainer').classList.remove('hidden');
+      });
+
+      // 6. Filtros y búsqueda
       document.getElementById('searchInput').addEventListener('input', filtrarTarjetas);
       document.getElementById('filterSelect').addEventListener('change', filtrarTarjetas);
+
+      // 7. Scroll Top Button
+      const btnScrollTop = document.getElementById('btnScrollTop');
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 300) {
+          btnScrollTop.classList.remove('hidden');
+        } else {
+          btnScrollTop.classList.add('hidden');
+        }
+      });
+      btnScrollTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
     });
 
     async function procesarArchivo(file) {
@@ -351,6 +504,7 @@
       document.getElementById('loadingBox').classList.remove('hidden');
       document.getElementById('emptyBox').classList.add('hidden');
       document.getElementById('aoContainer').innerHTML = '';
+      document.getElementById('globalTableBody').innerHTML = '';
 
       try {
         const response = await fetch('/api/v1/ppr1001/procesar', {
@@ -366,6 +520,8 @@
 
         document.getElementById('currentFileTitle').textContent = `Archivo: ${file.name}`;
         document.getElementById('currentFileSub').textContent = `Procesado: ${new Date().toLocaleTimeString()}`;
+        document.getElementById('headerFileBadge').textContent = file.name;
+        document.getElementById('headerFileBadge').classList.remove('hidden');
 
         renderizarDesglose(data);
       } catch (err) {
@@ -379,6 +535,7 @@
     function mostrarVacio() {
       document.getElementById('emptyBox').classList.remove('hidden');
       document.getElementById('aoContainer').innerHTML = '';
+      document.getElementById('globalTableBody').innerHTML = '';
       document.getElementById('statTotalCodigos').textContent = '0';
       document.getElementById('statConRegistros').textContent = '0';
       document.getElementById('statEnCero').textContent = '0';
@@ -390,21 +547,25 @@
       const conteos = (ped && ped.conteos_cie) ? ped.conteos_cie : {};
 
       const container = document.getElementById('aoContainer');
+      const quickJumpBar = document.getElementById('quickJumpBar');
+      const globalTableBody = document.getElementById('globalTableBody');
+
       container.innerHTML = '';
+      globalTableBody.innerHTML = '';
+      quickJumpBar.innerHTML = '<span class="text-slate-400 font-sans text-xs mr-1 shrink-0 font-medium"><i class="fa-solid fa-bolt text-amber-500"></i> Salto:</span>';
 
       let totalCodigos = 0;
       let conRegistros = 0;
       let enCero = 0;
 
-      // Recorrer las 16 actividades
+      let indexCard = 0;
+
       for (const [keyAO, meta] of Object.entries(INFO_AO)) {
         const codigosDict = conteos[keyAO] || {};
         const codigosKeys = Object.keys(codigosDict);
-
-        // Si no vinieron conteos para esta clave, omitir o mostrar vacía
         if (codigosKeys.length === 0) continue;
 
-        // Calcular estado de la AO
+        indexCard++;
         const valorAO = (ped && ped[`act_operativa_${keyAO}`]) || (ped && ped[`act_operativa_nuemonia`] && keyAO === 'neumonia') || '0';
         
         let sumAOConRegistros = 0;
@@ -419,85 +580,158 @@
             enCero++;
             sumAOEnCero++;
           }
+
+          // Llenar fila de la Tabla Global Consolidada
+          const descCie = CATALOGO_CIE[cie] || 'Diagnóstico MINSA';
+          const tieneReg = cnt > 0;
+          const trGlobal = document.createElement('tr');
+          trGlobal.className = 'hover:bg-slate-50 transition global-tr';
+          trGlobal.dataset.cie = cie.toLowerCase();
+          trGlobal.dataset.desc = descCie.toLowerCase();
+          trGlobal.dataset.cnt = cnt;
+          trGlobal.dataset.cat = meta.categoriaKey;
+          trGlobal.innerHTML = `
+            <td class="py-2.5 px-4 font-mono font-bold">
+              <span class="px-2 py-0.5 rounded-md ${tieneReg ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-500'}">
+                ${cie}
+              </span>
+            </td>
+            <td class="py-2.5 px-4 text-slate-700">${descCie}</td>
+            <td class="py-2.5 px-4 text-slate-500 text-[11px]">
+              <span class="font-bold text-slate-700">AO ${keyAO}</span> &bull; ${meta.titulo}
+            </td>
+            <td class="py-2.5 px-4 text-center font-mono font-bold ${tieneReg ? 'text-slate-900' : 'text-slate-300'}">
+              ${cnt}
+            </td>
+            <td class="py-2.5 px-4 text-right">
+              ${tieneReg 
+                ? '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800"><i class="fa-solid fa-check"></i> Activo</span>'
+                : '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-400">En cero</span>'
+              }
+            </td>
+          `;
+          globalTableBody.appendChild(trGlobal);
         }
 
-        // Crear Tarjeta de la Actividad Operativa
+        // Chip de Salto Rápido
+        const jumpChip = document.createElement('button');
+        jumpChip.className = `px-2 py-0.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 shrink-0 transition flex items-center gap-1 border border-slate-200`;
+        jumpChip.title = `${meta.titulo} (Cumplen: ${valorAO})`;
+        jumpChip.innerHTML = `<span>AO ${keyAO}</span> <span class="w-1.5 h-1.5 rounded-full ${sumAOConRegistros === codigosKeys.length ? 'bg-emerald-500' : 'bg-slate-300'}"></span>`;
+        jumpChip.addEventListener('click', () => {
+          // Abrir tarjeta si está cerrada
+          const cardEl = document.getElementById(`ao-card-${keyAO}`);
+          if (cardEl) {
+            const wrapper = cardEl.querySelector('.ao-table-wrapper');
+            const chevron = cardEl.querySelector('.ao-chevron');
+            wrapper.classList.remove('hidden');
+            chevron.classList.add('rotate-180');
+            cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        });
+        quickJumpBar.appendChild(jumpChip);
+
+        // Crear Tarjeta con Acordeón
         const aoCard = document.createElement('div');
+        aoCard.id = `ao-card-${keyAO}`;
         aoCard.className = 'bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden ao-block transition hover:shadow-md';
         aoCard.dataset.aoKey = keyAO;
+        aoCard.dataset.cat = meta.categoriaKey;
+
+        // Por comodidad, las primeras 2 tarjetas inician abiertas, las demás colapsadas
+        const isCollapsedByDefault = indexCard > 2;
 
         aoCard.innerHTML = `
-          <!-- Cabecera de la Actividad Operativa -->
-          <div class="p-5 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-3 bg-slate-50/50">
+          <!-- Cabecera Clickeable para Acordeón -->
+          <div class="ao-header p-4 cursor-pointer select-none flex flex-col md:flex-row justify-between items-start md:items-center gap-3 bg-slate-50/60 hover:bg-slate-100/70 transition">
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-${meta.color}-100 text-${meta.color}-600 flex items-center justify-center text-lg shadow-sm">
+              <div class="w-9 h-9 rounded-xl bg-${meta.color}-100 text-${meta.color}-600 flex items-center justify-center text-base shadow-sm shrink-0">
                 <i class="fa-solid ${meta.icon}"></i>
               </div>
               <div>
                 <div class="flex items-center gap-2">
-                  <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-slate-200 text-slate-700">AO ${keyAO.toUpperCase()}</span>
+                  <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-slate-200 text-slate-700 font-mono">AO ${keyAO.toUpperCase()}</span>
                   <span class="text-xs text-slate-400 font-medium">${meta.categoria}</span>
                 </div>
-                <h3 class="text-base font-bold text-slate-800 mt-0.5">${meta.titulo}</h3>
+                <h3 class="text-sm sm:text-base font-bold text-slate-800 mt-0.5">${meta.titulo}</h3>
               </div>
             </div>
 
             <div class="flex items-center gap-3 self-end md:self-auto">
               <div class="text-right">
-                <span class="text-xs text-slate-400 block font-medium">Contador Principal (Cumplen)</span>
-                <span class="text-xl font-extrabold text-${meta.color}-600 font-mono">${valorAO}</span>
+                <span class="text-[10px] text-slate-400 block font-medium uppercase">Cumplen (Principal)</span>
+                <span class="text-lg font-extrabold text-${meta.color}-600 font-mono">${valorAO}</span>
               </div>
-              <div class="h-8 w-px bg-slate-200"></div>
+              <div class="h-7 w-px bg-slate-200"></div>
               <div class="text-right">
-                <span class="text-xs text-slate-400 block font-medium">Códigos CIE-10</span>
+                <span class="text-[10px] text-slate-400 block font-medium uppercase">CIE Activos</span>
                 <span class="text-xs font-semibold px-2 py-0.5 rounded-full ${sumAOConRegistros === codigosKeys.length ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'}">
-                  ${sumAOConRegistros}/${codigosKeys.length} activos
+                  ${sumAOConRegistros}/${codigosKeys.length}
                 </span>
+              </div>
+              <div class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-400 shadow-sm ml-1">
+                <i class="fa-solid fa-chevron-down text-xs transition-transform duration-200 ao-chevron ${isCollapsedByDefault ? '' : 'rotate-180'}"></i>
               </div>
             </div>
           </div>
 
-          <!-- Tabla de Códigos CIE-10 -->
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs">
-              <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-100">
-                <tr>
-                  <th class="py-3 px-5 w-28">Código CIE-10</th>
-                  <th class="py-3 px-5">Descripción Clínica</th>
-                  <th class="py-3 px-5 w-36 text-center">Frecuencia</th>
-                  <th class="py-3 px-5 w-32 text-right">Estado</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-100">
-                ${codigosKeys.map(cie => {
-                  const cnt = codigosDict[cie] || 0;
-                  const desc = CATALOGO_CIE[cie] || 'Diagnóstico según especificación técnica MINSA';
-                  const tieneRegistros = cnt > 0;
-                  
-                  return `
-                    <tr class="cie-row hover:bg-slate-50/80 transition" data-cie="${cie}" data-desc="${desc.toLowerCase()}" data-cnt="${cnt}">
-                      <td class="py-3 px-5 font-mono font-bold">
-                        <span class="px-2.5 py-1 rounded-lg ${tieneRegistros ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600'}">
-                          ${cie}
-                        </span>
-                      </td>
-                      <td class="py-3 px-5 text-slate-700 font-medium">${desc}</td>
-                      <td class="py-3 px-5 text-center font-mono font-bold text-sm ${tieneRegistros ? 'text-slate-900' : 'text-slate-400'}">
-                        ${cnt}
-                      </td>
-                      <td class="py-3 px-5 text-right">
-                        ${tieneRegistros 
-                          ? '<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800"><i class="fa-solid fa-check text-[10px]"></i> Con registro</span>'
-                          : '<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-400"><i class="fa-solid fa-minus text-[10px]"></i> En cero</span>'
-                        }
-                      </td>
-                    </tr>
-                  `;
-                }).join('')}
-              </tbody>
-            </table>
+          <!-- Tabla Colapsable -->
+          <div class="ao-table-wrapper ${isCollapsedByDefault ? 'hidden' : ''} border-t border-slate-100">
+            <div class="overflow-x-auto max-h-80">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-100 sticky top-0 bg-slate-50">
+                  <tr>
+                    <th class="py-2.5 px-4 w-28">Código CIE-10</th>
+                    <th class="py-2.5 px-4">Descripción Clínica</th>
+                    <th class="py-2.5 px-4 w-32 text-center">Frecuencia</th>
+                    <th class="py-2.5 px-4 w-28 text-right">Estado</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  ${codigosKeys.map(cie => {
+                    const cnt = codigosDict[cie] || 0;
+                    const desc = CATALOGO_CIE[cie] || 'Diagnóstico MINSA';
+                    const tieneRegistros = cnt > 0;
+                    
+                    return `
+                      <tr class="cie-row hover:bg-slate-50/80 transition" data-cie="${cie}" data-desc="${desc.toLowerCase()}" data-cnt="${cnt}">
+                        <td class="py-2.5 px-4 font-mono font-bold">
+                          <span class="px-2 py-0.5 rounded-md ${tieneRegistros ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-500'}">
+                            ${cie}
+                          </span>
+                        </td>
+                        <td class="py-2.5 px-4 text-slate-700 font-medium">${desc}</td>
+                        <td class="py-2.5 px-4 text-center font-mono font-bold text-sm ${tieneRegistros ? 'text-slate-900' : 'text-slate-400'}">
+                          ${cnt}
+                        </td>
+                        <td class="py-2.5 px-4 text-right">
+                          ${tieneRegistros 
+                            ? '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800"><i class="fa-solid fa-check text-[9px]"></i> &ge; 1</span>'
+                            : '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 text-slate-400">0</span>'
+                          }
+                        </td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
           </div>
         `;
+
+        // Evento de Acordeón para abrir/cerrar al hacer clic en la cabecera
+        const headerEl = aoCard.querySelector('.ao-header');
+        const wrapperEl = aoCard.querySelector('.ao-table-wrapper');
+        const chevronEl = aoCard.querySelector('.ao-chevron');
+
+        headerEl.addEventListener('click', () => {
+          const isHidden = wrapperEl.classList.toggle('hidden');
+          if (isHidden) {
+            chevronEl.classList.remove('rotate-180');
+          } else {
+            chevronEl.classList.add('rotate-180');
+          }
+        });
 
         container.appendChild(aoCard);
       }
@@ -506,23 +740,24 @@
       document.getElementById('statTotalCodigos').textContent = totalCodigos;
       document.getElementById('statConRegistros').textContent = conRegistros;
       document.getElementById('statEnCero').textContent = enCero;
+      document.getElementById('globalTableBadge').textContent = `${conRegistros} con registros / ${totalCodigos} totales`;
 
       document.getElementById('emptyBox').classList.add('hidden');
     }
 
-    // Filtrar en tiempo real por texto o por select
+    // Filtrar tarjetas considerando categoría, texto y estado
     function filtrarTarjetas() {
       const q = document.getElementById('searchInput').value.trim().toLowerCase();
       const f = document.getElementById('filterSelect').value;
 
-      const rows = document.querySelectorAll('.cie-row');
+      // Filtrar Vista 1: Acordeones
       const blocks = document.querySelectorAll('.ao-block');
-
       blocks.forEach(block => {
+        const catMatch = (categoriaActiva === 'all' || block.dataset.cat === categoriaActiva);
+        const rows = block.querySelectorAll('.cie-row');
         let blockHasMatch = false;
-        const blockRows = block.querySelectorAll('.cie-row');
 
-        blockRows.forEach(row => {
+        rows.forEach(row => {
           const cie = row.dataset.cie.toLowerCase();
           const desc = row.dataset.desc;
           const cnt = parseInt(row.dataset.cnt, 10);
@@ -541,10 +776,38 @@
           }
         });
 
-        if (blockHasMatch) {
+        // Si se está buscando texto específico, expandir automáticamente la tarjeta que tiene coincidencias
+        if (q && blockHasMatch) {
+          block.querySelector('.ao-table-wrapper').classList.remove('hidden');
+          block.querySelector('.ao-chevron').classList.add('rotate-180');
+        }
+
+        if (catMatch && blockHasMatch) {
           block.classList.remove('hidden');
         } else {
           block.classList.add('hidden');
+        }
+      });
+
+      // Filtrar Vista 2: Tabla Global Consolidada
+      const globalRows = document.querySelectorAll('.global-tr');
+      globalRows.forEach(row => {
+        const cie = row.dataset.cie;
+        const desc = row.dataset.desc;
+        const cnt = parseInt(row.dataset.cnt, 10);
+        const cat = row.dataset.cat;
+
+        const matchCat = (categoriaActiva === 'all' || cat === categoriaActiva);
+        let matchText = !q || cie.includes(q) || desc.includes(q);
+        let matchFilter = true;
+
+        if (f === 'con_registros') matchFilter = cnt > 0;
+        if (f === 'en_cero') matchFilter = cnt === 0;
+
+        if (matchCat && matchText && matchFilter) {
+          row.classList.remove('hidden');
+        } else {
+          row.classList.add('hidden');
         }
       });
     }
