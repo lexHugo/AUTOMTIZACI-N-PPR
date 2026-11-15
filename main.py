@@ -66,10 +66,12 @@ def serve_ui():
     return HTMLResponse(content="<h1>UI en construcción</h1>")
 
 
-@app.get("/desglose-cie10", tags=["Frontend UI"])
-@app.get("/cie10", tags=["Frontend UI"])
+@app.get("/desglose-cie10", response_class=HTMLResponse, tags=["Frontend UI"])
+@app.get("/cie10", response_class=HTMLResponse, tags=["Frontend UI"])
 def serve_cie10_ui():
-    """Redirige al panel unificado en la pestaña de Desglose CIE-10 para mantener la persistencia y los datos cargados."""
+    """Sirve la página con el desglose de códigos CIE-10 y sus contadores."""
+    if CIE10_FILE_PATH.exists():
+        return HTMLResponse(content=CIE10_FILE_PATH.read_text(encoding="utf-8"))
     return RedirectResponse(url="/?tab=cie10", status_code=status.HTTP_307_TEMPORARY_REDIRECT)
 
 
