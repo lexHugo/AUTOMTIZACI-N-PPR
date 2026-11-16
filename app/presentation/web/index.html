@@ -8,37 +8,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    .gradient-bg {
-      background: linear-gradient(135deg, #0284c7 0%, #059669 50%, #1e40af 100%);
-    }
-    .main-tab-active {
-      background-color: #ffffff;
-      color: #0369a1;
-      font-weight: 700;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    }
-    .sub-tab-active {
-      background-color: #0284c7;
-      color: #ffffff;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    .cat-tab-active {
-      background-color: #059669;
-      color: #ffffff;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    html {
-      scroll-behavior: smooth;
-    }
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .no-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-  </style>
+  <!-- Estilos Custom Externos -->
+  <link rel="stylesheet" href="/static/css/styles.css">
 </head>
 <body class="bg-slate-50 min-h-screen text-slate-800 flex flex-col font-sans">
 
@@ -71,17 +42,16 @@
           </div>
         </div>
 
-        <!-- Pestañas Principales de la Aplicación (Navegación Instantánea SPA) -->
+        <!-- Pestañas Principales de Navegación entre Páginas -->
         <div class="flex items-center bg-black/20 p-1 rounded-xl backdrop-blur-md w-full md:w-auto justify-center" id="mainTabGroup">
-          <button id="mainTabIndicadores" class="main-tab-active px-4 py-2 rounded-lg text-xs transition flex items-center gap-2">
+          <a href="/" class="main-tab-active px-4 py-2 rounded-lg text-xs transition flex items-center gap-2" title="Monitor Principal de Indicadores">
             <i class="fa-solid fa-chart-pie"></i>
-            <span>1. Indicadores PPR (AO)</span>
-          </button>
-          <button id="mainTabCie10" class="text-white/80 hover:text-white px-4 py-2 rounded-lg text-xs transition flex items-center gap-2">
+            <span>1. Monitor de Indicadores (25 AO)</span>
+          </a>
+          <a href="/cie10" class="text-white/80 hover:text-white px-4 py-2 rounded-lg text-xs transition flex items-center gap-2" title="Ir a la página de Desglose CIE-10">
             <i class="fa-solid fa-table-list"></i>
             <span>2. Desglose CIE-10 (Pediatría)</span>
-            <span id="cie10CounterBadge" class="hidden ml-1 px-1.5 py-0.2 bg-emerald-400 text-emerald-950 font-extrabold rounded-full text-[10px]"></span>
-          </button>
+          </a>
         </div>
 
       </div>
@@ -174,628 +144,1070 @@
           <button id="tabPediatria" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">
             <i class="fa-solid fa-stethoscope mr-1 text-emerald-600"></i> Pediatría (16)
           </button>
-          <button onclick="cambiarAVista('cie10')" class="ml-2 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold transition flex items-center gap-1.5 shadow-sm" title="Ir al Desglose CIE-10">
+          <a href="/cie10" class="ml-2 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold transition flex items-center gap-1.5 shadow-sm" title="Ir al Desglose CIE-10">
             <i class="fa-solid fa-table-list"></i> Ver Desglose CIE-10
-          </button>
+          </a>
         </div>
       </div>
 
-      <!-- Contenedor de Tarjetas de Indicadores (Oculto hasta procesar o restaurar) -->
-      <div id="resultsSection" class="hidden space-y-6">
+      <!-- Contenedor Principal: Resultados en Barras Horizontales + Leyenda Lateral -->
+      <div id="resultsSection" class="hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-        <!-- BLOQUE 1: INMUNIZACIONES (ppr1001_vacunas.py) -->
-        <div id="bloqueVacunas" class="space-y-4">
-          <div class="flex items-center justify-between border-b border-sky-200 pb-3">
-            <div class="flex items-center gap-2.5">
-              <div class="w-8 h-8 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center font-bold text-sm">
-                <i class="fa-solid fa-syringe"></i>
+          <!-- ================================================================= -->
+          <!-- COLUMNA PRINCIPAL (IZQUIERDA): BARRAS HORIZONTALES DE LAS AO       -->
+          <!-- ================================================================= -->
+          <div class="lg:col-span-7 xl:col-span-8 space-y-6">
+
+            <!-- BLOQUE 1: INMUNIZACIONES (ppr1001_vacunas.py) -->
+            <div id="bloqueVacunas" class="space-y-3">
+              <div class="flex items-center justify-between border-b border-sky-200 pb-2.5">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-8 h-8 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center font-bold text-sm">
+                    <i class="fa-solid fa-syringe"></i>
+                  </div>
+                  <div>
+                    <h3 class="text-sm sm:text-base font-bold text-slate-900">Inmunizaciones &amp; CRED (ppr1001_vacunas.py)</h3>
+                    <p class="text-xs text-slate-500">Esquemas regulares de vacunación infantil y seguimiento integral</p>
+                  </div>
+                </div>
+                <span class="text-xs font-semibold px-2.5 py-0.5 bg-sky-50 text-sky-700 border border-sky-200 rounded-full">
+                  9 AO
+                </span>
               </div>
-              <div>
-                <h3 class="text-base font-bold text-slate-900">Inmunizaciones &amp; CRED (ppr1001_vacunas.py)</h3>
-                <p class="text-xs text-slate-500">Monitoreo de esquemas regulares de vacunación infantil y seguimiento integral</p>
+
+              <!-- Lista de Barras Horizontales de Inmunizaciones -->
+              <div class="space-y-2.5">
+
+                <!-- AO 3325401 -->
+                <div id="bar_3325401" class="bg-white rounded-xl p-3 sm:p-3.5 border border-slate-200 shadow-sm hover:border-blue-300 hover:shadow-md transition flex items-center justify-between gap-3 group">
+                  <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-base shrink-0 group-hover:scale-105 transition">
+                      <i class="fa-solid fa-baby"></i>
+                    </div>
+                    <div class="min-w-0">
+                      <div class="flex items-center gap-2">
+                        <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200 font-mono">AO 3325401</span>
+                        <span class="text-[11px] text-slate-400 font-medium hidden sm:inline">&le; 28 Días</span>
+                      </div>
+                      <h4 class="text-xs sm:text-sm font-bold text-slate-800 truncate mt-0.5">Vacunación Recién Nacido (BCG + HVB)</h4>
+                      <p class="text-[11px] text-slate-400 truncate hidden md:block">HVB dentro de 12h y BCG al nacer en recién nacido</p>
+                    </div>
+                  </div>
+                  <div class="text-right shrink-0">
+                    <span class="text-xl sm:text-2xl font-extrabold text-blue-600 font-mono block leading-tight" id="val_3325401">0</span>
+                    <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Recién Nacido</span>
+                  </div>
+                </div>
+
+                <!-- AO 3325402 -->
+                <div id="bar_3325402" class="bg-white rounded-xl p-3 sm:p-3.5 border border-slate-200 shadow-sm hover:border-indigo-300 hover:shadow-md transition flex items-center justify-between gap-3 group">
+                  <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-base shrink-0 group-hover:scale-105 transition">
+                      <i class="fa-solid fa-shield-virus"></i>
+                    </div>
+                    <div class="min-w-0">
+                      <div class="flex items-center gap-2">
+                        <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200 font-mono">AO 3325402</span>
+                        <span class="text-[11px] text-slate-400 font-medium hidden sm:inline">&lt; 1 Año</span>
+                      </div>
+                      <h4 class="text-xs sm:text-sm font-bold text-slate-800 truncate mt-0.5">Rotavirus &amp; Neumococo (&lt; 1 Año)</h4>
+                      <p class="text-[11px] text-slate-400 truncate hidden md:block">Segunda dosis de Rotavirus y Neumococo en menores de 1 año</p>
+                    </div>
+                  </div>
+                  <div class="text-right shrink-0">
+                    <span class="text-xl sm:text-2xl font-extrabold text-indigo-600 font-mono block leading-tight" id="val_3325402">0</span>
+                    <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Niño Atendido</span>
+                  </div>
+                </div>
+
+                <!-- AO 3325403 -->
+                <div id="bar_3325403" class="bg-white rounded-xl p-3 sm:p-3.5 border border-slate-200 shadow-sm hover:border-purple-300 hover:shadow-md transition flex items-center justify-between gap-3 group">
+                  <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-base shrink-0 group-hover:scale-105 transition">
+                      <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <div class="min-w-0">
+                      <div class="flex items-center gap-2">
+                        <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 border border-purple-200 font-mono">AO 3325403</span>
+                        <span class="text-[11px] text-slate-400 font-medium hidden sm:inline">&lt; 1 Año</span>
+                      </div>
+                      <h4 class="text-xs sm:text-sm font-bold text-slate-800 truncate mt-0.5">Pentavalente &amp; Antipolio (&lt; 1 Año)</h4>
+                      <p class="text-[11px] text-slate-400 truncate hidden md:block">Tercera dosis de Pentavalente y Antipolio (menor de 1 año)</p>
+                    </div>
+                  </div>
+                  <div class="text-right shrink-0">
+                    <span class="text-xl sm:text-2xl font-extrabold text-purple-600 font-mono block leading-tight" id="val_3325403">0</span>
+                    <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Niño Atendido</span>
+                  </div>
+                </div>
+
+                <!-- AO 3325404 -->
+                <div id="bar_3325404" class="bg-white rounded-xl p-3 sm:p-3.5 border border-slate-200 shadow-sm hover:border-emerald-300 hover:shadow-md transition flex items-center justify-between gap-3 group">
+                  <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-base shrink-0 group-hover:scale-105 transition">
+                      <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <div class="min-w-0">
+                      <div class="flex items-center gap-2">
+                        <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono">AO 3325404</span>
+                        <span class="text-[11px] text-slate-400 font-medium hidden sm:inline">&lt; 1 Año</span>
+                      </div>
+                      <h4 class="text-xs sm:text-sm font-bold text-slate-800 truncate mt-0.5">Menor de 1 Año con Vacunas Completas</h4>
+                      <p class="text-[11px] text-slate-400 truncate hidden md:block">Paquete completo según calendario regular MINSA</p>
+                    </div>
+                  </div>
+                  <div class="text-right shrink-0">
+                    <span class="text-xl sm:text-2xl font-extrabold text-emerald-600 font-mono block leading-tight" id="val_3325404">0</span>
+                    <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Niño Completo</span>
+                  </div>
+                </div>
+
+                <!-- AO 3325405 -->
+                <div id="bar_3325405" class="bg-white rounded-xl p-3 sm:p-3.5 border border-slate-200 shadow-sm hover:border-teal-300 hover:shadow-md transition flex items-center justify-between gap-3 group">
+                  <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-base shrink-0 group-hover:scale-105 transition">
+                      <i class="fa-solid fa-syringe"></i>
+                    </div>
+                    <div class="min-w-0">
+                      <div class="flex items-center gap-2">
+                        <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-teal-50 text-teal-700 border border-teal-200 font-mono">AO 3325405</span>
+                        <span class="text-[11px] text-slate-400 font-medium hidden sm:inline">1 Año</span>
+                      </div>
+                      <h4 class="text-xs sm:text-sm font-bold text-slate-800 truncate mt-0.5">SPR, Neumococo &amp; Varicela (1 Año)</h4>
+                      <p class="text-[11px] text-slate-400 truncate hidden md:block">Dosis de 12 a 17 meses de edad en niños de 1 año</p>
+                    </div>
+                  </div>
+                  <div class="text-right shrink-0">
+                    <span class="text-xl sm:text-2xl font-extrabold text-teal-600 font-mono block leading-tight" id="val_3325405">0</span>
+                    <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Niño Atendido</span>
+                  </div>
+                </div>
+
+                <!-- AO 3325406 -->
+                <div id="bar_3325406" class="bg-white rounded-xl p-3 sm:p-3.5 border border-slate-200 shadow-sm hover:border-sky-300 hover:shadow-md transition flex items-center justify-between gap-3 group">
+                  <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-base shrink-0 group-hover:scale-105 transition">
+                      <i class="fa-solid fa-award"></i>
+                    </div>
+                    <div class="min-w-0">
+                      <div class="flex items-center gap-2">
+                        <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-sky-50 text-sky-700 border border-sky-200 font-mono">AO 3325406</span>
+                        <span class="text-[11px] text-slate-400 font-medium hidden sm:inline">1 Año</span>
+                      </div>
+                      <h4 class="text-xs sm:text-sm font-bold text-slate-800 truncate mt-0.5">Niño de 1 Año con Vacunas Completas</h4>
+                      <p class="text-[11px] text-slate-400 truncate hidden md:block">Esquema integral completado para niños de 1 año cumplido</p>
+                    </div>
+                  </div>
+                  <div class="text-right shrink-0">
+                    <span class="text-xl sm:text-2xl font-extrabold text-sky-600 font-mono block leading-tight" id="val_3325406">0</span>
+                    <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Niño Completo</span>
+                  </div>
+                </div>
+
+                <!-- AO 3325407 -->
+                <div id="bar_3325407" class="bg-white rounded-xl p-3 sm:p-3.5 border border-slate-200 shadow-sm hover:border-rose-300 hover:shadow-md transition flex items-center justify-between gap-3 group">
+                  <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-base shrink-0 group-hover:scale-105 transition">
+                      <i class="fa-solid fa-children"></i>
+                    </div>
+                    <div class="min-w-0">
+                      <div class="flex items-center gap-2">
+                        <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-200 font-mono">AO 3325407</span>
+                        <span class="text-[11px] text-slate-400 font-medium hidden sm:inline">4 Años</span>
+                      </div>
+                      <h4 class="text-xs sm:text-sm font-bold text-slate-800 truncate mt-0.5">Refuerzos DPT &amp; Antipolio (4 Años)</h4>
+                      <p class="text-[11px] text-slate-400 truncate hidden md:block">Segundo refuerzo a los 4 años de edad</p>
+                    </div>
+                  </div>
+                  <div class="text-right shrink-0">
+                    <span class="text-xl sm:text-2xl font-extrabold text-rose-600 font-mono block leading-tight" id="val_3325407">0</span>
+                    <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Niño Atendido</span>
+                  </div>
+                </div>
+
+                <!-- AO 3325408 -->
+                <div id="bar_3325408" class="bg-white rounded-xl p-3 sm:p-3.5 border border-slate-200 shadow-sm hover:border-amber-300 hover:shadow-md transition flex items-center justify-between gap-3 group">
+                  <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-base shrink-0 group-hover:scale-105 transition">
+                      <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <div class="min-w-0">
+                      <div class="flex items-center gap-2">
+                        <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200 font-mono">AO 3325408</span>
+                        <span class="text-[11px] text-slate-400 font-medium hidden sm:inline">ESAVI</span>
+                      </div>
+                      <h4 class="text-xs sm:text-sm font-bold text-slate-800 truncate mt-0.5">Eventos Adversos (ESAVI)</h4>
+                      <p class="text-[11px] text-slate-400 truncate hidden md:block">Atención de reacciones atribuidas a la vacunación</p>
+                    </div>
+                  </div>
+                  <div class="text-right shrink-0">
+                    <span class="text-xl sm:text-2xl font-extrabold text-amber-600 font-mono block leading-tight" id="val_3325408">0</span>
+                    <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Caso Tratado</span>
+                  </div>
+                </div>
+
+                <!-- AO 3325508 -->
+                <div id="bar_3325508" class="bg-white rounded-xl p-3 sm:p-3.5 border border-slate-200 shadow-sm hover:border-cyan-300 hover:shadow-md transition flex items-center justify-between gap-3 group">
+                  <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-10 h-10 rounded-xl bg-cyan-50 text-cyan-700 flex items-center justify-center text-base shrink-0 group-hover:scale-105 transition">
+                      <i class="fa-solid fa-clipboard-check"></i>
+                    </div>
+                    <div class="min-w-0">
+                      <div class="flex items-center gap-2">
+                        <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-cyan-50 text-cyan-700 border border-cyan-200 font-mono">AO 3325508</span>
+                        <span class="text-[11px] text-slate-400 font-medium hidden sm:inline">CRED</span>
+                      </div>
+                      <h4 class="text-xs sm:text-sm font-bold text-slate-800 truncate mt-0.5">Niño de Alto Riesgo (CRED Integral)</h4>
+                      <p class="text-[11px] text-slate-400 truncate hidden md:block">Seguimiento CRED integral en UPS 301202 / CPT 99344</p>
+                    </div>
+                  </div>
+                  <div class="text-right shrink-0">
+                    <span class="text-xl sm:text-2xl font-extrabold text-cyan-600 font-mono block leading-tight" id="val_3325508">0</span>
+                    <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Niño Atendido</span>
+                  </div>
+                </div>
+
               </div>
             </div>
-            <span class="text-xs font-semibold px-2.5 py-0.5 bg-sky-50 text-sky-700 border border-sky-200 rounded-full">
-              9 Actividades Operativas
-            </span>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <!-- AO 3325401 -->
-            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow-md transition">
-              <div class="flex justify-between items-start">
-                <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200 font-mono">AO 3325401</span>
-                <i class="fa-solid fa-baby text-slate-400"></i>
-              </div>
-              <h4 class="text-xs font-bold text-slate-800 mt-2.5">Vacunación Recién Nacido (BCG + HVB)</h4>
-              <p class="text-[11px] text-slate-500 mb-3">HVB dentro de 12h y BCG al nacer</p>
-              <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
-                <span class="text-2xl font-extrabold text-blue-600 font-mono" id="val_3325401">0</span>
-                <span class="text-[10px] text-slate-400 font-semibold uppercase">Recién Nacido</span>
-              </div>
-            </div>
-
-            <!-- AO 3325402 -->
-            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow-md transition">
-              <div class="flex justify-between items-start">
-                <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200 font-mono">AO 3325402</span>
-                <i class="fa-solid fa-shield-virus text-slate-400"></i>
-              </div>
-              <h4 class="text-xs font-bold text-slate-800 mt-2.5">Rotavirus &amp; Neumococo (&lt; 1 Año)</h4>
-              <p class="text-[11px] text-slate-500 mb-3">Segunda dosis de Rotavirus y Neumococo</p>
-              <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
-                <span class="text-2xl font-extrabold text-indigo-600 font-mono" id="val_3325402">0</span>
-                <span class="text-[10px] text-slate-400 font-semibold uppercase">Niño Atendido</span>
-              </div>
-            </div>
-
-            <!-- AO 3325403 -->
-            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow-md transition">
-              <div class="flex justify-between items-start">
-                <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 border border-purple-200 font-mono">AO 3325403</span>
-                <i class="fa-solid fa-shield-halved text-slate-400"></i>
-              </div>
-              <h4 class="text-xs font-bold text-slate-800 mt-2.5">Pentavalente &amp; Antipolio (&lt; 1 Año)</h4>
-              <p class="text-[11px] text-slate-500 mb-3">Tercera dosis de Pentavalente y Antipolio</p>
-              <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
-                <span class="text-2xl font-extrabold text-purple-600 font-mono" id="val_3325403">0</span>
-                <span class="text-[10px] text-slate-400 font-semibold uppercase">Niño Atendido</span>
-              </div>
-            </div>
-
-            <!-- AO 3325404 -->
-            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow-md transition">
-              <div class="flex justify-between items-start">
-                <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono">AO 3325404</span>
-                <i class="fa-solid fa-circle-check text-slate-400"></i>
-              </div>
-              <h4 class="text-xs font-bold text-slate-800 mt-2.5">Menor de 1 Año con Vacunas Completas</h4>
-              <p class="text-[11px] text-slate-500 mb-3">Paquete completo según calendario regular MINSA</p>
-              <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
-                <span class="text-2xl font-extrabold text-emerald-600 font-mono" id="val_3325404">0</span>
-                <span class="text-[10px] text-slate-400 font-semibold uppercase">Niño Completo</span>
-              </div>
-            </div>
-
-            <!-- AO 3325405 -->
-            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow-md transition">
-              <div class="flex justify-between items-start">
-                <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-teal-50 text-teal-700 border border-teal-200 font-mono">AO 3325405</span>
-                <i class="fa-solid fa-syringe text-slate-400"></i>
-              </div>
-              <h4 class="text-xs font-bold text-slate-800 mt-2.5">SPR, Neumococo &amp; Varicela (1 Año)</h4>
-              <p class="text-[11px] text-slate-500 mb-3">Dosis de 12 a 17 meses de edad</p>
-              <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
-                <span class="text-2xl font-extrabold text-teal-600 font-mono" id="val_3325405">0</span>
-                <span class="text-[10px] text-slate-400 font-semibold uppercase">Niño Atendido</span>
-              </div>
-            </div>
-
-            <!-- AO 3325406 -->
-            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow-md transition">
-              <div class="flex justify-between items-start">
-                <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-sky-50 text-sky-700 border border-sky-200 font-mono">AO 3325406</span>
-                <i class="fa-solid fa-award text-slate-400"></i>
-              </div>
-              <h4 class="text-xs font-bold text-slate-800 mt-2.5">Niño de 1 Año con Vacunas Completas</h4>
-              <p class="text-[11px] text-slate-500 mb-3">Esquema integral para niños de 1 año cumplido</p>
-              <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
-                <span class="text-2xl font-extrabold text-sky-600 font-mono" id="val_3325406">0</span>
-                <span class="text-[10px] text-slate-400 font-semibold uppercase">Niño Completo</span>
-              </div>
-            </div>
-
-            <!-- AO 3325407 -->
-            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow-md transition">
-              <div class="flex justify-between items-start">
-                <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-200 font-mono">AO 3325407</span>
-                <i class="fa-solid fa-children text-slate-400"></i>
-              </div>
-              <h4 class="text-xs font-bold text-slate-800 mt-2.5">Refuerzos DPT &amp; Antipolio (4 Años)</h4>
-              <p class="text-[11px] text-slate-500 mb-3">Segundo refuerzo a los 4 años de edad</p>
-              <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
-                <span class="text-2xl font-extrabold text-rose-600 font-mono" id="val_3325407">0</span>
-                <span class="text-[10px] text-slate-400 font-semibold uppercase">Niño Atendido</span>
-              </div>
-            </div>
-
-            <!-- AO 3325408 -->
-            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow-md transition">
-              <div class="flex justify-between items-start">
-                <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200 font-mono">AO 3325408</span>
-                <i class="fa-solid fa-triangle-exclamation text-slate-400"></i>
-              </div>
-              <h4 class="text-xs font-bold text-slate-800 mt-2.5">Eventos Adversos (ESAVI)</h4>
-              <p class="text-[11px] text-slate-500 mb-3">Atención de reacciones atribuidas a la vacunación</p>
-              <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
-                <span class="text-2xl font-extrabold text-amber-600 font-mono" id="val_3325408">0</span>
-                <span class="text-[10px] text-slate-400 font-semibold uppercase">Caso Tratado</span>
-              </div>
-            </div>
-
-            <!-- AO 3325508 -->
-            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow-md transition">
-              <div class="flex justify-between items-start">
-                <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-cyan-50 text-cyan-700 border border-cyan-200 font-mono">AO 3325508</span>
-                <i class="fa-solid fa-clipboard-check text-slate-400"></i>
-              </div>
-              <h4 class="text-xs font-bold text-slate-800 mt-2.5">Niño de Alto Riesgo (CRED Integral)</h4>
-              <p class="text-[11px] text-slate-500 mb-3">Seguimiento CRED integral en UPS 301202 / CPT 99344</p>
-              <div class="flex items-baseline justify-between pt-2 border-t border-slate-100">
-                <span class="text-2xl font-extrabold text-cyan-600 font-mono" id="val_3325508">0</span>
-                <span class="text-[10px] text-slate-400 font-semibold uppercase">Niño Atendido</span>
-              </div>
-            </div>
-          </div>
-        </div>
 
         <!-- BLOQUE 2: PEDIATRÍA (ppr1001_pediatria.py) -->
-        <div id="bloquePediatria" class="space-y-4 pt-4">
-          <div class="flex items-center justify-between border-b border-emerald-200 pb-3">
+        <div id="bloquePediatria" class="space-y-3 pt-2">
+          <div class="flex items-center justify-between border-b border-emerald-200 pb-2.5">
             <div class="flex items-center gap-2.5">
               <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm">
                 <i class="fa-solid fa-stethoscope"></i>
               </div>
               <div>
-                <h3 class="text-base font-bold text-slate-900">Pediatría &amp; Atenciones Médicas (ppr1001_pediatria.py)</h3>
-                <p class="text-xs text-slate-500">Atenciones de morbilidad infantil: Anemia, Parasitosis, IRAs y EDAs (UPS 303712)</p>
+                <h3 class="text-sm sm:text-base font-bold text-slate-900">Pediatría &amp; Atenciones Médicas (ppr1001_pediatria.py)</h3>
+                <p class="text-[11px] text-slate-500">Morbilidad infantil: Anemia, Parasitosis, IRAs y EDAs (UPS 303712)</p>
               </div>
             </div>
-            <span class="text-xs font-semibold px-2.5 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full">
+            <span class="text-xs font-semibold px-2.5 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full shrink-0">
               16 Actividades Operativas
             </span>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            
-            <!-- Helper Card Macro -->
-            <!-- 3331501 -->
-            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
-              <div>
-                <div class="flex justify-between items-start">
-                  <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-red-50 text-red-700 border border-red-200 font-mono">AO 3331501</span>
-                  <i class="fa-solid fa-droplet text-red-400"></i>
+          <div class="space-y-2">
+            <!-- 3331501: Anemia -->
+            <div class="bg-white rounded-xl p-3 border border-slate-200/90 shadow-xs hover:border-rose-300 hover:shadow-sm transition-all flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0 border border-rose-100">
+                  <i class="fa-solid fa-droplet text-base"></i>
                 </div>
-                <h4 class="text-xs font-bold text-slate-800 mt-2.5">Anemia (&lt; 5 Años)</h4>
-                <p class="text-[11px] text-slate-500 mb-2">CIE: D509, D649</p>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-200 font-mono">AO 3331501</span>
+                    <span class="text-xs font-semibold text-slate-800 truncate">Atención de Anemia por Deficiencia de Hierro</span>
+                  </div>
+                  <p class="text-[11px] text-slate-500 truncate mt-0.5">D500, D508, D509 (Definitivo / Repetido)</p>
+                </div>
               </div>
-              <div class="pt-2 border-t border-slate-100 flex items-baseline justify-between">
-                <div>
-                  <span class="text-2xl font-extrabold text-red-600 font-mono" id="val_3331501">0</span>
-                  <span class="text-[10px] text-slate-400 font-semibold block uppercase">Unidades</span>
-                </div>
-                <button onclick="saltarACie10('3331501')" class="text-[11px] text-emerald-700 hover:text-emerald-900 font-semibold flex items-center gap-1 hover:underline">
+              <div class="flex items-center gap-4 shrink-0">
+                <a href="/cie10#ao-card-3331501" class="px-2.5 py-1 text-xs font-semibold text-rose-700 hover:text-rose-900 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg flex items-center gap-1 transition" title="Ver desglose CIE-10">
                   <span>CIE-10</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                </button>
+                </a>
+                <div class="text-right shrink-0 min-w-[70px]">
+                  <span class="text-xl sm:text-2xl font-extrabold text-rose-600 font-mono block leading-tight" id="val_3331501">0</span>
+                  <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Atenciones</span>
+                </div>
               </div>
             </div>
 
-            <!-- 3341401 -->
-            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
-              <div>
-                <div class="flex justify-between items-start">
-                  <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200 font-mono">AO 3341401</span>
-                  <i class="fa-solid fa-bacterium text-amber-500"></i>
+            <!-- 3341401: Parasitosis -->
+            <div class="bg-white rounded-xl p-3 border border-slate-200/90 shadow-xs hover:border-amber-300 hover:shadow-sm transition-all flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center shrink-0 border border-amber-100">
+                  <i class="fa-solid fa-bug text-base"></i>
                 </div>
-                <h4 class="text-xs font-bold text-slate-800 mt-2.5">Parasitosis Intestinal</h4>
-                <p class="text-[11px] text-slate-500 mb-2">B680, B779, B80, A071...</p>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200 font-mono">AO 3341401</span>
+                    <span class="text-xs font-semibold text-slate-800 truncate">Atención de Parasitosis Intestinal</span>
+                  </div>
+                  <p class="text-[11px] text-slate-500 truncate mt-0.5">B820, B829, B779, B689, B89X, B769, B80X</p>
+                </div>
               </div>
-              <div class="pt-2 border-t border-slate-100 flex items-baseline justify-between">
-                <div>
-                  <span class="text-2xl font-extrabold text-amber-600 font-mono" id="val_3341401">0</span>
-                  <span class="text-[10px] text-slate-400 font-semibold block uppercase">Unidades</span>
-                </div>
-                <button onclick="saltarACie10('3341401')" class="text-[11px] text-emerald-700 hover:text-emerald-900 font-semibold flex items-center gap-1 hover:underline">
+              <div class="flex items-center gap-4 shrink-0">
+                <a href="/cie10#ao-card-3341401" class="px-2.5 py-1 text-xs font-semibold text-amber-800 hover:text-amber-950 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-lg flex items-center gap-1 transition" title="Ver desglose CIE-10">
                   <span>CIE-10</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                </button>
+                </a>
+                <div class="text-right shrink-0 min-w-[70px]">
+                  <span class="text-xl sm:text-2xl font-extrabold text-amber-700 font-mono block leading-tight" id="val_3341401">0</span>
+                  <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Atenciones</span>
+                </div>
               </div>
             </div>
 
-            <!-- 3331101 -->
-            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
-              <div>
-                <div class="flex justify-between items-start">
-                  <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-sky-50 text-sky-700 border border-sky-200 font-mono">AO 3331101</span>
-                  <i class="fa-solid fa-head-side-cough text-sky-400"></i>
+            <!-- 3331101: IRA No Complicada -->
+            <div class="bg-white rounded-xl p-3 border border-slate-200/90 shadow-xs hover:border-teal-300 hover:shadow-sm transition-all flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0 border border-teal-100">
+                  <i class="fa-solid fa-head-side-cough text-base"></i>
                 </div>
-                <h4 class="text-xs font-bold text-slate-800 mt-2.5">IRA No Complicada</h4>
-                <p class="text-[11px] text-slate-500 mb-2">J00X, J040, J060, J209</p>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-teal-50 text-teal-700 border border-teal-200 font-mono">AO 3331101</span>
+                    <span class="text-xs font-semibold text-slate-800 truncate">IRA No Complicada</span>
+                  </div>
+                  <p class="text-[11px] text-slate-500 truncate mt-0.5">J00X, J029, J069, J039 (Resfrío, Rinofaringitis)</p>
+                </div>
               </div>
-              <div class="pt-2 border-t border-slate-100 flex items-baseline justify-between">
-                <div>
-                  <span class="text-2xl font-extrabold text-sky-600 font-mono" id="val_3331101">0</span>
-                  <span class="text-[10px] text-slate-400 font-semibold block uppercase">Unidades</span>
-                </div>
-                <button onclick="saltarACie10('3331101')" class="text-[11px] text-emerald-700 hover:text-emerald-900 font-semibold flex items-center gap-1 hover:underline">
+              <div class="flex items-center gap-4 shrink-0">
+                <a href="/cie10#ao-card-3331101" class="px-2.5 py-1 text-xs font-semibold text-teal-700 hover:text-teal-900 bg-teal-50 hover:bg-teal-100 border border-teal-200 rounded-lg flex items-center gap-1 transition" title="Ver desglose CIE-10">
                   <span>CIE-10</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                </button>
+                </a>
+                <div class="text-right shrink-0 min-w-[70px]">
+                  <span class="text-xl sm:text-2xl font-extrabold text-teal-600 font-mono block leading-tight" id="val_3331101">0</span>
+                  <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Casos</span>
+                </div>
               </div>
             </div>
 
-            <!-- 3331102 -->
-            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
-              <div>
-                <div class="flex justify-between items-start">
-                  <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200 font-mono">AO 3331102</span>
-                  <i class="fa-solid fa-lungs text-blue-400"></i>
+            <!-- 3331102: FAPA -->
+            <div class="bg-white rounded-xl p-3 border border-slate-200/90 shadow-xs hover:border-teal-300 hover:shadow-sm transition-all flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0 border border-teal-100">
+                  <i class="fa-solid fa-virus text-base"></i>
                 </div>
-                <h4 class="text-xs font-bold text-slate-800 mt-2.5">FAPA (Faringoamigdalitis)</h4>
-                <p class="text-[11px] text-slate-500 mb-2">J020, J029, J030, J038</p>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-teal-50 text-teal-700 border border-teal-200 font-mono">AO 3331102</span>
+                    <span class="text-xs font-semibold text-slate-800 truncate">Faringitis y Amigdalitis Aguda (FAPA)</span>
+                  </div>
+                  <p class="text-[11px] text-slate-500 truncate mt-0.5">J020, J030 (Estreptocócica)</p>
+                </div>
               </div>
-              <div class="pt-2 border-t border-slate-100 flex items-baseline justify-between">
-                <div>
-                  <span class="text-2xl font-extrabold text-blue-600 font-mono" id="val_3331102">0</span>
-                  <span class="text-[10px] text-slate-400 font-semibold block uppercase">Unidades</span>
-                </div>
-                <button onclick="saltarACie10('3331102')" class="text-[11px] text-emerald-700 hover:text-emerald-900 font-semibold flex items-center gap-1 hover:underline">
+              <div class="flex items-center gap-4 shrink-0">
+                <a href="/cie10#ao-card-3331102" class="px-2.5 py-1 text-xs font-semibold text-teal-700 hover:text-teal-900 bg-teal-50 hover:bg-teal-100 border border-teal-200 rounded-lg flex items-center gap-1 transition" title="Ver desglose CIE-10">
                   <span>CIE-10</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                </button>
+                </a>
+                <div class="text-right shrink-0 min-w-[70px]">
+                  <span class="text-xl sm:text-2xl font-extrabold text-teal-600 font-mono block leading-tight" id="val_3331102">0</span>
+                  <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Casos</span>
+                </div>
               </div>
             </div>
 
-            <!-- 3331103 -->
-            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
-              <div>
-                <div class="flex justify-between items-start">
-                  <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200 font-mono">AO 3331103</span>
-                  <i class="fa-solid fa-ear-listen text-indigo-400"></i>
+            <!-- 3331103: OMA -->
+            <div class="bg-white rounded-xl p-3 border border-slate-200/90 shadow-xs hover:border-teal-300 hover:shadow-sm transition-all flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0 border border-teal-100">
+                  <i class="fa-solid fa-ear-listen text-base"></i>
                 </div>
-                <h4 class="text-xs font-bold text-slate-800 mt-2.5">OMA (Otitis Media Aguda)</h4>
-                <p class="text-[11px] text-slate-500 mb-2">H650, H651, H660, H669</p>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-teal-50 text-teal-700 border border-teal-200 font-mono">AO 3331103</span>
+                    <span class="text-xs font-semibold text-slate-800 truncate">Otitis Media Aguda (OMA)</span>
+                  </div>
+                  <p class="text-[11px] text-slate-500 truncate mt-0.5">H650, H651, H660</p>
+                </div>
               </div>
-              <div class="pt-2 border-t border-slate-100 flex items-baseline justify-between">
-                <div>
-                  <span class="text-2xl font-extrabold text-indigo-600 font-mono" id="val_3331103">0</span>
-                  <span class="text-[10px] text-slate-400 font-semibold block uppercase">Unidades</span>
-                </div>
-                <button onclick="saltarACie10('3331103')" class="text-[11px] text-emerald-700 hover:text-emerald-900 font-semibold flex items-center gap-1 hover:underline">
+              <div class="flex items-center gap-4 shrink-0">
+                <a href="/cie10#ao-card-3331103" class="px-2.5 py-1 text-xs font-semibold text-teal-700 hover:text-teal-900 bg-teal-50 hover:bg-teal-100 border border-teal-200 rounded-lg flex items-center gap-1 transition" title="Ver desglose CIE-10">
                   <span>CIE-10</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                </button>
+                </a>
+                <div class="text-right shrink-0 min-w-[70px]">
+                  <span class="text-xl sm:text-2xl font-extrabold text-teal-600 font-mono block leading-tight" id="val_3331103">0</span>
+                  <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Casos</span>
+                </div>
               </div>
             </div>
 
-            <!-- 3331104 -->
-            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
-              <div>
-                <div class="flex justify-between items-start">
-                  <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 border border-purple-200 font-mono">AO 3331104</span>
-                  <i class="fa-solid fa-virus text-purple-400"></i>
+            <!-- 3331104: Sinusitis -->
+            <div class="bg-white rounded-xl p-3 border border-slate-200/90 shadow-xs hover:border-teal-300 hover:shadow-sm transition-all flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0 border border-teal-100">
+                  <i class="fa-solid fa-head-side-mask text-base"></i>
                 </div>
-                <h4 class="text-xs font-bold text-slate-800 mt-2.5">Sinusitis Aguda</h4>
-                <p class="text-[11px] text-slate-500 mb-2">J010, J011, J014, J019</p>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-teal-50 text-teal-700 border border-teal-200 font-mono">AO 3331104</span>
+                    <span class="text-xs font-semibold text-slate-800 truncate">Sinusitis Aguda</span>
+                  </div>
+                  <p class="text-[11px] text-slate-500 truncate mt-0.5">J010, J011, J019</p>
+                </div>
               </div>
-              <div class="pt-2 border-t border-slate-100 flex items-baseline justify-between">
-                <div>
-                  <span class="text-2xl font-extrabold text-purple-600 font-mono" id="val_3331104">0</span>
-                  <span class="text-[10px] text-slate-400 font-semibold block uppercase">Unidades</span>
-                </div>
-                <button onclick="saltarACie10('3331104')" class="text-[11px] text-emerald-700 hover:text-emerald-900 font-semibold flex items-center gap-1 hover:underline">
+              <div class="flex items-center gap-4 shrink-0">
+                <a href="/cie10#ao-card-3331104" class="px-2.5 py-1 text-xs font-semibold text-teal-700 hover:text-teal-900 bg-teal-50 hover:bg-teal-100 border border-teal-200 rounded-lg flex items-center gap-1 transition" title="Ver desglose CIE-10">
                   <span>CIE-10</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                </button>
+                </a>
+                <div class="text-right shrink-0 min-w-[70px]">
+                  <span class="text-xl sm:text-2xl font-extrabold text-teal-600 font-mono block leading-tight" id="val_3331104">0</span>
+                  <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Casos</span>
+                </div>
               </div>
             </div>
 
-            <!-- 3331105 -->
-            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
-              <div>
-                <div class="flex justify-between items-start">
-                  <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-violet-50 text-violet-700 border border-violet-200 font-mono">AO 3331105</span>
-                  <i class="fa-solid fa-lungs-virus text-violet-500"></i>
+            <!-- 3331105: Neumonía No Complicada -->
+            <div class="bg-white rounded-xl p-3 border border-slate-200/90 shadow-xs hover:border-indigo-300 hover:shadow-sm transition-all flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100">
+                  <i class="fa-solid fa-lungs-virus text-base"></i>
                 </div>
-                <h4 class="text-xs font-bold text-slate-800 mt-2.5">Neumonía No Complicada</h4>
-                <p class="text-[11px] text-slate-500 mb-2">J129, J159, J181</p>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200 font-mono">AO 3331105</span>
+                    <span class="text-xs font-semibold text-slate-800 truncate">Neumonía No Complicada</span>
+                  </div>
+                  <p class="text-[11px] text-slate-500 truncate mt-0.5">J129, J159, J180, J189 (Ambulatorio)</p>
+                </div>
               </div>
-              <div class="pt-2 border-t border-slate-100 flex items-baseline justify-between">
-                <div>
-                  <span class="text-2xl font-extrabold text-violet-600 font-mono" id="val_3331105">0</span>
-                  <span class="text-[10px] text-slate-400 font-semibold block uppercase">Unidades</span>
-                </div>
-                <button onclick="saltarACie10('3331105')" class="text-[11px] text-emerald-700 hover:text-emerald-900 font-semibold flex items-center gap-1 hover:underline">
+              <div class="flex items-center gap-4 shrink-0">
+                <a href="/cie10#ao-card-3331105" class="px-2.5 py-1 text-xs font-semibold text-indigo-700 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-lg flex items-center gap-1 transition" title="Ver desglose CIE-10">
                   <span>CIE-10</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                </button>
+                </a>
+                <div class="text-right shrink-0 min-w-[70px]">
+                  <span class="text-xl sm:text-2xl font-extrabold text-indigo-600 font-mono block leading-tight" id="val_3331105">0</span>
+                  <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Casos</span>
+                </div>
               </div>
             </div>
 
-            <!-- Neumonía Complicada -->
-            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
-              <div>
-                <div class="flex justify-between items-start">
-                  <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-fuchsia-50 text-fuchsia-700 border border-fuchsia-200 font-mono">NEUMONÍA</span>
-                  <i class="fa-solid fa-hospital text-fuchsia-500"></i>
+            <!-- val_nuemonia: Neumonía Complicada -->
+            <div class="bg-white rounded-xl p-3 border border-slate-200/90 shadow-xs hover:border-indigo-300 hover:shadow-sm transition-all flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100">
+                  <i class="fa-solid fa-triangle-exclamation text-base"></i>
                 </div>
-                <h4 class="text-xs font-bold text-slate-800 mt-2.5">Neumonía Complicada</h4>
-                <p class="text-[11px] text-slate-500 mb-2">A369, J120, J13X, J150...</p>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200 font-mono">AO 3331301</span>
+                    <span class="text-xs font-semibold text-slate-800 truncate">Neumonía Complicada</span>
+                  </div>
+                  <p class="text-[11px] text-slate-500 truncate mt-0.5">J850, J851, J90X, J91X (Absceso, Derrame)</p>
+                </div>
               </div>
-              <div class="pt-2 border-t border-slate-100 flex items-baseline justify-between">
-                <div>
-                  <span class="text-2xl font-extrabold text-fuchsia-600 font-mono" id="val_nuemonia">0</span>
-                  <span class="text-[10px] text-slate-400 font-semibold block uppercase">Unidades</span>
-                </div>
-                <button onclick="saltarACie10('neumonia')" class="text-[11px] text-emerald-700 hover:text-emerald-900 font-semibold flex items-center gap-1 hover:underline">
+              <div class="flex items-center gap-4 shrink-0">
+                <a href="/cie10#ao-card-neumonia" class="px-2.5 py-1 text-xs font-semibold text-indigo-700 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-lg flex items-center gap-1 transition" title="Ver desglose CIE-10">
                   <span>CIE-10</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                </button>
+                </a>
+                <div class="text-right shrink-0 min-w-[70px]">
+                  <span class="text-xl sm:text-2xl font-extrabold text-indigo-600 font-mono block leading-tight" id="val_nuemonia">0</span>
+                  <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Casos</span>
+                </div>
               </div>
             </div>
 
-            <!-- 3331301 -->
-            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
-              <div>
-                <div class="flex justify-between items-start">
-                  <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-200 font-mono">AO 3331301</span>
-                  <i class="fa-solid fa-circle-exclamation text-rose-500"></i>
+            <!-- 3331301: Neumonía Muy Grave < 2m -->
+            <div class="bg-white rounded-xl p-3 border border-slate-200/90 shadow-xs hover:border-red-300 hover:shadow-sm transition-all flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center shrink-0 border border-red-100">
+                  <i class="fa-solid fa-baby text-base"></i>
                 </div>
-                <h4 class="text-xs font-bold text-slate-800 mt-2.5">Neumonía Grave (&lt; 2M)</h4>
-                <p class="text-[11px] text-slate-500 mb-2">J050, J851, J860, J180...</p>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-red-50 text-red-700 border border-red-200 font-mono">AO 3331301</span>
+                    <span class="text-xs font-semibold text-slate-800 truncate">Neumonía Muy Grave (&lt; 2 meses)</span>
+                  </div>
+                  <p class="text-[11px] text-slate-500 truncate mt-0.5">P239, J189, J180 (&lt; 2 meses de edad)</p>
+                </div>
               </div>
-              <div class="pt-2 border-t border-slate-100 flex items-baseline justify-between">
-                <div>
-                  <span class="text-2xl font-extrabold text-rose-600 font-mono" id="val_3331301">0</span>
-                  <span class="text-[10px] text-slate-400 font-semibold block uppercase">Unidades</span>
-                </div>
-                <button onclick="saltarACie10('3331301')" class="text-[11px] text-emerald-700 hover:text-emerald-900 font-semibold flex items-center gap-1 hover:underline">
+              <div class="flex items-center gap-4 shrink-0">
+                <a href="/cie10#ao-card-3331301" class="px-2.5 py-1 text-xs font-semibold text-red-700 hover:text-red-900 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg flex items-center gap-1 transition" title="Ver desglose CIE-10">
                   <span>CIE-10</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                </button>
+                </a>
+                <div class="text-right shrink-0 min-w-[70px]">
+                  <span class="text-xl sm:text-2xl font-extrabold text-red-600 font-mono block leading-tight" id="val_3331301">0</span>
+                  <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Casos</span>
+                </div>
               </div>
             </div>
 
-            <!-- 3331305 -->
-            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
-              <div>
-                <div class="flex justify-between items-start">
-                  <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-pink-50 text-pink-700 border border-pink-200 font-mono">AO 3331305</span>
-                  <i class="fa-solid fa-triangle-exclamation text-pink-500"></i>
+            <!-- 3331305: Neumonía Muy Grave 2m-4a -->
+            <div class="bg-white rounded-xl p-3 border border-slate-200/90 shadow-xs hover:border-red-300 hover:shadow-sm transition-all flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center shrink-0 border border-red-100">
+                  <i class="fa-solid fa-hospital text-base"></i>
                 </div>
-                <h4 class="text-xs font-bold text-slate-800 mt-2.5">Neumonía Grave (2M a 4A)</h4>
-                <p class="text-[11px] text-slate-500 mb-2">J050, J181, J851, J90X...</p>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-red-50 text-red-700 border border-red-200 font-mono">AO 3331305</span>
+                    <span class="text-xs font-semibold text-slate-800 truncate">Neumonía Muy Grave (2m a 4a)</span>
+                  </div>
+                  <p class="text-[11px] text-slate-500 truncate mt-0.5">J189, J180, J159 (2 meses a 4 años)</p>
+                </div>
               </div>
-              <div class="pt-2 border-t border-slate-100 flex items-baseline justify-between">
-                <div>
-                  <span class="text-2xl font-extrabold text-pink-600 font-mono" id="val_3331305">0</span>
-                  <span class="text-[10px] text-slate-400 font-semibold block uppercase">Unidades</span>
-                </div>
-                <button onclick="saltarACie10('3331305')" class="text-[11px] text-emerald-700 hover:text-emerald-900 font-semibold flex items-center gap-1 hover:underline">
+              <div class="flex items-center gap-4 shrink-0">
+                <a href="/cie10#ao-card-3331305" class="px-2.5 py-1 text-xs font-semibold text-red-700 hover:text-red-900 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg flex items-center gap-1 transition" title="Ver desglose CIE-10">
                   <span>CIE-10</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                </button>
+                </a>
+                <div class="text-right shrink-0 min-w-[70px]">
+                  <span class="text-xl sm:text-2xl font-extrabold text-red-600 font-mono block leading-tight" id="val_3331305">0</span>
+                  <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Casos</span>
+                </div>
               </div>
             </div>
 
-            <!-- 3331502 -->
-            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
-              <div>
-                <div class="flex justify-between items-start">
-                  <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-orange-50 text-orange-700 border border-orange-200 font-mono">AO 3331502</span>
-                  <i class="fa-solid fa-lungs text-orange-500"></i>
+            <!-- 3331502: SOBA / Asma -->
+            <div class="bg-white rounded-xl p-3 border border-slate-200/90 shadow-xs hover:border-blue-300 hover:shadow-sm transition-all flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100">
+                  <i class="fa-solid fa-wind text-base"></i>
                 </div>
-                <h4 class="text-xs font-bold text-slate-800 mt-2.5">SOBA / ASMA Pediátrico</h4>
-                <p class="text-[11px] text-slate-500 mb-2">J210, J440, J450, J46X</p>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200 font-mono">AO 3331502</span>
+                    <span class="text-xs font-semibold text-slate-800 truncate">Síndrome Obstructivo Bronquial / Asma (SOBA)</span>
+                  </div>
+                  <p class="text-[11px] text-slate-500 truncate mt-0.5">J209, J219, J450, J459</p>
+                </div>
               </div>
-              <div class="pt-2 border-t border-slate-100 flex items-baseline justify-between">
-                <div>
-                  <span class="text-2xl font-extrabold text-orange-600 font-mono" id="val_3331502">0</span>
-                  <span class="text-[10px] text-slate-400 font-semibold block uppercase">Unidades</span>
-                </div>
-                <button onclick="saltarACie10('3331502')" class="text-[11px] text-emerald-700 hover:text-emerald-900 font-semibold flex items-center gap-1 hover:underline">
+              <div class="flex items-center gap-4 shrink-0">
+                <a href="/cie10#ao-card-3331502" class="px-2.5 py-1 text-xs font-semibold text-blue-700 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg flex items-center gap-1 transition" title="Ver desglose CIE-10">
                   <span>CIE-10</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                </button>
+                </a>
+                <div class="text-right shrink-0 min-w-[70px]">
+                  <span class="text-xl sm:text-2xl font-extrabold text-blue-600 font-mono block leading-tight" id="val_3331502">0</span>
+                  <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Casos</span>
+                </div>
               </div>
             </div>
 
-            <!-- 3331201 -->
-            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
-              <div>
-                <div class="flex justify-between items-start">
-                  <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono">AO 3331201</span>
-                  <i class="fa-solid fa-notes-medical text-emerald-500"></i>
+            <!-- 3331201: EDA Simple -->
+            <div class="bg-white rounded-xl p-3 border border-slate-200/90 shadow-xs hover:border-amber-300 hover:shadow-sm transition-all flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center shrink-0 border border-amber-100">
+                  <i class="fa-solid fa-notes-medical text-base"></i>
                 </div>
-                <h4 class="text-xs font-bold text-slate-800 mt-2.5">EDA No Complicada</h4>
-                <p class="text-[11px] text-slate-500 mb-2">A009, A040, A08, A090</p>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200 font-mono">AO 3331201</span>
+                    <span class="text-xs font-semibold text-slate-800 truncate">EDA No Complicada (Acuosa Simple)</span>
+                  </div>
+                  <p class="text-[11px] text-slate-500 truncate mt-0.5">A09X, A084, A080 (Sin deshidratación)</p>
+                </div>
               </div>
-              <div class="pt-2 border-t border-slate-100 flex items-baseline justify-between">
-                <div>
-                  <span class="text-2xl font-extrabold text-emerald-600 font-mono" id="val_3331201">0</span>
-                  <span class="text-[10px] text-slate-400 font-semibold block uppercase">Unidades</span>
-                </div>
-                <button onclick="saltarACie10('3331201')" class="text-[11px] text-emerald-700 hover:text-emerald-900 font-semibold flex items-center gap-1 hover:underline">
+              <div class="flex items-center gap-4 shrink-0">
+                <a href="/cie10#ao-card-3331201" class="px-2.5 py-1 text-xs font-semibold text-amber-800 hover:text-amber-950 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-lg flex items-center gap-1 transition" title="Ver desglose CIE-10">
                   <span>CIE-10</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                </button>
+                </a>
+                <div class="text-right shrink-0 min-w-[70px]">
+                  <span class="text-xl sm:text-2xl font-extrabold text-amber-700 font-mono block leading-tight" id="val_3331201">0</span>
+                  <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Casos</span>
+                </div>
               </div>
             </div>
 
-            <!-- 3331203 -->
-            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
-              <div>
-                <div class="flex justify-between items-start">
-                  <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-teal-50 text-teal-700 border border-teal-200 font-mono">AO 3331203</span>
-                  <i class="fa-solid fa-bacteria text-teal-500"></i>
+            <!-- 3331203: EDA Disentérica -->
+            <div class="bg-white rounded-xl p-3 border border-slate-200/90 shadow-xs hover:border-amber-300 hover:shadow-sm transition-all flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center shrink-0 border border-amber-100">
+                  <i class="fa-solid fa-bacteria text-base"></i>
                 </div>
-                <h4 class="text-xs font-bold text-slate-800 mt-2.5">EDA Disentérica</h4>
-                <p class="text-[11px] text-slate-500 mb-2">A030, A039, A042, A060</p>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200 font-mono">AO 3331203</span>
+                    <span class="text-xs font-semibold text-slate-800 truncate">EDA Disentérica</span>
+                  </div>
+                  <p class="text-[11px] text-slate-500 truncate mt-0.5">A030, A039, A042, A060 (Diarrea con moco/sangre)</p>
+                </div>
               </div>
-              <div class="pt-2 border-t border-slate-100 flex items-baseline justify-between">
-                <div>
-                  <span class="text-2xl font-extrabold text-teal-600 font-mono" id="val_3331203">0</span>
-                  <span class="text-[10px] text-slate-400 font-semibold block uppercase">Unidades</span>
-                </div>
-                <button onclick="saltarACie10('3331203')" class="text-[11px] text-emerald-700 hover:text-emerald-900 font-semibold flex items-center gap-1 hover:underline">
+              <div class="flex items-center gap-4 shrink-0">
+                <a href="/cie10#ao-card-3331203" class="px-2.5 py-1 text-xs font-semibold text-amber-800 hover:text-amber-950 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-lg flex items-center gap-1 transition" title="Ver desglose CIE-10">
                   <span>CIE-10</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                </button>
+                </a>
+                <div class="text-right shrink-0 min-w-[70px]">
+                  <span class="text-xl sm:text-2xl font-extrabold text-teal-600 font-mono block leading-tight" id="val_3331203">0</span>
+                  <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Casos</span>
+                </div>
               </div>
             </div>
 
-            <!-- 3331204 -->
-            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
-              <div>
-                <div class="flex justify-between items-start">
-                  <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-cyan-50 text-cyan-700 border border-cyan-200 font-mono">AO 3331204</span>
-                  <i class="fa-solid fa-clock-rotate-left text-cyan-500"></i>
+            <!-- 3331204: EDA Persistente -->
+            <div class="bg-white rounded-xl p-3 border border-slate-200/90 shadow-xs hover:border-amber-300 hover:shadow-sm transition-all flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center shrink-0 border border-amber-100">
+                  <i class="fa-solid fa-clock-rotate-left text-base"></i>
                 </div>
-                <h4 class="text-xs font-bold text-slate-800 mt-2.5">EDA Persistente</h4>
-                <p class="text-[11px] text-slate-500 mb-2">CIE: A09X en &lt; 5 años</p>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200 font-mono">AO 3331204</span>
+                    <span class="text-xs font-semibold text-slate-800 truncate">EDA Persistente</span>
+                  </div>
+                  <p class="text-[11px] text-slate-500 truncate mt-0.5">A09X en &lt; 5 años (&gt; 14 días)</p>
+                </div>
               </div>
-              <div class="pt-2 border-t border-slate-100 flex items-baseline justify-between">
-                <div>
-                  <span class="text-2xl font-extrabold text-cyan-600 font-mono" id="val_3331204">0</span>
-                  <span class="text-[10px] text-slate-400 font-semibold block uppercase">Unidades</span>
-                </div>
-                <button onclick="saltarACie10('3331204')" class="text-[11px] text-emerald-700 hover:text-emerald-900 font-semibold flex items-center gap-1 hover:underline">
+              <div class="flex items-center gap-4 shrink-0">
+                <a href="/cie10#ao-card-3331204" class="px-2.5 py-1 text-xs font-semibold text-amber-800 hover:text-amber-950 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-lg flex items-center gap-1 transition" title="Ver desglose CIE-10">
                   <span>CIE-10</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                </button>
+                </a>
+                <div class="text-right shrink-0 min-w-[70px]">
+                  <span class="text-xl sm:text-2xl font-extrabold text-cyan-600 font-mono block leading-tight" id="val_3331204">0</span>
+                  <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Casos</span>
+                </div>
               </div>
             </div>
 
-            <!-- 3331401 -->
-            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
-              <div>
-                <div class="flex justify-between items-start">
-                  <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-yellow-50 text-yellow-700 border border-yellow-200 font-mono">AO 3331401</span>
-                  <i class="fa-solid fa-faucet-drip text-yellow-600"></i>
+            <!-- 3331401: EDA con Deshidratación -->
+            <div class="bg-white rounded-xl p-3 border border-slate-200/90 shadow-xs hover:border-rose-300 hover:shadow-sm transition-all flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0 border border-rose-100">
+                  <i class="fa-solid fa-faucet-drip text-base"></i>
                 </div>
-                <h4 class="text-xs font-bold text-slate-800 mt-2.5">EDA con Deshidratación</h4>
-                <p class="text-[11px] text-slate-500 mb-2">CIE: A009-A099 + E86X</p>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-200 font-mono">AO 3331401</span>
+                    <span class="text-xs font-semibold text-slate-800 truncate">EDA con Deshidratación</span>
+                  </div>
+                  <p class="text-[11px] text-slate-500 truncate mt-0.5">A009-A099 + E86X</p>
+                </div>
               </div>
-              <div class="pt-2 border-t border-slate-100 flex items-baseline justify-between">
-                <div>
-                  <span class="text-2xl font-extrabold text-yellow-600 font-mono" id="val_3331401">0</span>
-                  <span class="text-[10px] text-slate-400 font-semibold block uppercase">Unidades</span>
-                </div>
-                <button onclick="saltarACie10('3331401')" class="text-[11px] text-emerald-700 hover:text-emerald-900 font-semibold flex items-center gap-1 hover:underline">
+              <div class="flex items-center gap-4 shrink-0">
+                <a href="/cie10#ao-card-3331401" class="px-2.5 py-1 text-xs font-semibold text-rose-700 hover:text-rose-900 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg flex items-center gap-1 transition" title="Ver desglose CIE-10">
                   <span>CIE-10</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                </button>
+                </a>
+                <div class="text-right shrink-0 min-w-[70px]">
+                  <span class="text-xl sm:text-2xl font-extrabold text-yellow-600 font-mono block leading-tight" id="val_3331401">0</span>
+                  <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Casos</span>
+                </div>
               </div>
             </div>
 
-            <!-- 3331305_shock -->
-            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between">
-              <div>
-                <div class="flex justify-between items-start">
-                  <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-red-50 text-red-700 border border-red-200 font-mono">AO 3331305 (SHOCK)</span>
-                  <i class="fa-solid fa-heart-pulse text-red-500"></i>
+            <!-- 3331305_shock: EDA con Shock -->
+            <div class="bg-white rounded-xl p-3 border border-slate-200/90 shadow-xs hover:border-red-300 hover:shadow-sm transition-all flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center shrink-0 border border-red-100">
+                  <i class="fa-solid fa-heart-pulse text-base"></i>
                 </div>
-                <h4 class="text-xs font-bold text-slate-800 mt-2.5">EDA con Desh. y Shock</h4>
-                <p class="text-[11px] text-slate-500 mb-2">R571, E872, K560 con EDA</p>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-red-50 text-red-700 border border-red-200 font-mono">AO 3331305</span>
+                    <span class="text-xs font-semibold text-slate-800 truncate">EDA con Desh. y Shock</span>
+                  </div>
+                  <p class="text-[11px] text-slate-500 truncate mt-0.5">R571, E872, K560 con EDA (Emergencia)</p>
+                </div>
               </div>
-              <div class="pt-2 border-t border-slate-100 flex items-baseline justify-between">
-                <div>
-                  <span class="text-2xl font-extrabold text-red-600 font-mono" id="val_3331305_shock">0</span>
-                  <span class="text-[10px] text-slate-400 font-semibold block uppercase">Unidades</span>
-                </div>
-                <button onclick="saltarACie10('3331305_shock')" class="text-[11px] text-emerald-700 hover:text-emerald-900 font-semibold flex items-center gap-1 hover:underline">
+              <div class="flex items-center gap-4 shrink-0">
+                <a href="/cie10#ao-card-3331305_shock" class="px-2.5 py-1 text-xs font-semibold text-red-700 hover:text-red-900 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg flex items-center gap-1 transition" title="Ver desglose CIE-10">
                   <span>CIE-10</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                </button>
+                </a>
+                <div class="text-right shrink-0 min-w-[70px]">
+                  <span class="text-xl sm:text-2xl font-extrabold text-red-600 font-mono block leading-tight" id="val_3331305_shock">0</span>
+                  <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Casos</span>
+                </div>
               </div>
             </div>
-
           </div>
         </div>
 
       </div>
+      <!-- ================================================================= -->
+      <!-- FIN COLUMNA PRINCIPAL IZQUIERDA                                   -->
+      <!-- ================================================================= -->
+
+      <!-- ================================================================= -->
+      <!-- COLUMNA LATERAL DERECHA: LEYENDA TÉCNICA DE ACTIVIDADES OPERATIVAS-->
+      <!-- ================================================================= -->
+      <div class="lg:col-span-5 xl:col-span-4 sticky top-6 space-y-3">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
+          <!-- Encabezado de la Leyenda -->
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center text-xs">
+                <i class="fa-solid fa-book-medical"></i>
+              </div>
+              <div>
+                <h3 class="text-xs sm:text-sm font-bold text-slate-900">Leyenda Técnica de AO</h3>
+                <p class="text-[10px] text-slate-400 font-medium">Códigos HIS, CPT &amp; CIE-10 asociados</p>
+              </div>
+            </div>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-mono">25 AO</span>
+          </div>
+
+          <!-- Buscador Rápido en la Leyenda -->
+          <div class="mt-3">
+            <div class="relative">
+              <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+              <input type="text" id="legendFilterInput" placeholder="Buscar AO o código (ej. 90713, D500)..." 
+                class="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-sky-500 focus:ring-1 focus:ring-sky-500 focus:outline-none transition">
+            </div>
+          </div>
+
+          <!-- Contenedor Desplazable de Tarjetas de la Leyenda -->
+          <div id="legendItemsContainer" class="mt-3 space-y-2 max-h-[calc(100vh-250px)] overflow-y-auto pr-1">
+
+            <!-- GRUPO INMUNIZACIONES -->
+            <div class="legend-group-header-vacunas text-[10px] font-bold text-sky-800 uppercase tracking-wider bg-sky-50 px-2.5 py-1 rounded-lg border border-sky-100 flex items-center gap-1.5">
+              <i class="fa-solid fa-syringe text-sky-600"></i> Inmunizaciones (9 AOs)
+            </div>
+
+            <!-- AO 3325401 -->
+            <div class="legend-ao-card bg-slate-50 hover:bg-slate-100/80 p-2.5 rounded-xl border border-slate-200/80 transition text-xs" data-section="vacunas" data-search="3325401 bcg 90708 rn inmunizaciones vacunas">
+              <div class="flex items-center justify-between">
+                <span class="font-mono font-bold text-sky-700 text-[11px]">AO 3325401</span>
+                <span class="text-[9px] px-1.5 py-0.5 rounded bg-sky-100 text-sky-700 font-semibold font-mono">CPT</span>
+              </div>
+              <p class="font-semibold text-slate-800 mt-0.5 leading-tight text-[11px]">Vacunación BCG (Dosis RN)</p>
+              <div class="mt-1.5 flex flex-wrap gap-1">
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">90708</span>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1">Criterio: &lt; 28 días de nacido, Dosis Única.</p>
+            </div>
+
+            <!-- AO 3325402 -->
+            <div class="legend-ao-card bg-slate-50 hover:bg-slate-100/80 p-2.5 rounded-xl border border-slate-200/80 transition text-xs" data-section="vacunas" data-search="3325402 hvb hepatitis b 90744 inmunizaciones vacunas">
+              <div class="flex items-center justify-between">
+                <span class="font-mono font-bold text-sky-700 text-[11px]">AO 3325402</span>
+                <span class="text-[9px] px-1.5 py-0.5 rounded bg-sky-100 text-sky-700 font-semibold font-mono">CPT</span>
+              </div>
+              <p class="font-semibold text-slate-800 mt-0.5 leading-tight text-[11px]">Vacunación Hepatitis B Pediátrica (HVB)</p>
+              <div class="mt-1.5 flex flex-wrap gap-1">
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">90744</span>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1">Criterio: Dosis RN dentro de las primeras 12-24 horas.</p>
+            </div>
+
+            <!-- AO 3325501 -->
+            <div class="legend-ao-card bg-slate-50 hover:bg-slate-100/80 p-2.5 rounded-xl border border-slate-200/80 transition text-xs" data-section="vacunas" data-search="3325501 pentavalente penta 90723 90720 inmunizaciones vacunas">
+              <div class="flex items-center justify-between">
+                <span class="font-mono font-bold text-sky-700 text-[11px]">AO 3325501</span>
+                <span class="text-[9px] px-1.5 py-0.5 rounded bg-sky-100 text-sky-700 font-semibold font-mono">CPT</span>
+              </div>
+              <p class="font-semibold text-slate-800 mt-0.5 leading-tight text-[11px]">Vacunación Pentavalente (1ra, 2da, 3ra Dosis)</p>
+              <div class="mt-1.5 flex flex-wrap gap-1">
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">90723</span>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">90720</span>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1">Criterio: Campo Lab = 1, 2 ó 3 a los 2, 4 y 6 meses.</p>
+            </div>
+
+            <!-- AO 3325502 -->
+            <div class="legend-ao-card bg-slate-50 hover:bg-slate-100/80 p-2.5 rounded-xl border border-slate-200/80 transition text-xs" data-section="vacunas" data-search="3325502 antipolio ipv apo 90713 90712 inmunizaciones vacunas">
+              <div class="flex items-center justify-between">
+                <span class="font-mono font-bold text-sky-700 text-[11px]">AO 3325502</span>
+                <span class="text-[9px] px-1.5 py-0.5 rounded bg-sky-100 text-sky-700 font-semibold font-mono">CPT</span>
+              </div>
+              <p class="font-semibold text-slate-800 mt-0.5 leading-tight text-[11px]">Vacunación Antipolio (IPV / APO)</p>
+              <div class="mt-1.5 flex flex-wrap gap-1">
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">90713 (IPV)</span>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">90712 (APO)</span>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1">Criterio: IPV intramuscular (2m, 4m) y APO oral (6m).</p>
+            </div>
+
+            <!-- AO 3325503 -->
+            <div class="legend-ao-card bg-slate-50 hover:bg-slate-100/80 p-2.5 rounded-xl border border-slate-200/80 transition text-xs" data-section="vacunas" data-search="3325503 rotavirus rota 90681 inmunizaciones vacunas">
+              <div class="flex items-center justify-between">
+                <span class="font-mono font-bold text-sky-700 text-[11px]">AO 3325503</span>
+                <span class="text-[9px] px-1.5 py-0.5 rounded bg-sky-100 text-sky-700 font-semibold font-mono">CPT</span>
+              </div>
+              <p class="font-semibold text-slate-800 mt-0.5 leading-tight text-[11px]">Vacunación Rotavirus (1ra y 2da Dosis)</p>
+              <div class="mt-1.5 flex flex-wrap gap-1">
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">90681</span>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1">Criterio: Lactantes a los 2 meses y 4 meses de edad.</p>
+            </div>
+
+            <!-- AO 3325504 -->
+            <div class="legend-ao-card bg-slate-50 hover:bg-slate-100/80 p-2.5 rounded-xl border border-slate-200/80 transition text-xs" data-section="vacunas" data-search="3325504 neumococo neumo 90669 inmunizaciones vacunas">
+              <div class="flex items-center justify-between">
+                <span class="font-mono font-bold text-sky-700 text-[11px]">AO 3325504</span>
+                <span class="text-[9px] px-1.5 py-0.5 rounded bg-sky-100 text-sky-700 font-semibold font-mono">CPT</span>
+              </div>
+              <p class="font-semibold text-slate-800 mt-0.5 leading-tight text-[11px]">Vacunación Antineumocócica (1ra, 2da, 3ra Dosis)</p>
+              <div class="mt-1.5 flex flex-wrap gap-1">
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">90669</span>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1">Criterio: Dosis a los 2m, 4m y refuerzo al año (12m).</p>
+            </div>
+
+            <!-- AO 3325505 -->
+            <div class="legend-ao-card bg-slate-50 hover:bg-slate-100/80 p-2.5 rounded-xl border border-slate-200/80 transition text-xs" data-section="vacunas" data-search="3325505 spr sarampion rubeola paperas 90707 inmunizaciones vacunas">
+              <div class="flex items-center justify-between">
+                <span class="font-mono font-bold text-sky-700 text-[11px]">AO 3325505</span>
+                <span class="text-[9px] px-1.5 py-0.5 rounded bg-sky-100 text-sky-700 font-semibold font-mono">CPT</span>
+              </div>
+              <p class="font-semibold text-slate-800 mt-0.5 leading-tight text-[11px]">Vacunación SPR (Sarampión, Paperas, Rubéola)</p>
+              <div class="mt-1.5 flex flex-wrap gap-1">
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">90707</span>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1">Criterio: 1ra Dosis (12m) y 2da Dosis (18m).</p>
+            </div>
+
+            <!-- AO 3325507 -->
+            <div class="legend-ao-card bg-slate-50 hover:bg-slate-100/80 p-2.5 rounded-xl border border-slate-200/80 transition text-xs" data-section="vacunas" data-search="3325507 dpt refuerzo difteria tetanos pertussis 90701 inmunizaciones vacunas">
+              <div class="flex items-center justify-between">
+                <span class="font-mono font-bold text-sky-700 text-[11px]">AO 3325507</span>
+                <span class="text-[9px] px-1.5 py-0.5 rounded bg-sky-100 text-sky-700 font-semibold font-mono">CPT</span>
+              </div>
+              <p class="font-semibold text-slate-800 mt-0.5 leading-tight text-[11px]">Vacunación DPT Refuerzos (1er y 2do Refuerzo)</p>
+              <div class="mt-1.5 flex flex-wrap gap-1">
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">90701</span>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1">Criterio: 1er Refuerzo a los 18 meses, 2do Refuerzo a los 4 años.</p>
+            </div>
+
+            <!-- AO 3325508 -->
+            <div class="legend-ao-card bg-slate-50 hover:bg-slate-100/80 p-2.5 rounded-xl border border-slate-200/80 transition text-xs" data-section="vacunas" data-search="3325508 influenza pediatrica gripe 90657 inmunizaciones vacunas">
+              <div class="flex items-center justify-between">
+                <span class="font-mono font-bold text-sky-700 text-[11px]">AO 3325508</span>
+                <span class="text-[9px] px-1.5 py-0.5 rounded bg-sky-100 text-sky-700 font-semibold font-mono">CPT</span>
+              </div>
+              <p class="font-semibold text-slate-800 mt-0.5 leading-tight text-[11px]">Vacunación Influenza Pediátrica</p>
+              <div class="mt-1.5 flex flex-wrap gap-1">
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">90657</span>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1">Criterio: Dosis en lactantes desde los 6 meses de edad.</p>
+            </div>
+
+            <!-- GRUPO PEDIATRÍA -->
+            <div class="legend-group-header-pediatria text-[10px] font-bold text-emerald-800 uppercase tracking-wider bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-100 flex items-center gap-1.5 mt-2">
+              <i class="fa-solid fa-stethoscope text-emerald-600"></i> Pediatría &amp; Morbilidad (16 AOs)
+            </div>
+
+            <!-- AO 3331501 -->
+            <div class="legend-ao-card bg-slate-50 hover:bg-slate-100/80 p-2.5 rounded-xl border border-slate-200/80 transition text-xs" data-section="pediatria" data-search="3331501 anemia hierro d500 d508 d509 pediatria">
+              <div class="flex items-center justify-between">
+                <span class="font-mono font-bold text-rose-700 text-[11px]">AO 3331501</span>
+                <span class="text-[9px] px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 font-semibold font-mono">CIE-10</span>
+              </div>
+              <p class="font-semibold text-slate-800 mt-0.5 leading-tight text-[11px]">Anemia por Deficiencia de Hierro</p>
+              <div class="mt-1.5 flex flex-wrap gap-1">
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">D500</span>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">D508</span>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">D509</span>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1">Criterio: Tipo DX Definitivo (D) o Repetido (R).</p>
+            </div>
+
+            <!-- AO 3341401 -->
+            <div class="legend-ao-card bg-slate-50 hover:bg-slate-100/80 p-2.5 rounded-xl border border-slate-200/80 transition text-xs" data-section="pediatria" data-search="3341401 parasitosis intestinal b820 b829 b779 b689 b89x b769 b80x pediatria">
+              <div class="flex items-center justify-between">
+                <span class="font-mono font-bold text-amber-800 text-[11px]">AO 3341401</span>
+                <span class="text-[9px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 font-semibold font-mono">CIE-10</span>
+              </div>
+              <p class="font-semibold text-slate-800 mt-0.5 leading-tight text-[11px]">Parasitosis Intestinal</p>
+              <div class="mt-1.5 flex flex-wrap gap-1">
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">B820</span>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">B829</span>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">B779</span>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">B689</span>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">B89X</span>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">B769</span>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">B80X</span>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1">Criterio: Helmintiasis y protozoosis intestinales tratadas.</p>
+            </div>
+
+            <!-- AO 3331101 -->
+            <div class="legend-ao-card bg-slate-50 hover:bg-slate-100/80 p-2.5 rounded-xl border border-slate-200/80 transition text-xs" data-section="pediatria" data-search="3331101 ira no complicada resfrio j00x j029 j069 j039 respiratoria pediatria">
+              <div class="flex items-center justify-between">
+                <span class="font-mono font-bold text-teal-700 text-[11px]">AO 3331101</span>
+                <span class="text-[9px] px-1.5 py-0.5 rounded bg-teal-100 text-teal-700 font-semibold font-mono">CIE-10</span>
+              </div>
+              <p class="font-semibold text-slate-800 mt-0.5 leading-tight text-[11px]">IRA No Complicada (Resfrío / Rinofaringitis)</p>
+              <div class="mt-1.5 flex flex-wrap gap-1">
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">J00X</span>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">J029</span>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">J069</span>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">J039</span>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1">Criterio: Cuadros respiratorios altos agudos no bacterianos.</p>
+            </div>
+
+            <!-- AO 3331102 -->
+            <div class="legend-ao-card bg-slate-50 hover:bg-slate-100/80 p-2.5 rounded-xl border border-slate-200/80 transition text-xs" data-section="pediatria" data-search="3331102 fapa faringitis amigdalitis j020 j030 respiratoria pediatria">
+              <div class="flex items-center justify-between">
+                <span class="font-mono font-bold text-teal-700 text-[11px]">AO 3331102</span>
+                <span class="text-[9px] px-1.5 py-0.5 rounded bg-teal-100 text-teal-700 font-semibold font-mono">CIE-10</span>
+              </div>
+              <p class="font-semibold text-slate-800 mt-0.5 leading-tight text-[11px]">Faringitis y Amigdalitis Aguda (FAPA)</p>
+              <div class="mt-1.5 flex flex-wrap gap-1">
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">J020</span>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">J030</span>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1">Criterio: Infección aguda estreptocócica confirmada/tratada.</p>
+            </div>
+
+            <!-- AO 3331103 -->
+            <div class="legend-ao-card bg-slate-50 hover:bg-slate-100/80 p-2.5 rounded-xl border border-slate-200/80 transition text-xs" data-section="pediatria" data-search="3331103 oma otitis media aguda h650 h651 h660 respiratoria pediatria">
+              <div class="flex items-center justify-between">
+                <span class="font-mono font-bold text-teal-700 text-[11px]">AO 3331103</span>
+                <span class="text-[9px] px-1.5 py-0.5 rounded bg-teal-100 text-teal-700 font-semibold font-mono">CIE-10</span>
+              </div>
+              <p class="font-semibold text-slate-800 mt-0.5 leading-tight text-[11px]">Otitis Media Aguda (OMA)</p>
+              <div class="mt-1.5 flex flex-wrap gap-1">
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">H650</span>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">H651</span>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">H660</span>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1">Criterio: Inflamación aguda del oído medio supurativa o no.</p>
+            </div>
+
+            <!-- AO 3331104 -->
+            <div class="legend-ao-card bg-slate-50 hover:bg-slate-100/80 p-2.5 rounded-xl border border-slate-200/80 transition text-xs" data-section="pediatria" data-search="3331104 sinusitis aguda j010 j011 j019 respiratoria pediatria">
+              <div class="flex items-center justify-between">
+                <span class="font-mono font-bold text-teal-700 text-[11px]">AO 3331104</span>
+                <span class="text-[9px] px-1.5 py-0.5 rounded bg-teal-100 text-teal-700 font-semibold font-mono">CIE-10</span>
+              </div>
+              <p class="font-semibold text-slate-800 mt-0.5 leading-tight text-[11px]">Sinusitis Aguda</p>
+              <div class="mt-1.5 flex flex-wrap gap-1">
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">J010</span>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">J011</span>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">J019</span>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1">Criterio: Compromiso de senos maxilares, frontales u otros.</p>
+            </div>
+
+            <!-- AO 3331105 -->
+            <div class="legend-ao-card bg-slate-50 hover:bg-slate-100/80 p-2.5 rounded-xl border border-slate-200/80 transition text-xs" data-section="pediatria" data-search="3331105 neumonia no complicada j129 j159 j180 j189 respiratoria pediatria">
+              <div class="flex items-center justify-between">
+                <span class="font-mono font-bold text-indigo-700 text-[11px]">AO 3331105</span>
+                <span class="text-[9px] px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700 font-semibold font-mono">CIE-10</span>
+              </div>
+              <p class="font-semibold text-slate-800 mt-0.5 leading-tight text-[11px]">Neumonía No Complicada</p>
+              <div class="mt-1.5 flex flex-wrap gap-1">
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">J129</span>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">J159</span>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">J180</span>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">J189</span>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1">Criterio: Neumonía viral/bacteriana con manejo ambulatorio.</p>
+            </div>
+
+            <!-- AO 3331301 (Complicada) -->
+            <div class="legend-ao-card bg-slate-50 hover:bg-slate-100/80 p-2.5 rounded-xl border border-slate-200/80 transition text-xs" data-section="pediatria" data-search="3331301 nuemonia neumonia complicada j850 j851 j90x j91x absceso derrame respiratoria pediatria">
+              <div class="flex items-center justify-between">
+                <span class="font-mono font-bold text-indigo-700 text-[11px]">AO 3331301 (Comp.)</span>
+                <span class="text-[9px] px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700 font-semibold font-mono">CIE-10</span>
+              </div>
+              <p class="font-semibold text-slate-800 mt-0.5 leading-tight text-[11px]">Neumonía Complicada</p>
+              <div class="mt-1.5 flex flex-wrap gap-1">
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">J850</span>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">J851</span>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">J90X</span>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">J91X</span>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1">Criterio: Derrame pleural, empiema o absceso pulmonar.</p>
+            </div>
+
+            <!-- AO 3331301 (< 2m) -->
+            <div class="legend-ao-card bg-slate-50 hover:bg-slate-100/80 p-2.5 rounded-xl border border-slate-200/80 transition text-xs" data-section="pediatria" data-search="3331301 neumonia muy grave neonato lactante p239 j189 j180 respiratoria pediatria">
+              <div class="flex items-center justify-between">
+                <span class="font-mono font-bold text-red-700 text-[11px]">AO 3331301 (&lt; 2m)</span>
+                <span class="text-[9px] px-1.5 py-0.5 rounded bg-red-100 text-red-700 font-semibold font-mono">CIE-10</span>
+              </div>
+              <p class="font-semibold text-slate-800 mt-0.5 leading-tight text-[11px]">Neumonía Muy Grave en &lt; 2 meses</p>
+              <div class="mt-1.5 flex flex-wrap gap-1">
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">P239</span>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">J189</span>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">J180</span>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1">Criterio: Menores de 2 meses con signos de alarma grave.</p>
+            </div>
+
+            <!-- AO 3331305 (2m a 4a) -->
+            <div class="legend-ao-card bg-slate-50 hover:bg-slate-100/80 p-2.5 rounded-xl border border-slate-200/80 transition text-xs" data-section="pediatria" data-search="3331305 neumonia muy grave 2m 4a j189 j180 j159 respiratoria pediatria">
+              <div class="flex items-center justify-between">
+                <span class="font-mono font-bold text-red-700 text-[11px]">AO 3331305 (2m-4a)</span>
+                <span class="text-[9px] px-1.5 py-0.5 rounded bg-red-100 text-red-700 font-semibold font-mono">CIE-10</span>
+              </div>
+              <p class="font-semibold text-slate-800 mt-0.5 leading-tight text-[11px]">Neumonía Muy Grave (2m a 4 años)</p>
+              <div class="mt-1.5 flex flex-wrap gap-1">
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">J189</span>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">J180</span>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">J159</span>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1">Criterio: Tiraje subcostal, estridor o signos de peligro.</p>
+            </div>
+
+            <!-- AO 3331502 -->
+            <div class="legend-ao-card bg-slate-50 hover:bg-slate-100/80 p-2.5 rounded-xl border border-slate-200/80 transition text-xs" data-section="pediatria" data-search="3331502 soba asma bronquitis obstructivo j209 j219 j450 j459 respiratoria pediatria">
+              <div class="flex items-center justify-between">
+                <span class="font-mono font-bold text-blue-700 text-[11px]">AO 3331502</span>
+                <span class="text-[9px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 font-semibold font-mono">CIE-10</span>
+              </div>
+              <p class="font-semibold text-slate-800 mt-0.5 leading-tight text-[11px]">SOBA / Asma Bronquial</p>
+              <div class="mt-1.5 flex flex-wrap gap-1">
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">J209</span>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">J219</span>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">J450</span>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">J459</span>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1">Criterio: Bronquitis aguda recurrente, bronquiolitis y asma.</p>
+            </div>
+
+            <!-- AO 3331201 -->
+            <div class="legend-ao-card bg-slate-50 hover:bg-slate-100/80 p-2.5 rounded-xl border border-slate-200/80 transition text-xs" data-section="pediatria" data-search="3331201 eda acuosa diarrea simple a09x a084 a080 digestiva pediatria">
+              <div class="flex items-center justify-between">
+                <span class="font-mono font-bold text-amber-800 text-[11px]">AO 3331201</span>
+                <span class="text-[9px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 font-semibold font-mono">CIE-10</span>
+              </div>
+              <p class="font-semibold text-slate-800 mt-0.5 leading-tight text-[11px]">EDA Acuosa Simple (No Complicada)</p>
+              <div class="mt-1.5 flex flex-wrap gap-1">
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">A09X</span>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">A084</span>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">A080</span>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1">Criterio: Diarrea aguda sin signos de deshidratación.</p>
+            </div>
+
+            <!-- AO 3331203 -->
+            <div class="legend-ao-card bg-slate-50 hover:bg-slate-100/80 p-2.5 rounded-xl border border-slate-200/80 transition text-xs" data-section="pediatria" data-search="3331203 eda disenterica diarrea moco sangre a060 a039 a09x digestiva pediatria">
+              <div class="flex items-center justify-between">
+                <span class="font-mono font-bold text-amber-800 text-[11px]">AO 3331203</span>
+                <span class="text-[9px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 font-semibold font-mono">CIE-10</span>
+              </div>
+              <p class="font-semibold text-slate-800 mt-0.5 leading-tight text-[11px]">EDA Disentérica</p>
+              <div class="mt-1.5 flex flex-wrap gap-1">
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">A060</span>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">A039</span>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">A09X</span>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1">Criterio: Diarrea con presencia de sangre macroscópica / amebiasis.</p>
+            </div>
+
+            <!-- AO 3331204 -->
+            <div class="legend-ao-card bg-slate-50 hover:bg-slate-100/80 p-2.5 rounded-xl border border-slate-200/80 transition text-xs" data-section="pediatria" data-search="3331204 eda persistente cronica a09x digestiva pediatria">
+              <div class="flex items-center justify-between">
+                <span class="font-mono font-bold text-amber-800 text-[11px]">AO 3331204</span>
+                <span class="text-[9px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 font-semibold font-mono">CIE-10</span>
+              </div>
+              <p class="font-semibold text-slate-800 mt-0.5 leading-tight text-[11px]">EDA Persistente (&gt; 14 días)</p>
+              <div class="mt-1.5 flex flex-wrap gap-1">
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">A09X</span>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1">Criterio: Episodio diarreico infeccioso de 14 días o más.</p>
+            </div>
+
+            <!-- AO 3331401 -->
+            <div class="legend-ao-card bg-slate-50 hover:bg-slate-100/80 p-2.5 rounded-xl border border-slate-200/80 transition text-xs" data-section="pediatria" data-search="3331401 eda deshidratacion e86x a09x digestiva pediatria">
+              <div class="flex items-center justify-between">
+                <span class="font-mono font-bold text-rose-700 text-[11px]">AO 3331401</span>
+                <span class="text-[9px] px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 font-semibold font-mono">CIE-10</span>
+              </div>
+              <p class="font-semibold text-slate-800 mt-0.5 leading-tight text-[11px]">EDA con Algún Grado de Deshidratación</p>
+              <div class="mt-1.5 flex flex-wrap gap-1">
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">E86X</span>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">A09X</span>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1">Criterio: Plan B o C de rehidratación oral o EV.</p>
+            </div>
+
+            <!-- AO 3331305 (Shock) -->
+            <div class="legend-ao-card bg-slate-50 hover:bg-slate-100/80 p-2.5 rounded-xl border border-slate-200/80 transition text-xs" data-section="pediatria" data-search="3331305 eda shock deshidratacion severa r571 e872 k560 digestiva pediatria">
+              <div class="flex items-center justify-between">
+                <span class="font-mono font-bold text-red-700 text-[11px]">AO 3331305 (Shock)</span>
+                <span class="text-[9px] px-1.5 py-0.5 rounded bg-red-100 text-red-700 font-semibold font-mono">CIE-10</span>
+              </div>
+              <p class="font-semibold text-slate-800 mt-0.5 leading-tight text-[11px]">EDA con Deshidratación Severa y Shock</p>
+              <div class="mt-1.5 flex flex-wrap gap-1">
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">R571</span>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">E872</span>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-700">K560</span>
+              </div>
+              <p class="text-[10px] text-slate-400 mt-1">Criterio: Choque hipovolémico o acidosis metabólica secundaria a EDA.</p>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      <!-- Fin Columna Derecha -->
+
     </div>
+  </div>
 
-
-    <!-- ========================================================================= -->
-    <!-- VISTA 2: AUDITORÍA Y DESGLOSE DETALLADO DE CÓDIGOS CIE-10 (SPA)           -->
-    <!-- ========================================================================= -->
-    <div id="viewCie10" class="hidden space-y-4">
-      
-      <!-- Resumen Estadístico de CIE-10 -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center text-base">
-            <i class="fa-solid fa-list-check"></i>
-          </div>
-          <div>
-            <span class="text-xs text-slate-400 block font-medium">Total Códigos CIE</span>
-            <span class="text-lg font-extrabold text-slate-800 font-mono" id="statTotalCodigos">0</span>
-          </div>
-        </div>
-        
-        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-base">
-            <i class="fa-solid fa-circle-check"></i>
-          </div>
-          <div>
-            <span class="text-xs text-slate-400 block font-medium">Con Registros (&ge; 1)</span>
-            <span class="text-lg font-extrabold text-emerald-600 font-mono" id="statConRegistros">0</span>
-          </div>
-        </div>
-
-        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center text-base">
-            <i class="fa-solid fa-circle-minus"></i>
-          </div>
-          <div>
-            <span class="text-xs text-slate-400 block font-medium">En Cero (= 0)</span>
-            <span class="text-lg font-extrabold text-rose-500 font-mono" id="statEnCero">0</span>
-          </div>
-        </div>
-
-        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-base">
-            <i class="fa-solid fa-stethoscope"></i>
-          </div>
-          <div>
-            <span class="text-xs text-slate-400 block font-medium">Actividades</span>
-            <span class="text-lg font-extrabold text-sky-600 font-mono">16 AO</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Barra de Búsqueda Rápida y Vista (Limpia y Compacta) -->
-      <div class="sticky top-20 z-30 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200 p-3 shadow-md flex flex-col sm:flex-row items-center justify-between gap-2.5">
-        <div class="relative w-full sm:w-96">
-          <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-          <input type="text" id="searchInput" placeholder="Buscar código CIE-10 o diagnóstico (ej: D509, J00X, A09X)..." class="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 bg-slate-50 focus:bg-white" />
-        </div>
-
-        <!-- Toggle de Vista: Acordeones vs Tabla General -->
-        <div class="flex items-center bg-slate-100 p-0.5 rounded-xl text-xs font-semibold self-end sm:self-auto">
-          <button id="viewAccordionBtn" class="px-2.5 py-1 rounded-lg bg-white text-slate-800 shadow-sm transition" title="Vista por Actividades Operativas">
-            <i class="fa-solid fa-bars-staggered mr-1"></i> Tarjetas
-          </button>
-          <button id="viewGlobalTableBtn" class="px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-800 transition" title="Vista de Tabla General Única">
-            <i class="fa-solid fa-table mr-1"></i> Tabla
-          </button>
-        </div>
-      </div>
-
-      <!-- Mensaje Vacío para CIE-10 (cuando no se ha cargado archivo aún) -->
-      <div id="emptyCie10Box" class="bg-white p-12 rounded-2xl border border-slate-200 text-center space-y-3">
-        <div class="w-14 h-14 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center text-xl mx-auto">
-          <i class="fa-solid fa-table"></i>
-        </div>
-        <h3 class="text-sm font-bold text-slate-800">Esperando procesamiento de trama</h3>
-        <p class="text-xs text-slate-400 max-w-sm mx-auto">Sube un archivo Excel arriba para desplegar la frecuencia de los 85 códigos CIE-10.</p>
-      </div>
-
-      <!-- VISTA A: Acordeones por Actividad Operativa (Distribución en 2 columnas para optimizar espacio y scroll) -->
-      <div id="aoContainer" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4 items-start"></div>
-
-      <!-- VISTA B: Tabla Consolidada Única -->
-      <div id="globalTableContainer" class="hidden bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
-          <div>
-            <h3 class="text-sm font-bold text-slate-800">Tabla General de Códigos CIE-10 Pediátricos</h3>
-            <p class="text-xs text-slate-400">Listado consolidado de todos los códigos analizados</p>
-          </div>
-          <span id="globalTableBadge" class="text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-lg border border-emerald-200"></span>
-        </div>
-        <div class="overflow-x-auto max-h-[70vh]">
-          <table class="w-full text-left text-xs">
-            <thead class="bg-slate-100 text-slate-600 uppercase tracking-wider font-semibold border-b border-slate-200 sticky top-0 z-10">
-              <tr>
-                <th class="py-3 px-4 w-28">Código CIE</th>
-                <th class="py-3 px-4">Descripción Clínica</th>
-                <th class="py-3 px-4 w-44">Actividad Operativa</th>
-                <th class="py-3 px-4 w-28 text-center">Frecuencia</th>
-                <th class="py-3 px-4 w-28 text-right">Estado</th>
-              </tr>
-            </thead>
-            <tbody id="globalTableBody" class="divide-y divide-slate-100"></tbody>
-          </table>
-        </div>
-      </div>
-
-    </div>
 
   </main>
 
@@ -814,733 +1226,6 @@
   <!-- ========================================================================= -->
   <!-- JAVASCRIPT: LÓGICA DE PERSISTENCIA, PESTAÑAS Y CÁLCULO                   -->
   <!-- ========================================================================= -->
-  <script>
-    // Catálogo de diagnósticos oficiales MINSA
-    const CATALOGO_CIE = {
-      "D509": "Anemia por deficiencia de hierro sin especificación (Ferropénica)",
-      "D649": "Anemia de tipo no especificado",
-      "B680": "Teniasis debida a Taenia solium (cerdo)",
-      "B681": "Teniasis debida a Taenia saginata (vaca)",
-      "B689": "Teniasis no especificada",
-      "B779": "Ascariasis no especificada",
-      "B780": "Estrongiloidiasis intestinal",
-      "B79": "Tricocefalosis (Trichuris trichiura)",
-      "B80": "Oxiuriasis / Enterobiasis",
-      "A071": "Giardiasis [lambliasis]",
-      "A06": "Amebiasis",
-      "B829": "Parasitosis intestinal sin especificación",
-      "J00X": "Rinofaringitis aguda [resfriado común]",
-      "J040": "Laringitis aguda",
-      "J041": "Traqueítis aguda",
-      "J042": "Laringotraqueítis aguda",
-      "J060": "Faringitis aguda",
-      "J068": "Otras infecciones respiratorias agudas",
-      "J069": "Infección respiratoria aguda de sitios no especificados",
-      "J209": "Bronquitis aguda",
-      "J020": "Faringitis estreptocócica",
-      "J029": "Faringitis aguda no especificada",
-      "J030": "Amigdalitis estreptocócica",
-      "J038": "Amigdalitis aguda debida a otros microorganismos",
-      "J039": "Amigdalitis aguda no especificada",
-      "H650": "Otitis media aguda no supurativa",
-      "H651": "Otras otitis medias agudas no supurativas",
-      "H660": "Otitis media aguda supurativa",
-      "H669": "Otitis media supurativa y no especificada",
-      "J010": "Sinusitis maxilar aguda",
-      "J011": "Sinusitis frontal aguda",
-      "J012": "Sinusitis etmoidal aguda",
-      "J013": "Sinusitis esfenoidal aguda",
-      "J014": "Pansinusitis aguda",
-      "J019": "Sinusitis aguda no especificada",
-      "J129": "Neumonía viral no especificada",
-      "J159": "Neumonía bacteriana no especificada",
-      "J181": "Neumonía lobar no especificada",
-      "A369": "Difteria no especificada",
-      "A370": "Tos ferina debida a Bordetella pertussis",
-      "A371": "Tos ferina debida a Bordetella parapertussis",
-      "A378": "Tos ferina debida a otras especies de Bordetella",
-      "A379": "Tos ferina no especificada",
-      "J120": "Neumonía por adenovirus",
-      "J121": "Neumonía por VSR",
-      "J122": "Neumonía por virus parainfluenza",
-      "J123": "Neumonía por metapneumovirus",
-      "J128": "Otras neumonías virales",
-      "J13X": "Neumonía debida a Streptococcus pneumoniae",
-      "J14X": "Neumonía debida a Haemophilus influenzae",
-      "J150": "Neumonía debida a Klebsiella pneumoniae",
-      "J151": "Neumonía debida a Pseudomonas",
-      "J152": "Neumonía debida a Staphylococcus",
-      "J153": "Neumonía debida a Streptococcus del grupo B",
-      "J154": "Neumonía debida a otros estreptococos",
-      "J157": "Neumonía debida a Mycoplasma pneumoniae",
-      "J158": "Otras neumonías bacterianas",
-      "J160": "Neumonía por Chlamydia",
-      "J168": "Neumonía por otros microorganismos especificados",
-      "J050": "Laringitis obstructiva aguda [crup]",
-      "J051": "Epiglotitis aguda",
-      "J851": "Absceso del pulmón con neumonía",
-      "J860": "Piotórax con fístula",
-      "J869": "Piotórax sin fístula",
-      "J90X": "Derrame pleural no clasificado",
-      "J939": "Neumotórax no especificado",
-      "J100": "Influenza con neumonía",
-      "J110": "Influenza con neumonía (virus no identificado)",
-      "J155": "Neumonía debida a Escherichia coli",
-      "J156": "Neumonía por otras bacterias gramnegativas",
-      "J180": "Bronconeumonía no especificada",
-      "J182": "Neumonía hipostática no especificada",
-      "J188": "Otras neumonías de microorganismo no especificado",
-      "J210": "Bronquiolitis aguda por VSR",
-      "J211": "Bronquiolitis aguda por metapneumovirus",
-      "J218": "Bronquiolitis aguda por otros microorganismos",
-      "J219": "Bronquiolitis aguda no especificada",
-      "J440": "Enfermedad pulmonar obstructiva con infección aguda",
-      "J441": "Enfermedad pulmonar obstructiva con exacerbación aguda",
-      "J448": "Otras enfermedades pulmonares obstructivas crónicas",
-      "J449": "Enfermedad pulmonar obstructiva crónica no especificada",
-      "J450": "Asma predominantemente alérgica",
-      "J451": "Asma no alérgica",
-      "J459": "Asma no especificada",
-      "J46X": "Estado asmático agudo severo",
-      "A009": "Cólera no especificado",
-      "A010": "Fiebre tifoidea",
-      "A011": "Fiebre paratifoidea A",
-      "A012": "Fiebre paratifoidea B",
-      "A013": "Fiebre paratifoidea C",
-      "A014": "Fiebre paratifoidea no especificada",
-      "A020": "Enteritis debida a Salmonella",
-      "A040": "Infección debida a Escherichia coli enteropatógena",
-      "A041": "Infección debida a Escherichia coli enterotoxígena",
-      "A049": "Infección bacteriana intestinal no especificada",
-      "A059": "Intoxicación alimentaria bacteriana no especificada",
-      "A070": "Balantidiasis",
-      "A072": "Criptosporidiosis",
-      "A08": "Infecciones intestinales víricas y otras",
-      "A082": "Enteritis debida a adenovirus",
-      "A083": "Otras enteritis virales",
-      "A084": "Infección intestinal viral sin especificación",
-      "A090": "Otras gastroenteritis y colitis de origen infeccioso",
-      "A099": "Gastroenteritis y colitis de origen no especificado",
-      "A030": "Shigelosis debida a Shigella dysenteriae",
-      "A039": "Shigelosis de tipo no especificado",
-      "A042": "Infección debida a Escherichia coli enteroinvasiva",
-      "A043": "Infección debida a Escherichia coli enterohemorrágica",
-      "A045": "Enteritis debida a Campylobacter",
-      "A060": "Disentería amebiana aguda",
-      "A09X": "Diarrea y gastroenteritis de presunto origen infeccioso",
-      "E86X": "Depleción del volumen [deshidratación]",
-      "R571": "Choque hipovolémico",
-      "E872": "Acidosis",
-      "K560": "Íleo paralítico"
-    };
-
-    // Metadatos de Actividades Operativas
-    const INFO_AO = {
-      "3331501": { titulo: "Anemia en < 5 Años", categoriaKey: "nutricion", categoria: "Nutrición & Prevalentes", icon: "fa-droplet", color: "red" },
-      "3341401": { titulo: "Parasitosis Intestinal en < 5 Años", categoriaKey: "nutricion", categoria: "Nutrición & Prevalentes", icon: "fa-bacterium", color: "amber" },
-      "3331101": { titulo: "IRA No Complicada", categoriaKey: "iras", categoria: "Infecciones Respiratorias (IRAs)", icon: "fa-head-side-cough", color: "sky" },
-      "3331102": { titulo: "FAPA (Faringoamigdalitis)", categoriaKey: "iras", categoria: "Infecciones Respiratorias (IRAs)", icon: "fa-lungs", color: "blue" },
-      "3331103": { titulo: "OMA (Otitis Media Aguda)", categoriaKey: "iras", categoria: "Infecciones Respiratorias (IRAs)", icon: "fa-ear-listen", color: "indigo" },
-      "3331104": { titulo: "Sinusitis Aguda", categoriaKey: "iras", categoria: "Infecciones Respiratorias (IRAs)", icon: "fa-virus", color: "purple" },
-      "3331105": { titulo: "Neumonía No Complicada", categoriaKey: "iras", categoria: "Infecciones Respiratorias (IRAs)", icon: "fa-lungs-virus", color: "violet" },
-      "neumonia": { titulo: "Neumonía con Complicaciones", categoriaKey: "iras", categoria: "Infecciones Respiratorias (IRAs)", icon: "fa-hospital", color: "fuchsia" },
-      "3331301": { titulo: "Neumonía Muy Grave (< 2 Meses)", categoriaKey: "iras", categoria: "Infecciones Respiratorias (IRAs)", icon: "fa-circle-exclamation", color: "rose" },
-      "3331305": { titulo: "Neumonía Muy Grave (2m a 4a)", categoriaKey: "iras", categoria: "Infecciones Respiratorias (IRAs)", icon: "fa-triangle-exclamation", color: "pink" },
-      "3331502": { titulo: "SOBA / ASMA Pediátrico", categoriaKey: "iras", categoria: "Infecciones Respiratorias (IRAs)", icon: "fa-lungs", color: "orange" },
-      "3331201": { titulo: "EDA No Complicada", categoriaKey: "edas", categoria: "Enfermedades Diarreicas (EDAs)", icon: "fa-notes-medical", color: "emerald" },
-      "3331203": { titulo: "EDA Disentérica", categoriaKey: "edas", categoria: "Enfermedades Diarreicas (EDAs)", icon: "fa-bacteria", color: "teal" },
-      "3331204": { titulo: "EDA Persistente", categoriaKey: "edas", categoria: "Enfermedades Diarreicas (EDAs)", icon: "fa-clock-rotate-left", color: "cyan" },
-      "3331401": { titulo: "EDA con Deshidratación", categoriaKey: "edas", categoria: "Enfermedades Diarreicas (EDAs)", icon: "fa-faucet-drip", color: "yellow" },
-      "3331305_shock": { titulo: "EDA con Deshidratación y Shock", categoriaKey: "edas", categoria: "Enfermedades Diarreicas (EDAs)", icon: "fa-heart-pulse", color: "red" }
-    };
-
-    // Variables de Estado en Memoria
-    let currentFile = null;
-    let datosCargados = null;
-    let categoriaActivaCie = "all";
-
-    // Elementos DOM
-    const dropzone = document.getElementById('dropzone');
-    const fileInput = document.getElementById('fileInput');
-    const fileLabel = document.getElementById('fileLabel');
-    const fileInfo = document.getElementById('fileInfo');
-    const fileName = document.getElementById('fileName');
-    const processBtn = document.getElementById('processBtn');
-    const resetBtn = document.getElementById('resetBtn');
-    const alertBox = document.getElementById('alertBox');
-
-    const viewIndicadores = document.getElementById('viewIndicadores');
-    const viewCie10 = document.getElementById('viewCie10');
-    const mainTabIndicadores = document.getElementById('mainTabIndicadores');
-    const mainTabCie10 = document.getElementById('mainTabCie10');
-
-    const resultsTopBar = document.getElementById('resultsTopBar');
-    const resultsSection = document.getElementById('resultsSection');
-    const persistedBadge = document.getElementById('persistedBadge');
-    const persistedFileName = document.getElementById('persistedFileName');
-    const persistedTime = document.getElementById('persistedTime');
-
-    // =========================================================================
-    // 1. PERSISTENCIA CON LOCALSTORAGE (Solución al F5 y navegación)           -->
-    // =========================================================================
-    document.addEventListener('DOMContentLoaded', () => {
-      restaurarDesdeLocalStorage();
-
-      // Revisar si la URL pide abrir la pestaña de CIE-10 (ej: /?tab=cie10 o #cie10)
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('tab') === 'cie10' || window.location.hash === '#cie10') {
-        cambiarAVista('cie10');
-      }
-    });
-
-    function guardarEnLocalStorage(data, nombreArchivo) {
-      try {
-        localStorage.setItem('ppr1001_resultado', JSON.stringify(data));
-        localStorage.setItem('ppr1001_nombre_archivo', nombreArchivo);
-        localStorage.setItem('ppr1001_fecha_proceso', new Date().toLocaleTimeString());
-      } catch (e) {
-        console.warn("No se pudo guardar en localStorage (cuota excedida o privado):", e);
-      }
-    }
-
-    function restaurarDesdeLocalStorage() {
-      try {
-        const rawData = localStorage.getItem('ppr1001_resultado');
-        const nombreArchivo = localStorage.getItem('ppr1001_nombre_archivo');
-        const fechaProceso = localStorage.getItem('ppr1001_fecha_proceso');
-
-        if (rawData && nombreArchivo) {
-          const data = JSON.parse(rawData);
-          datosCargados = data;
-
-          // Mostrar badge de persistencia
-          persistedFileName.textContent = nombreArchivo;
-          persistedTime.textContent = `(Guardado: ${fechaProceso || ''})`;
-          persistedBadge.classList.remove('hidden');
-
-          // Habilitar botón de limpiar
-          resetBtn.classList.remove('hidden');
-
-          // Poblar ambas vistas
-          poblarIndicadores(data);
-          poblarCie10(data);
-
-          resultsTopBar.classList.remove('hidden');
-          resultsSection.classList.remove('hidden');
-        }
-      } catch (e) {
-        console.error("Error al restaurar desde localStorage:", e);
-      }
-    }
-
-    function limpiarLocalStorage() {
-      localStorage.removeItem('ppr1001_resultado');
-      localStorage.removeItem('ppr1001_nombre_archivo');
-      localStorage.removeItem('ppr1001_fecha_proceso');
-    }
-
-    // =========================================================================
-    // 2. MANEJO DE PESTAÑAS PRINCIPALES (SPA: 0 SEGUNDOS DE RECARGA)           -->
-    // =========================================================================
-    function cambiarAVista(vista) {
-      if (vista === 'indicadores') {
-        viewIndicadores.classList.remove('hidden');
-        viewCie10.classList.add('hidden');
-        mainTabIndicadores.className = 'main-tab-active px-4 py-2 rounded-lg text-xs transition flex items-center gap-2';
-        mainTabCie10.className = 'text-white/80 hover:text-white px-4 py-2 rounded-lg text-xs transition flex items-center gap-2';
-      } else {
-        viewIndicadores.classList.add('hidden');
-        viewCie10.classList.remove('hidden');
-        mainTabCie10.className = 'main-tab-active px-4 py-2 rounded-lg text-xs transition flex items-center gap-2';
-        mainTabIndicadores.className = 'text-white/80 hover:text-white px-4 py-2 rounded-lg text-xs transition flex items-center gap-2';
-      }
-    }
-
-    mainTabIndicadores.addEventListener('click', () => cambiarAVista('indicadores'));
-    mainTabCie10.addEventListener('click', () => cambiarAVista('cie10'));
-
-    function saltarACie10(aoKey) {
-      cambiarAVista('cie10');
-      setTimeout(() => {
-        const cardEl = document.getElementById(`ao-card-${aoKey}`);
-        if (cardEl) {
-          const wrapper = cardEl.querySelector('.ao-table-wrapper');
-          const chevron = cardEl.querySelector('.ao-chevron');
-          if (wrapper) wrapper.classList.remove('hidden');
-          if (chevron) chevron.classList.add('rotate-180');
-          cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }, 50);
-    }
-
-    // =========================================================================
-    // 3. CARGA Y PROCESAMIENTO DEL ARCHIVO EXCEL (CALAMINE RUST)                -->
-    // =========================================================================
-    dropzone.addEventListener('click', () => fileInput.click());
-
-    dropzone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      dropzone.classList.add('border-emerald-500', 'bg-emerald-50/50');
-    });
-
-    dropzone.addEventListener('dragleave', () => {
-      dropzone.classList.remove('border-emerald-500', 'bg-emerald-50/50');
-    });
-
-    dropzone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dropzone.classList.remove('border-emerald-500', 'bg-emerald-50/50');
-      if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
-    });
-
-    fileInput.addEventListener('change', (e) => {
-      if (e.target.files.length) handleFile(e.target.files[0]);
-    });
-
-    function handleFile(file) {
-      if (!file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
-        showAlert('Formato inválido. Por favor selecciona un archivo Excel (.xlsx o .xls).', 'error');
-        return;
-      }
-      currentFile = file;
-      fileName.textContent = `${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)`;
-      fileLabel.classList.add('hidden');
-      fileInfo.classList.remove('hidden');
-      fileInfo.classList.add('inline-flex');
-      processBtn.disabled = false;
-      resetBtn.classList.remove('hidden');
-      hideAlert();
-    }
-
-    resetBtn.addEventListener('click', () => {
-      currentFile = null;
-      datosCargados = null;
-      limpiarLocalStorage();
-
-      fileInput.value = '';
-      fileLabel.classList.remove('hidden');
-      fileInfo.classList.add('hidden');
-      fileInfo.classList.remove('inline-flex');
-      processBtn.disabled = true;
-      resetBtn.classList.add('hidden');
-      persistedBadge.classList.add('hidden');
-
-      resultsTopBar.classList.add('hidden');
-      resultsSection.classList.add('hidden');
-
-      document.getElementById('aoContainer').innerHTML = '';
-      document.getElementById('aoContainer').classList.add('hidden');
-      document.getElementById('emptyCie10Box').classList.remove('hidden');
-      document.getElementById('cie10CounterBadge').classList.add('hidden');
-
-      document.getElementById('statTotalCodigos').textContent = '0';
-      document.getElementById('statConRegistros').textContent = '0';
-      document.getElementById('statEnCero').textContent = '0';
-
-      hideAlert();
-    });
-
-    processBtn.addEventListener('click', async () => {
-      if (!currentFile) return;
-
-      const formData = new FormData();
-      formData.append('file', currentFile);
-
-      processBtn.disabled = true;
-      processBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Procesando con Calamine (Rust)...</span>';
-      hideAlert();
-
-      try {
-        const response = await fetch('/api/v1/ppr1001/procesar', {
-          method: 'POST',
-          body: formData,
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.detail || 'Ocurrió un error al procesar el archivo Excel.');
-        }
-
-        datosCargados = data;
-
-        // Guardar copia local persistente
-        guardarEnLocalStorage(data, currentFile.name);
-
-        // Actualizar badge
-        persistedFileName.textContent = currentFile.name;
-        persistedTime.textContent = `(Procesado: ${new Date().toLocaleTimeString()})`;
-        persistedBadge.classList.remove('hidden');
-
-        // Poblar ambas vistas
-        poblarIndicadores(data);
-        poblarCie10(data);
-
-        resultsTopBar.classList.remove('hidden');
-        resultsSection.classList.remove('hidden');
-
-        showAlert('¡Archivo procesado con éxito! Todas las fórmulas y frecuencias CIE-10 han sido calculadas.', 'success');
-        resultsTopBar.scrollIntoView({ behavior: 'smooth' });
-
-      } catch (err) {
-        showAlert(err.message, 'error');
-      } finally {
-        processBtn.disabled = false;
-        processBtn.innerHTML = '<i class="fa-solid fa-calculator"></i> <span>Procesar Indicadores</span>';
-      }
-    });
-
-    // =========================================================================
-    // 4. POBLAR INDICADORES PPR (VISTA 1)                                       -->
-    // =========================================================================
-    function poblarIndicadores(data) {
-      const inm = data.inmunizaciones || data;
-      const ped = data.pediatria || data;
-
-      if (inm) {
-        const mapVacunas = {
-          'val_3325401': inm.act_operativa_3325401,
-          'val_3325402': inm.act_operativa_3325402,
-          'val_3325403': inm.act_operativa_3325403,
-          'val_3325404': inm.act_operativa_3325404,
-          'val_3325405': inm.act_operativa_3325405,
-          'val_3325406': inm.act_operativa_3325406,
-          'val_3325407': inm.act_operativa_3325407,
-          'val_3325408': inm.act_operativa_3325408,
-          'val_3325508': inm.act_operativa_3325508,
-        };
-        for (const [id, val] of Object.entries(mapVacunas)) {
-          const el = document.getElementById(id);
-          if (el) el.textContent = val !== undefined ? val : '0';
-        }
-      }
-
-      if (ped) {
-        const mapPediatria = {
-          'val_3331501': ped.act_operativa_3331501,
-          'val_3341401': ped.act_operativa_3341401,
-          'val_3331101': ped.act_operativa_3331101,
-          'val_3331102': ped.act_operativa_3331102,
-          'val_3331103': ped.act_operativa_3331103,
-          'val_3331104': ped.act_operativa_3331104,
-          'val_3331105': ped.act_operativa_3331105,
-          'val_nuemonia': ped.act_operativa_nuemonia,
-          'val_3331301': ped.act_operativa_3331301,
-          'val_3331305': ped.act_operativa_3331305,
-          'val_3331502': ped.act_operativa_3331502,
-          'val_3331201': ped.act_operativa_3331201,
-          'val_3331203': ped.act_operativa_3331203,
-          'val_3331204': ped.act_operativa_3331204,
-          'val_3331401': ped.act_operativa_3331401,
-          'val_3331305_shock': ped.act_operativa_3331305_shock,
-        };
-        for (const [id, val] of Object.entries(mapPediatria)) {
-          const el = document.getElementById(id);
-          if (el) el.textContent = val !== undefined ? val : '0';
-        }
-      }
-    }
-
-    // Filtros Sub-pestañas Indicadores
-    const tabAll = document.getElementById('tabAll');
-    const tabVacunas = document.getElementById('tabVacunas');
-    const tabPediatria = document.getElementById('tabPediatria');
-    const bloqueVacunas = document.getElementById('bloqueVacunas');
-    const bloquePediatria = document.getElementById('bloquePediatria');
-
-    function activarSubTab(btn, showVac, showPed) {
-      [tabAll, tabVacunas, tabPediatria].forEach(b => {
-        b.classList.remove('sub-tab-active');
-        b.classList.add('text-slate-600');
-      });
-      btn.classList.add('sub-tab-active');
-      btn.classList.remove('text-slate-600');
-
-      if (showVac) bloqueVacunas.classList.remove('hidden');
-      else bloqueVacunas.classList.add('hidden');
-
-      if (showPed) bloquePediatria.classList.remove('hidden');
-      else bloquePediatria.classList.add('hidden');
-    }
-
-    tabAll.addEventListener('click', () => activarSubTab(tabAll, true, true));
-    tabVacunas.addEventListener('click', () => activarSubTab(tabVacunas, true, false));
-    tabPediatria.addEventListener('click', () => activarSubTab(tabPediatria, false, true));
-
-    // =========================================================================
-    // 5. POBLAR AUDITORÍA Y DESGLOSE CIE-10 (VISTA 2)                           -->
-    // =========================================================================
-    function poblarCie10(data) {
-      const ped = data.pediatria || data;
-      const conteos = (ped && ped.conteos_cie) ? ped.conteos_cie : {};
-
-      const container = document.getElementById('aoContainer');
-      const globalTableBody = document.getElementById('globalTableBody');
-
-      container.innerHTML = '';
-      globalTableBody.innerHTML = '';
-
-      let totalCodigos = 0;
-      let conRegistros = 0;
-      let enCero = 0;
-      let indexCard = 0;
-
-      for (const [keyAO, meta] of Object.entries(INFO_AO)) {
-        const codigosDict = conteos[keyAO] || {};
-        const codigosKeys = Object.keys(codigosDict);
-        if (codigosKeys.length === 0) continue;
-
-        indexCard++;
-        const valorAO = (ped && ped[`act_operativa_${keyAO}`]) || (ped && ped[`act_operativa_nuemonia`] && keyAO === 'neumonia') || '0';
-        
-        let sumAOConRegistros = 0;
-        let sumAOEnCero = 0;
-
-        for (const [cie, cnt] of Object.entries(codigosDict)) {
-          totalCodigos++;
-          if (cnt > 0) {
-            conRegistros++;
-            sumAOConRegistros++;
-          } else {
-            enCero++;
-            sumAOEnCero++;
-          }
-
-          // Fila Tabla Consolidada
-          const descCie = CATALOGO_CIE[cie] || 'Diagnóstico MINSA';
-          const tieneReg = cnt > 0;
-          const trGlobal = document.createElement('tr');
-          trGlobal.className = 'hover:bg-slate-50 transition global-tr';
-          trGlobal.dataset.cie = cie.toLowerCase();
-          trGlobal.dataset.desc = descCie.toLowerCase();
-          trGlobal.dataset.cnt = cnt;
-          trGlobal.dataset.cat = meta.categoriaKey;
-          trGlobal.innerHTML = `
-            <td class="py-2.5 px-4 font-mono font-bold">
-              <span class="px-2 py-0.5 rounded-md ${tieneReg ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-500'}">
-                ${cie}
-              </span>
-            </td>
-            <td class="py-2.5 px-4 text-slate-700">${descCie}</td>
-            <td class="py-2.5 px-4 text-slate-500 text-[11px]">
-              <span class="font-bold text-slate-700">AO ${keyAO}</span> &bull; ${meta.titulo}
-            </td>
-            <td class="py-2.5 px-4 text-center font-mono font-bold ${tieneReg ? 'text-slate-900' : 'text-slate-300'}">
-              ${cnt}
-            </td>
-            <td class="py-2.5 px-4 text-right">
-              ${tieneReg 
-                ? '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800"><i class="fa-solid fa-check"></i> Activo</span>'
-                : '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-400">En cero</span>'
-              }
-            </td>
-          `;
-          globalTableBody.appendChild(trGlobal);
-        }
-
-        // Tarjeta Acordeón
-        const aoCard = document.createElement('div');
-        aoCard.id = `ao-card-${keyAO}`;
-        aoCard.className = 'bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden ao-block transition hover:shadow-md';
-        aoCard.dataset.aoKey = keyAO;
-        aoCard.dataset.cat = meta.categoriaKey;
-
-        // Primeras 2 abiertas, las demás colapsadas
-        const isCollapsed = indexCard > 2;
-
-        aoCard.innerHTML = `
-          <div class="ao-header p-3.5 cursor-pointer select-none flex flex-col md:flex-row justify-between items-start md:items-center gap-2.5 bg-slate-50/60 hover:bg-slate-100/70 transition">
-            <div class="flex items-center gap-2.5">
-              <div class="w-8 h-8 rounded-xl bg-${meta.color}-100 text-${meta.color}-600 flex items-center justify-center text-sm shadow-sm shrink-0">
-                <i class="fa-solid ${meta.icon}"></i>
-              </div>
-              <div>
-                <div class="flex items-center gap-2">
-                  <span class="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-slate-200 text-slate-700 font-mono">AO ${keyAO.toUpperCase()}</span>
-                  <span class="text-xs text-slate-400 font-medium">${meta.categoria}</span>
-                </div>
-                <h3 class="text-xs sm:text-sm font-bold text-slate-800 mt-0.5">${meta.titulo}</h3>
-              </div>
-            </div>
-
-            <div class="flex items-center gap-3 self-end md:self-auto">
-              <div class="text-right">
-                <span class="text-[9px] text-slate-400 block font-medium uppercase">Cumplen (Principal)</span>
-                <span class="text-base font-extrabold text-${meta.color}-600 font-mono">${valorAO}</span>
-              </div>
-              <div class="h-6 w-px bg-slate-200"></div>
-              <div class="text-right">
-                <span class="text-[9px] text-slate-400 block font-medium uppercase">CIE Activos</span>
-                <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full ${sumAOConRegistros === codigosKeys.length ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'}">
-                  ${sumAOConRegistros}/${codigosKeys.length}
-                </span>
-              </div>
-              <div class="w-7 h-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-400 shadow-sm ml-0.5">
-                <i class="fa-solid fa-chevron-down text-xs transition-transform duration-200 ao-chevron ${isCollapsed ? '' : 'rotate-180'}"></i>
-              </div>
-            </div>
-          </div>
-
-          <div class="ao-table-wrapper ${isCollapsed ? 'hidden' : ''} border-t border-slate-100">
-            <div class="overflow-x-auto max-h-72">
-              <table class="w-full text-left text-xs">
-                <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-100 sticky top-0 bg-slate-50">
-                  <tr>
-                    <th class="py-2 px-3.5 w-28">Código CIE-10</th>
-                    <th class="py-2 px-3.5">Descripción Clínica</th>
-                    <th class="py-2 px-3.5 w-28 text-center">Frecuencia</th>
-                    <th class="py-2 px-3.5 w-28 text-right">Estado</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
-                  ${codigosKeys.map(cie => {
-                    const cnt = codigosDict[cie] || 0;
-                    const desc = CATALOGO_CIE[cie] || 'Diagnóstico MINSA';
-                    const tieneRegistros = cnt > 0;
-                    return `
-                      <tr class="cie-row hover:bg-slate-50/80 transition" data-cie="${cie}" data-desc="${desc.toLowerCase()}" data-cnt="${cnt}">
-                        <td class="py-2 px-3.5 font-mono font-bold">
-                          <span class="px-2 py-0.5 rounded-md ${tieneRegistros ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-500'}">
-                            ${cie}
-                          </span>
-                        </td>
-                        <td class="py-2 px-3.5 text-slate-700">${desc}</td>
-                        <td class="py-2 px-3.5 text-center font-mono font-bold text-xs ${tieneRegistros ? 'text-slate-900' : 'text-slate-400'}">
-                          ${cnt}
-                        </td>
-                        <td class="py-2 px-3.5 text-right">
-                          ${tieneRegistros 
-                            ? '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800"><i class="fa-solid fa-check text-[8px]"></i> &ge; 1</span>'
-                            : '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-400">0</span>'
-                          }
-                        </td>
-                      </tr>
-                    `;
-                  }).join('')}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        `;
-
-        const headerEl = aoCard.querySelector('.ao-header');
-        const wrapperEl = aoCard.querySelector('.ao-table-wrapper');
-        const chevronEl = aoCard.querySelector('.ao-chevron');
-
-        headerEl.addEventListener('click', () => {
-          const isHidden = wrapperEl.classList.toggle('hidden');
-          if (isHidden) chevronEl.classList.remove('rotate-180');
-          else chevronEl.classList.add('rotate-180');
-        });
-
-        container.appendChild(aoCard);
-      }
-
-      // Actualizar Contadores Estadísticos
-      document.getElementById('statTotalCodigos').textContent = totalCodigos;
-      document.getElementById('statConRegistros').textContent = conRegistros;
-      document.getElementById('statEnCero').textContent = enCero;
-      document.getElementById('globalTableBadge').textContent = `${conRegistros} con registros / ${totalCodigos} totales`;
-
-      const badgeHeader = document.getElementById('cie10CounterBadge');
-      badgeHeader.textContent = `${conRegistros}/${totalCodigos}`;
-      badgeHeader.classList.remove('hidden');
-
-      document.getElementById('emptyCie10Box').classList.add('hidden');
-      container.classList.remove('hidden');
-    }
-
-    // Búsqueda en tiempo real CIE-10
-    const searchInput = document.getElementById('searchInput');
-    if (searchInput) {
-      searchInput.addEventListener('input', filtrarCie10);
-    }
-
-    function filtrarCie10() {
-      const q = document.getElementById('searchInput') ? document.getElementById('searchInput').value.trim().toLowerCase() : '';
-
-      // Filtrar Acordeones
-      const blocks = document.querySelectorAll('.ao-block');
-      blocks.forEach(block => {
-        const rows = block.querySelectorAll('.cie-row');
-        let blockHasMatch = false;
-
-        rows.forEach(row => {
-          const cie = row.dataset.cie.toLowerCase();
-          const desc = row.dataset.desc;
-          const matchText = !q || cie.includes(q) || desc.includes(q);
-
-          if (matchText) {
-            row.classList.remove('hidden');
-            blockHasMatch = true;
-          } else {
-            row.classList.add('hidden');
-          }
-        });
-
-        if (q && blockHasMatch) {
-          block.querySelector('.ao-table-wrapper').classList.remove('hidden');
-          block.querySelector('.ao-chevron').classList.add('rotate-180');
-        }
-
-        if (blockHasMatch) block.classList.remove('hidden');
-        else block.classList.add('hidden');
-      });
-
-      // Filtrar Tabla Global
-      const globalRows = document.querySelectorAll('.global-tr');
-      globalRows.forEach(row => {
-        const cie = row.dataset.cie;
-        const desc = row.dataset.desc;
-        const matchText = !q || cie.includes(q) || desc.includes(q);
-
-        if (matchText) row.classList.remove('hidden');
-        else row.classList.add('hidden');
-      });
-    }
-
-    // Toggle de Vista en CIE-10
-    const viewAccBtn = document.getElementById('viewAccordionBtn');
-    const viewTblBtn = document.getElementById('viewGlobalTableBtn');
-
-    viewAccBtn.addEventListener('click', () => {
-      viewAccBtn.className = 'px-2.5 py-1 rounded-lg bg-white text-slate-800 shadow-sm transition';
-      viewTblBtn.className = 'px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-800 transition';
-      document.getElementById('aoContainer').classList.remove('hidden');
-      document.getElementById('globalTableContainer').classList.add('hidden');
-    });
-
-    viewTblBtn.addEventListener('click', () => {
-      viewTblBtn.className = 'px-2.5 py-1 rounded-lg bg-white text-slate-800 shadow-sm transition';
-      viewAccBtn.className = 'px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-800 transition';
-      document.getElementById('aoContainer').classList.add('hidden');
-      document.getElementById('globalTableContainer').classList.remove('hidden');
-    });
-
-    // Botón Scroll to Top
-    const btnScrollTop = document.getElementById('btnScrollTop');
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 300) btnScrollTop.classList.remove('hidden');
-      else btnScrollTop.classList.add('hidden');
-    });
-    btnScrollTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-
-    // Funciones de Alerta
-    function showAlert(message, type) {
-      alertBox.className = 'mt-3 p-3.5 rounded-xl text-xs border flex items-start gap-2.5 ';
-      if (type === 'error') {
-        alertBox.className += 'bg-rose-50 border-rose-200 text-rose-800';
-        alertBox.innerHTML = `<i class="fa-solid fa-circle-exclamation text-rose-600 mt-0.5"></i> <div>${message}</div>`;
-      } else {
-        alertBox.className += 'bg-emerald-50 border-emerald-200 text-emerald-800';
-        alertBox.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 mt-0.5"></i> <div>${message}</div>`;
-      }
-      alertBox.classList.remove('hidden');
-    }
-
-    function hideAlert() {
-      alertBox.classList.add('hidden');
-    }
-  </script>
+  <script src="/static/js/app.js"></script>
 </body>
 </html>

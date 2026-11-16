@@ -1,0 +1,50 @@
+/* ==========================================================================
+   PPR 1001 - Estilos Globales y Componentes UI
+   ========================================================================== */
+
+/* Fondo degradado corporativo del header principal */
+.gradient-bg {
+  background: linear-gradient(135deg, #0284c7 0%, #059669 50%, #1e40af 100%);
+}
+
+/* Fondo degradado corporativo para página de auditoría CIE-10 */
+.gradient-bg-cie10 {
+  background: linear-gradient(135deg, #059669 0%, #0d9488 50%, #0284c7 100%);
+}
+
+/* Pestañas Principales (SPA: Monitor de Indicadores vs Desglose CIE-10) */
+.main-tab-active {
+  background-color: #ffffff;
+  color: #0369a1;
+  font-weight: 700;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Sub-pestañas (Filtro: Todos / Inmunizaciones / Pediatría) */
+.sub-tab-active {
+  background-color: #0284c7;
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Pestañas de categorías diagnósticas CIE-10 */
+.cat-tab-active {
+  background-color: #059669;
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Desplazamiento suave para toda la página */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Ocultar barra de desplazamiento manteniendo funcionalidad de scroll */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

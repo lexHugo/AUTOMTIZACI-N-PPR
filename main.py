@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, status
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 import uvicorn
 
@@ -52,10 +53,14 @@ app.include_router(api_v1_router, prefix="/api/v1")
 
 
 # -------------------------------------------------------------
-# Frontend UI (Servido directamente por FastAPI)
+# Frontend UI y Archivos Estáticos (CSS, JS)
 # -------------------------------------------------------------
-UI_FILE_PATH = Path(__file__).parent / "app" / "presentation" / "web" / "index.html"
-CIE10_FILE_PATH = Path(__file__).parent / "app" / "presentation" / "web" / "cie10.html"
+WEB_DIR = Path(__file__).parent / "app" / "presentation" / "web"
+UI_FILE_PATH = WEB_DIR / "index.html"
+CIE10_FILE_PATH = WEB_DIR / "cie10.html"
+
+# Montar directorio estático para servir css/ y js/
+app.mount("/static", StaticFiles(directory=WEB_DIR), name="static")
 
 
 @app.get("/", response_class=HTMLResponse, tags=["Frontend UI"])
