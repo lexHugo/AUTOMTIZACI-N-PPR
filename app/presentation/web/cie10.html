@@ -118,73 +118,23 @@
     </div>
 
     <!-- ========================================================================= -->
-    <!-- PANEL DE CONTROL FLOTANTE (STICKY): Resuelve el problema del scroll        -->
+    <!-- BARRA DE BÚSQUEDA Y VISTA COMPACTA                                         -->
     <!-- ========================================================================= -->
-    <div class="sticky top-3 z-30 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200 p-3.5 shadow-md space-y-3">
-      
-      <!-- Fila 1: Pestañas de Categoría & Vistas -->
-      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
-        
-        <!-- Pestañas de Categoría (Filtran para no ver 16 a la vez) -->
-        <div class="flex flex-wrap items-center gap-1.5 text-xs font-semibold" id="categoryTabs">
-          <button data-cat="all" class="cat-tab cat-tab-active px-3 py-1.5 rounded-xl transition">
-            <i class="fa-solid fa-layer-group mr-1"></i> Todas (16)
-          </button>
-          <button data-cat="nutricion" class="cat-tab text-slate-600 hover:text-slate-900 bg-slate-100 px-3 py-1.5 rounded-xl transition">
-            <i class="fa-solid fa-droplet text-red-500 mr-1"></i> Nutrición &amp; Parasitosis (2)
-          </button>
-          <button data-cat="iras" class="cat-tab text-slate-600 hover:text-slate-900 bg-slate-100 px-3 py-1.5 rounded-xl transition">
-            <i class="fa-solid fa-lungs text-sky-500 mr-1"></i> IRAs (9)
-          </button>
-          <button data-cat="edas" class="cat-tab text-slate-600 hover:text-slate-900 bg-slate-100 px-3 py-1.5 rounded-xl transition">
-            <i class="fa-solid fa-notes-medical text-emerald-500 mr-1"></i> EDAs (5)
-          </button>
-        </div>
-
-        <!-- Botones de Acción Rápida: Expandir / Colapsar Todos -->
-        <div class="flex items-center gap-1.5 text-xs">
-          <button id="btnExpandAll" class="px-2.5 py-1 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg font-medium transition flex items-center gap-1" title="Abrir todas las tarjetas">
-            <i class="fa-solid fa-angles-down text-emerald-600"></i> Expandir todo
-          </button>
-          <span class="text-slate-300">|</span>
-          <button id="btnCollapseAll" class="px-2.5 py-1 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg font-medium transition flex items-center gap-1" title="Cerrar todas las tarjetas">
-            <i class="fa-solid fa-angles-up text-slate-500"></i> Colapsar todo
-          </button>
-        </div>
+    <div class="sticky top-3 z-30 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200 p-3 shadow-md flex flex-col sm:flex-row items-center justify-between gap-2.5">
+      <div class="relative w-full sm:w-96">
+        <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+        <input type="text" id="searchInput" placeholder="Buscar código CIE-10 o diagnóstico (ej: D509, J00X, A09X)..." class="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 bg-slate-50 focus:bg-white" />
       </div>
 
-      <!-- Fila 2: Buscador en tiempo real y Filtro de Estado -->
-      <div class="flex flex-col sm:flex-row items-center justify-between gap-2.5">
-        <div class="relative w-full sm:w-80">
-          <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-          <input type="text" id="searchInput" placeholder="Buscar CIE-10 (ej: D509, J00X, A09X)..." class="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 bg-slate-50 focus:bg-white" />
-        </div>
-
-        <div class="flex items-center gap-2 w-full sm:w-auto">
-          <select id="filterSelect" class="w-full sm:w-auto text-xs py-1.5 px-3 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 bg-slate-50 font-medium">
-            <option value="all">Filtro: Todos los estados</option>
-            <option value="con_registros">Solo con registros (&ge; 1)</option>
-            <option value="en_cero">Solo en cero (= 0)</option>
-          </select>
-
-          <!-- Toggle de Vista: Acordeones vs Tabla Global -->
-          <div class="flex items-center bg-slate-100 p-0.5 rounded-xl text-xs font-semibold">
-            <button id="viewAccordionBtn" class="px-2.5 py-1 rounded-lg bg-white text-slate-800 shadow-sm transition" title="Vista por Actividades Operativas">
-              <i class="fa-solid fa-bars-staggered"></i>
-            </button>
-            <button id="viewGlobalTableBtn" class="px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-800 transition" title="Vista de Tabla General Única">
-              <i class="fa-solid fa-table"></i>
-            </button>
-          </div>
-        </div>
+      <!-- Toggle de Vista: Acordeones vs Tabla Global -->
+      <div class="flex items-center bg-slate-100 p-0.5 rounded-xl text-xs font-semibold self-end sm:self-auto">
+        <button id="viewAccordionBtn" class="px-2.5 py-1 rounded-lg bg-white text-slate-800 shadow-sm transition" title="Vista por Actividades Operativas">
+          <i class="fa-solid fa-bars-staggered mr-1"></i> Tarjetas
+        </button>
+        <button id="viewGlobalTableBtn" class="px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-800 transition" title="Vista de Tabla General Única">
+          <i class="fa-solid fa-table mr-1"></i> Tabla
+        </button>
       </div>
-
-      <!-- Fila 3: Salto Rápido a AO (Quick Jump Chips) -->
-      <div id="quickJumpBar" class="flex items-center gap-1 overflow-x-auto pb-1 text-[11px] font-mono no-scrollbar">
-        <span class="text-slate-400 font-sans text-xs mr-1 shrink-0 font-medium"><i class="fa-solid fa-bolt text-amber-500"></i> Salto:</span>
-        <!-- Se generan chips de cada AO -->
-      </div>
-
     </div>
 
     <!-- Mensaje de Carga / Spinner -->
@@ -431,54 +381,33 @@
         if (e.target.files.length) await procesarArchivo(e.target.files[0]);
       });
 
-      // 3. Pestañas de Categoría
-      document.querySelectorAll('#categoryTabs .cat-tab').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.querySelectorAll('#categoryTabs .cat-tab').forEach(b => {
-            b.classList.remove('cat-tab-active');
-            b.classList.add('text-slate-600', 'bg-slate-100');
-          });
-          btn.classList.add('cat-tab-active');
-          btn.classList.remove('text-slate-600', 'bg-slate-100');
-          categoriaActiva = btn.dataset.cat;
-          filtrarTarjetas();
-        });
-      });
-
-      // 4. Expandir / Colapsar Todos
-      document.getElementById('btnExpandAll').addEventListener('click', () => {
-        document.querySelectorAll('.ao-table-wrapper').forEach(w => w.classList.remove('hidden'));
-        document.querySelectorAll('.ao-chevron').forEach(c => c.classList.add('rotate-180'));
-      });
-
-      document.getElementById('btnCollapseAll').addEventListener('click', () => {
-        document.querySelectorAll('.ao-table-wrapper').forEach(w => w.classList.add('hidden'));
-        document.querySelectorAll('.ao-chevron').forEach(c => c.classList.remove('rotate-180'));
-      });
-
-      // 5. Toggle de Vista: Acordeón vs Tabla
+      // 3. Toggle de Vista: Acordeón vs Tabla
       const viewAccBtn = document.getElementById('viewAccordionBtn');
       const viewTblBtn = document.getElementById('viewGlobalTableBtn');
 
-      viewAccBtn.addEventListener('click', () => {
-        vistaActual = 'accordion';
-        viewAccBtn.className = 'px-2.5 py-1 rounded-lg bg-white text-slate-800 shadow-sm transition';
-        viewTblBtn.className = 'px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-800 transition';
-        document.getElementById('aoContainer').classList.remove('hidden');
-        document.getElementById('globalTableContainer').classList.add('hidden');
-      });
+      if (viewAccBtn && viewTblBtn) {
+        viewAccBtn.addEventListener('click', () => {
+          vistaActual = 'accordion';
+          viewAccBtn.className = 'px-2.5 py-1 rounded-lg bg-white text-slate-800 shadow-sm transition';
+          viewTblBtn.className = 'px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-800 transition';
+          document.getElementById('aoContainer').classList.remove('hidden');
+          document.getElementById('globalTableContainer').classList.add('hidden');
+        });
 
-      viewTblBtn.addEventListener('click', () => {
-        vistaActual = 'table';
-        viewTblBtn.className = 'px-2.5 py-1 rounded-lg bg-white text-slate-800 shadow-sm transition';
-        viewAccBtn.className = 'px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-800 transition';
-        document.getElementById('aoContainer').classList.add('hidden');
-        document.getElementById('globalTableContainer').classList.remove('hidden');
-      });
+        viewTblBtn.addEventListener('click', () => {
+          vistaActual = 'table';
+          viewTblBtn.className = 'px-2.5 py-1 rounded-lg bg-white text-slate-800 shadow-sm transition';
+          viewAccBtn.className = 'px-2.5 py-1 rounded-lg text-slate-500 hover:text-slate-800 transition';
+          document.getElementById('aoContainer').classList.add('hidden');
+          document.getElementById('globalTableContainer').classList.remove('hidden');
+        });
+      }
 
-      // 6. Filtros y búsqueda
-      document.getElementById('searchInput').addEventListener('input', filtrarTarjetas);
-      document.getElementById('filterSelect').addEventListener('change', filtrarTarjetas);
+      // 4. Búsqueda en tiempo real
+      const searchInput = document.getElementById('searchInput');
+      if (searchInput) {
+        searchInput.addEventListener('input', filtrarTarjetas);
+      }
 
       // 7. Scroll Top Button
       const btnScrollTop = document.getElementById('btnScrollTop');
@@ -547,12 +476,10 @@
       const conteos = (ped && ped.conteos_cie) ? ped.conteos_cie : {};
 
       const container = document.getElementById('aoContainer');
-      const quickJumpBar = document.getElementById('quickJumpBar');
       const globalTableBody = document.getElementById('globalTableBody');
 
       container.innerHTML = '';
       globalTableBody.innerHTML = '';
-      quickJumpBar.innerHTML = '<span class="text-slate-400 font-sans text-xs mr-1 shrink-0 font-medium"><i class="fa-solid fa-bolt text-amber-500"></i> Salto:</span>';
 
       let totalCodigos = 0;
       let conRegistros = 0;
@@ -612,24 +539,6 @@
           `;
           globalTableBody.appendChild(trGlobal);
         }
-
-        // Chip de Salto Rápido
-        const jumpChip = document.createElement('button');
-        jumpChip.className = `px-2 py-0.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 shrink-0 transition flex items-center gap-1 border border-slate-200`;
-        jumpChip.title = `${meta.titulo} (Cumplen: ${valorAO})`;
-        jumpChip.innerHTML = `<span>AO ${keyAO}</span> <span class="w-1.5 h-1.5 rounded-full ${sumAOConRegistros === codigosKeys.length ? 'bg-emerald-500' : 'bg-slate-300'}"></span>`;
-        jumpChip.addEventListener('click', () => {
-          // Abrir tarjeta si está cerrada
-          const cardEl = document.getElementById(`ao-card-${keyAO}`);
-          if (cardEl) {
-            const wrapper = cardEl.querySelector('.ao-table-wrapper');
-            const chevron = cardEl.querySelector('.ao-chevron');
-            wrapper.classList.remove('hidden');
-            chevron.classList.add('rotate-180');
-            cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-        });
-        quickJumpBar.appendChild(jumpChip);
 
         // Crear Tarjeta con Acordeón
         const aoCard = document.createElement('div');
@@ -745,30 +654,22 @@
       document.getElementById('emptyBox').classList.add('hidden');
     }
 
-    // Filtrar tarjetas considerando categoría, texto y estado
+    // Filtrar tarjetas por búsqueda de texto
     function filtrarTarjetas() {
-      const q = document.getElementById('searchInput').value.trim().toLowerCase();
-      const f = document.getElementById('filterSelect').value;
+      const q = document.getElementById('searchInput') ? document.getElementById('searchInput').value.trim().toLowerCase() : '';
 
       // Filtrar Vista 1: Acordeones
       const blocks = document.querySelectorAll('.ao-block');
       blocks.forEach(block => {
-        const catMatch = (categoriaActiva === 'all' || block.dataset.cat === categoriaActiva);
         const rows = block.querySelectorAll('.cie-row');
         let blockHasMatch = false;
 
         rows.forEach(row => {
           const cie = row.dataset.cie.toLowerCase();
           const desc = row.dataset.desc;
-          const cnt = parseInt(row.dataset.cnt, 10);
+          const matchText = !q || cie.includes(q) || desc.includes(q);
 
-          let matchText = !q || cie.includes(q) || desc.includes(q);
-          let matchFilter = true;
-
-          if (f === 'con_registros') matchFilter = cnt > 0;
-          if (f === 'en_cero') matchFilter = cnt === 0;
-
-          if (matchText && matchFilter) {
+          if (matchText) {
             row.classList.remove('hidden');
             blockHasMatch = true;
           } else {
@@ -782,7 +683,7 @@
           block.querySelector('.ao-chevron').classList.add('rotate-180');
         }
 
-        if (catMatch && blockHasMatch) {
+        if (blockHasMatch) {
           block.classList.remove('hidden');
         } else {
           block.classList.add('hidden');
@@ -794,17 +695,9 @@
       globalRows.forEach(row => {
         const cie = row.dataset.cie;
         const desc = row.dataset.desc;
-        const cnt = parseInt(row.dataset.cnt, 10);
-        const cat = row.dataset.cat;
+        const matchText = !q || cie.includes(q) || desc.includes(q);
 
-        const matchCat = (categoriaActiva === 'all' || cat === categoriaActiva);
-        let matchText = !q || cie.includes(q) || desc.includes(q);
-        let matchFilter = true;
-
-        if (f === 'con_registros') matchFilter = cnt > 0;
-        if (f === 'en_cero') matchFilter = cnt === 0;
-
-        if (matchCat && matchText && matchFilter) {
+        if (matchText) {
           row.classList.remove('hidden');
         } else {
           row.classList.add('hidden');
