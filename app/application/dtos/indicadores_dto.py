@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Dict, Any
+from typing import Dict, List, Any
 
 
 @dataclass
@@ -39,14 +39,24 @@ class IndicadorPediatriaDTO:
 
 
 @dataclass
+class ResumenPeriodoDTO:
+    """Consolidado de Inmunizaciones y Pediatría para un periodo o mes específico."""
+    inmunizaciones: IndicadorVacunasDTO = field(default_factory=IndicadorVacunasDTO)
+    pediatria: IndicadorPediatriaDTO = field(default_factory=IndicadorPediatriaDTO)
+
+
+@dataclass
 class IndicadorDTO:
     """
     Consolidado general PPR1001 que agrupa por separado:
     - Inmunizaciones (ppr1001_vacunas.py)
     - Pediatría (ppr1001_pediatria.py)
+    - Desglose mensual ordenado cronológicamente
     """
     inmunizaciones: IndicadorVacunasDTO = field(default_factory=IndicadorVacunasDTO)
     pediatria: IndicadorPediatriaDTO = field(default_factory=IndicadorPediatriaDTO)
+    mensual: Dict[str, ResumenPeriodoDTO] = field(default_factory=dict)
+    meses: List[str] = field(default_factory=list)
 
     # Delegación de accesos directos por compatibilidad
     @property

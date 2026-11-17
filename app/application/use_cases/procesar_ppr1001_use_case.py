@@ -5,6 +5,7 @@ from app.application.dtos.indicadores_dto import (
     IndicadorDTO,
     IndicadorVacunasDTO,
     IndicadorPediatriaDTO,
+    ResumenPeriodoDTO,
 )
 from app.application.ports.his_excel_reader_port import HISExcelReaderPort
 from app.application.ports.ppr_calculator_port import PPRCalculatorPort
@@ -40,28 +41,58 @@ class ProcesarPPR1001UseCase:
         # 1. Leer y filtrar el Excel a lista de entidades VariablesPPR
         variables = self.his_reader.read_his_excel(file_content)
 
-        # 2. Agrupar por cita UNA SOLA VEZ en memoria para compartir entre ambos servicios
-        citas = defaultdict(list)
-        for v in variables:
-            citas[v.Id_cita].append(v)
+        # 2. Agrupar por cita y por mes en memoria
+        citas_total = defaultdict(list)
+        citas_por_mes = defaultdict(lambda: defaultdict(list))
 
-        # 3. Calcular Inmunizaciones
-        inm_dto = self.vacunas_calculator.calcular_todos(citas)
+        for v in variables:
+            citas_total[v.Id_cita].append(v)
+            if v.Fecha_Atencion:
+                periodo = v.Fecha_Atencion.strftime("%Y-%m")
+            else:
+                periodo = "Sin fecha"
+            citas_por_mes[periodo][v.Id_cita].append(v)
+
+        # 3. Calcular Total General Inmunizaciones
+        inm_dto = self.vacunas_calculator.calcular_todos(citas_total)
         if not isinstance(inm_dto, IndicadorVacunasDTO):
             if hasattr(inm_dto, "inmunizaciones"):
                 inm_dto = inm_dto.inmunizaciones
 
-        # 4. Calcular Pediatría
+        # 4. Calcular Total General Pediatría
         ped_dto = IndicadorPediatriaDTO()
         if self.pediatria_calculator:
-            ped_dto = self.pediatria_calculator.calcular_todos(citas)
+            ped_dto = self.pediatria_calculator.calcular_todos(citas_total)
             if hasattr(ped_dto, "pediatria"):
                 ped_dto = ped_dto.pediatria
 
-        # 5. Consolidar en el IndicadorDTO principal separado en dos bloques
+        # 5. Calcular Desglose Mensual
+        meses_ordenados = sorted(citas_por_mes.keys())
+        mensual_dict = {}
+        for mes in meses_ordenados:
+            citas_m = citas_por_mes[mes]
+
+            inm_m = self.vacunas_calculator.calcular_todos(citas_m)
+            if not isinstance(inm_m, IndicadorVacunasDTO) and hasattr(inm_m, "inmunizaciones"):
+                inm_m = inm_m.inmunizaciones
+
+            ped_m = IndicadorPediatriaDTO()
+            if self.pediatria_calculator:
+                ped_m = self.pediatria_calculator.calcular_todos(citas_m)
+                if hasattr(ped_m, "pediatria"):
+                    ped_m = ped_m.pediatria
+
+            mensual_dict[mes] = ResumenPeriodoDTO(
+                inmunizaciones=inm_m,
+                pediatria=ped_m,
+            )
+
+        # 6. Consolidar en el IndicadorDTO principal con desglose mensual
         indicadores = IndicadorDTO(
             inmunizaciones=inm_dto,
             pediatria=ped_dto,
+            mensual=mensual_dict,
+            meses=meses_ordenados,
         )
 
         # 6. Guardar en SQL Server si el repo está configurado

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 from pydantic import BaseModel
 
 
@@ -45,10 +45,22 @@ class IndicadoresPediatriaResponse(BaseModel):
     }
 
 
-class IndicadoresResponse(BaseModel):
-    """Respuesta HTTP consolidada para el frontend, separando Inmunizaciones y Pediatría."""
+class ResumenPeriodoResponse(BaseModel):
+    """Resumen consolidado para un mes o periodo específico."""
     inmunizaciones: IndicadoresVacunasResponse
     pediatria: IndicadoresPediatriaResponse
+
+    model_config = {
+        "from_attributes": True
+    }
+
+
+class IndicadoresResponse(BaseModel):
+    """Respuesta HTTP consolidada para el frontend, separando Inmunizaciones y Pediatría y soporte mensual."""
+    inmunizaciones: IndicadoresVacunasResponse
+    pediatria: IndicadoresPediatriaResponse
+    mensual: Dict[str, ResumenPeriodoResponse] = {}
+    meses: List[str] = []
 
     model_config = {
         "from_attributes": True

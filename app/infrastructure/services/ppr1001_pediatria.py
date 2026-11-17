@@ -93,7 +93,7 @@ class PPR1001_Atenciones_Service(PPRCalculatorPort):
         return self._procesar_conteo_cie(
             datos=datos,
             cie_validos=cie_validos,
-            validador_edad=lambda item: item.edad_en_anios() < 5,
+            validador_edad=lambda item: item.edad_en_anios() <= 5,
             nombre_metodo="3331501",
         )
 
@@ -107,7 +107,7 @@ class PPR1001_Atenciones_Service(PPRCalculatorPort):
         return self._procesar_conteo_cie(
             datos=datos,
             cie_validos=cie_validos,
-            validador_edad=lambda item: item.edad_en_anios() < 5,
+            validador_edad=lambda item: item.edad_en_anios() <= 5,
             nombre_metodo="3341401",
         )
 
@@ -121,7 +121,7 @@ class PPR1001_Atenciones_Service(PPRCalculatorPort):
         return self._procesar_conteo_cie(
             datos=datos,
             cie_validos=cie_validos,
-            validador_edad=lambda item: item.edad_en_anios() < 5,
+            validador_edad=lambda item: item.edad_en_anios() <= 5,
             nombre_metodo="3331101",
         )
 
@@ -135,7 +135,7 @@ class PPR1001_Atenciones_Service(PPRCalculatorPort):
         return self._procesar_conteo_cie(
             datos=datos,
             cie_validos=cie_validos,
-            validador_edad=lambda item: item.edad_en_anios() < 5,
+            validador_edad=lambda item: item.edad_en_anios() <= 5,
             nombre_metodo="3331102",
         )
 
@@ -149,7 +149,7 @@ class PPR1001_Atenciones_Service(PPRCalculatorPort):
         return self._procesar_conteo_cie(
             datos=datos,
             cie_validos=cie_validos,
-            validador_edad=lambda item: item.edad_en_anios() < 5,
+            validador_edad=lambda item: item.edad_en_anios() <= 5,
             nombre_metodo="3331103",
         )
 
@@ -163,7 +163,7 @@ class PPR1001_Atenciones_Service(PPRCalculatorPort):
         return self._procesar_conteo_cie(
             datos=datos,
             cie_validos=cie_validos,
-            validador_edad=lambda item: item.edad_en_anios() < 5,
+            validador_edad=lambda item: item.edad_en_anios() <= 5,
             nombre_metodo="3331104",
         )
 
@@ -177,7 +177,7 @@ class PPR1001_Atenciones_Service(PPRCalculatorPort):
         return self._procesar_conteo_cie(
             datos=datos,
             cie_validos=cie_validos,
-            validador_edad=lambda item: item.edad_en_anios() < 5,
+            validador_edad=lambda item: item.edad_en_anios() <= 5,
             nombre_metodo="3331105",
         )
 
@@ -195,7 +195,7 @@ class PPR1001_Atenciones_Service(PPRCalculatorPort):
         return self._procesar_conteo_cie(
             datos=datos,
             cie_validos=cie_validos,
-            validador_edad=lambda item: item.edad_en_anios() < 5,
+            validador_edad=lambda item: item.edad_en_anios() <= 5,
             nombre_metodo="neumonia",
         )
 
@@ -229,7 +229,7 @@ class PPR1001_Atenciones_Service(PPRCalculatorPort):
         return self._procesar_conteo_cie(
             datos=datos,
             cie_validos=cie_validos,
-            validador_edad=lambda item: item.edad_en_meses() >= 2 and item.edad_en_anios() < 5,
+            validador_edad=lambda item: item.edad_en_meses() >= 2 and item.edad_en_anios() <= 5,
             nombre_metodo="3331305",
         )
 
@@ -246,7 +246,7 @@ class PPR1001_Atenciones_Service(PPRCalculatorPort):
         return self._procesar_conteo_cie(
             datos=datos,
             cie_validos=cie_validos,
-            validador_edad=lambda item: item.edad_en_anios() < 5,
+            validador_edad=lambda item: item.edad_en_anios() <= 5,
             nombre_metodo="3331502",
         )
 
@@ -264,7 +264,7 @@ class PPR1001_Atenciones_Service(PPRCalculatorPort):
         return self._procesar_conteo_cie(
             datos=datos,
             cie_validos=cie_validos,
-            validador_edad=lambda item: item.edad_en_anios() < 5,
+            validador_edad=lambda item: item.edad_en_anios() <= 5,
             nombre_metodo="3331201",
         )
 
@@ -278,7 +278,7 @@ class PPR1001_Atenciones_Service(PPRCalculatorPort):
         return self._procesar_conteo_cie(
             datos=datos,
             cie_validos=cie_validos,
-            validador_edad=lambda item: item.edad_en_anios() < 5,
+            validador_edad=lambda item: item.edad_en_anios() <= 5,
             nombre_metodo="3331203",
         )
 
@@ -292,7 +292,7 @@ class PPR1001_Atenciones_Service(PPRCalculatorPort):
         return self._procesar_conteo_cie(
             datos=datos,
             cie_validos=cie_validos,
-            validador_edad=lambda item: item.edad_en_anios() < 5,
+            validador_edad=lambda item: item.edad_en_anios() <= 5,
             nombre_metodo="3331204",
         )
 
@@ -310,7 +310,7 @@ class PPR1001_Atenciones_Service(PPRCalculatorPort):
         return self._procesar_conteo_cie(
             datos=datos,
             cie_validos=cie_validos,
-            validador_edad=lambda item: item.edad_en_anios() < 5,
+            validador_edad=lambda item: item.edad_en_anios() <= 5,
             nombre_metodo="3331401",
         )
 
@@ -328,7 +328,7 @@ class PPR1001_Atenciones_Service(PPRCalculatorPort):
         return self._procesar_conteo_cie(
             datos=datos,
             cie_validos=cie_validos,
-            validador_edad=lambda item: item.edad_en_anios() < 5,
+            validador_edad=lambda item: item.edad_en_anios() <= 5,
             nombre_metodo="3331305_shock",
         )
 
@@ -342,6 +342,7 @@ class PPR1001_Atenciones_Service(PPRCalculatorPort):
         Agrupa los datos UNA SOLA VEZ (o reutiliza el dict si ya viene agrupado)
         y ejecuta todas las fórmulas en O(1) para máxima velocidad y seguridad.
         """
+        self.conteos_cie = {}
         citas = self._obtener_citas(datos)
 
         return IndicadorPediatriaDTO(

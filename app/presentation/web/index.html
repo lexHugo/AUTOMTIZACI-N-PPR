@@ -133,18 +133,34 @@
           <p class="text-xs text-slate-500">Total de atenciones que cumplen con el criterio técnico según norma MINSA</p>
         </div>
         
-        <!-- Pestañas de Filtro (Todos / Inmunizaciones / Pediatría) -->
-        <div class="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-semibold">
-          <button id="tabAll" class="px-3 py-1.5 rounded-lg sub-tab-active transition">
-            <i class="fa-solid fa-layer-group mr-1"></i> Todos
-          </button>
-          <button id="tabVacunas" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">
-            <i class="fa-solid fa-syringe mr-1 text-sky-600"></i> Inmunizaciones (9)
-          </button>
-          <button id="tabPediatria" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">
-            <i class="fa-solid fa-stethoscope mr-1 text-emerald-600"></i> Pediatría (16)
-          </button>
-          <a href="/cie10" class="ml-2 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold transition flex items-center gap-1.5 shadow-sm" title="Ir al Desglose CIE-10">
+        <!-- Selector de Modo de Visualización (Barras vs Matriz Mensual) + Filtros -->
+        <div class="flex items-center gap-2.5 flex-wrap justify-end">
+          <!-- Toggle Vista: Barras vs Matriz Mensual -->
+          <div class="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-semibold">
+            <button id="viewBarsBtn" class="px-3 py-1.5 rounded-lg bg-white text-slate-800 shadow-sm transition flex items-center gap-1.5" title="Ver en Barras Horizontales con Leyenda">
+              <i class="fa-solid fa-bars-staggered text-sky-600"></i>
+              <span>Barras &amp; Leyenda</span>
+            </button>
+            <button id="viewMatrixBtn" class="px-3 py-1.5 rounded-lg text-slate-500 hover:text-slate-800 transition flex items-center gap-1.5" title="Ver Matriz Comparativa Mes a Mes">
+              <i class="fa-solid fa-table-cells text-emerald-600"></i>
+              <span>Matriz Mensual</span>
+            </button>
+          </div>
+
+          <!-- Filtro de sub-grupos (visible en vista barras) -->
+          <div id="subFilterGroup" class="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-semibold">
+            <button id="tabAll" class="px-2.5 py-1.5 rounded-lg sub-tab-active transition">
+              Todos
+            </button>
+            <button id="tabVacunas" class="px-2.5 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">
+              Inmunizaciones
+            </button>
+            <button id="tabPediatria" class="px-2.5 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">
+              Pediatría
+            </button>
+          </div>
+
+          <a href="/cie10" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition flex items-center gap-1.5 shadow-sm" title="Ir a la página de Desglose CIE-10">
             <i class="fa-solid fa-table-list"></i> Ver Desglose CIE-10
           </a>
         </div>
@@ -152,7 +168,9 @@
 
       <!-- Contenedor Principal: Resultados en Barras Horizontales + Leyenda Lateral -->
       <div id="resultsSection" class="hidden">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- VISTA 1: BARRAS HORIZONTALES CON LEYENDA TÉCNICA -->
+        <div id="barsViewContainer" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
           <!-- ================================================================= -->
           <!-- COLUMNA PRINCIPAL (IZQUIERDA): BARRAS HORIZONTALES DE LAS AO       -->
@@ -1205,8 +1223,69 @@
       </div>
       <!-- Fin Columna Derecha -->
 
-    </div>
-  </div>
+        </div>
+        <!-- Fin barsViewContainer -->
+
+        <!-- ================================================================= -->
+        <!-- VISTA 2: MATRIZ COMPARATIVA MES A MES (REPORTE CONSOLIDADO)        -->
+        <!-- ================================================================= -->
+        <div id="matrixViewContainer" class="hidden space-y-4">
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            
+            <!-- Cabecera de la Matriz -->
+            <div class="p-4 bg-slate-50 border-b border-slate-200 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-lg font-bold shadow-xs">
+                  <i class="fa-solid fa-table-cells"></i>
+                </div>
+                <div>
+                  <h3 class="text-sm sm:text-base font-bold text-slate-900">Matriz Comparativa Mensual &bull; Evolución PPR 1001</h3>
+                  <p class="text-xs text-slate-500">Distribución de atenciones y casos mes a mes de las 25 Actividades Operativas</p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2.5 w-full md:w-auto">
+                <div class="relative w-full md:w-64">
+                  <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                  <input type="text" id="matrixSearchInput" placeholder="Buscar actividad en la matriz..." class="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 bg-white">
+                </div>
+                <span id="matrixMonthsCountBadge" class="text-xs font-semibold px-2.5 py-1.5 bg-emerald-50 text-emerald-700 rounded-xl border border-emerald-200 shrink-0">
+                  0 Meses
+                </span>
+              </div>
+            </div>
+
+            <!-- Tabla de la Matriz Mensual -->
+            <div class="overflow-x-auto max-h-[72vh]">
+              <table class="w-full text-left text-xs border-collapse">
+                <thead class="bg-slate-100 text-slate-700 uppercase tracking-wider font-semibold border-b border-slate-200 sticky top-0 z-20 shadow-xs" id="matrixThead">
+                  <!-- Columnas dinámicas -->
+                </thead>
+                <tbody id="matrixTbody" class="divide-y divide-slate-100 bg-white">
+                  <!-- Filas dinámicas -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Footer Informativo de la Matriz -->
+            <div class="p-3 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-slate-500">
+              <div class="flex items-center gap-2">
+                <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                <span>Las celdas con atenciones (&ge; 1) se resaltan en verde para identificar atenciones efectivas en cada mes.</span>
+              </div>
+              <div>
+                <a href="/cie10" class="text-emerald-700 hover:text-emerald-900 font-bold inline-flex items-center gap-1">
+                  <span>Auditar Códigos CIE-10</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                </a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+        <!-- Fin matrixViewContainer -->
+
+      </div>
+      <!-- Fin resultsSection -->
 
 
   </main>
