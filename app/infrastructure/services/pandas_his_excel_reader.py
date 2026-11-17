@@ -41,7 +41,8 @@ class PandasHISExcelReader(HISExcelReaderPort):
     ]
 
     # Filtro de UPS pediátricas: 301204 (Inmunizaciones), 301202 (CRED) y 303712 (Pediatría)
-    UPS_PERMITIDAS = {"301204", "301202", "303712"}
+    # UPS_PERMITIDAS = {"301204", "301202", "303712"}
+    UPS_PERMITIDAS = {"301204", "301202", "303712", "303305","303604","303701","303702","303703","303704","303705","303706","303707","303708","303709","303710","303711","304002","304103"}
 
     def read_his_excel(self, file_content: bytes) -> List[VariablesPPR]:
         """

@@ -17,7 +17,8 @@ class PPR1001_Atenciones_Service(PPRCalculatorPort):
       el contador principal 'cumplen' (según la cantidad de unidades completas alcanzadas por todos).
     - Los conteos individuales de cada CIE-10 quedan guardados en 'self.conteos_cie'.
     """
-    ups: str = "303712"
+    #ups: str = "303712"
+    ups: Set[str] = {"301204", "301202", "303712", "303305","303604","303701","303702","303703","303704","303705","303706","303707","303708","303709","303710","303711","304002","304103"}
 
     def __init__(self):
         # Almacena el conteo individual de cada código CIE-10 por cada actividad operativa
@@ -68,7 +69,7 @@ class PPR1001_Atenciones_Service(PPRCalculatorPort):
             for item in items:
                 if (
                     validador_edad(item)
-                    and self._norm(item.Id_ups) == self.ups
+                    and self._norm(item.Id_ups) in self.ups
                     and self._norm(item.Tipo_Diagnostico) == "D"
                 ):
                     codigo = self._norm(item.Codigo_Item)
