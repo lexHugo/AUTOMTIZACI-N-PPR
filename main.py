@@ -57,7 +57,6 @@ app.include_router(api_v1_router, prefix="/api/v1")
 # -------------------------------------------------------------
 WEB_DIR = Path(__file__).parent / "app" / "presentation" / "web"
 UI_FILE_PATH = WEB_DIR / "index.html"
-CIE10_FILE_PATH = WEB_DIR / "cie10.html"
 
 # Montar directorio estático para servir css/ y js/
 app.mount("/static", StaticFiles(directory=WEB_DIR), name="static")
@@ -65,19 +64,17 @@ app.mount("/static", StaticFiles(directory=WEB_DIR), name="static")
 
 @app.get("/", response_class=HTMLResponse, tags=["Frontend UI"])
 def serve_ui():
-    """Sirve la interfaz web simple para cargar el Excel y ver los indicadores."""
+    """Sirve la interfaz web unificada de indicadores y auditoría CIE-10."""
     if UI_FILE_PATH.exists():
         return HTMLResponse(content=UI_FILE_PATH.read_text(encoding="utf-8"))
     return HTMLResponse(content="<h1>UI en construcción</h1>")
 
 
-@app.get("/desglose-cie10", response_class=HTMLResponse, tags=["Frontend UI"])
-@app.get("/cie10", response_class=HTMLResponse, tags=["Frontend UI"])
-def serve_cie10_ui():
-    """Sirve la página con el desglose de códigos CIE-10 y sus contadores."""
-    if CIE10_FILE_PATH.exists():
-        return HTMLResponse(content=CIE10_FILE_PATH.read_text(encoding="utf-8"))
-    return RedirectResponse(url="/?tab=cie10", status_code=status.HTTP_307_TEMPORARY_REDIRECT)
+@app.get("/desglose-cie10", include_in_schema=False)
+@app.get("/cie10", include_in_schema=False)
+def redirect_cie10():
+    """Redirige al panel unificado principal (indicadores y CIE-10 consolidados)."""
+    return RedirectResponse(url="/", status_code=status.HTTP_308_PERMANENT_REDIRECT)
 
 
 if __name__ == "__main__":

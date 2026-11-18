@@ -1,6 +1,125 @@
 // =============================================================================
-// PPR 1001 - Script Principal de la Aplicación (Monitor de Indicadores & Matriz)
+// PPR 1001 - Script Principal Unificado (Monitor de Indicadores & Desglose CIE-10)
 // =============================================================================
+
+// Catálogo Oficial de Diagnósticos CIE-10 de Pediatría (MINSA)
+const CATALOGO_CIE = {
+  "D509": "Anemia por deficiencia de hierro sin especificación (Ferropénica)",
+  "D649": "Anemia de tipo no especificado",
+  "B680": "Teniasis debida a Taenia solium (cerdo)",
+  "B681": "Teniasis debida a Taenia saginata (vaca)",
+  "B689": "Teniasis no especificada",
+  "B779": "Ascariasis no especificada",
+  "B780": "Estrongiloidiasis intestinal",
+  "B79": "Tricocefalosis (Trichuris trichiura)",
+  "B80": "Oxiuriasis / Enterobiasis",
+  "A071": "Giardiasis [lambliasis]",
+  "A06": "Amebiasis",
+  "B829": "Parasitosis intestinal sin especificación",
+  "J00X": "Rinofaringitis aguda [resfriado común]",
+  "J040": "Laringitis aguda",
+  "J041": "Traqueítis aguda",
+  "J042": "Laringotraqueítis aguda",
+  "J060": "Faringitis aguda",
+  "J068": "Otras infecciones respiratorias agudas",
+  "J069": "Infección respiratoria aguda de sitios no especificados",
+  "J209": "Bronquitis aguda",
+  "J020": "Faringitis estreptocócica",
+  "J029": "Faringitis aguda no especificada",
+  "J030": "Amigdalitis estreptocócica",
+  "J038": "Amigdalitis aguda debida a otros microorganismos",
+  "J039": "Amigdalitis aguda no especificada",
+  "H650": "Otitis media aguda no supurativa",
+  "H651": "Otras otitis medias agudas no supurativas",
+  "H660": "Otitis media aguda supurativa",
+  "H669": "Otitis media supurativa y no especificada",
+  "J010": "Sinusitis maxilar aguda",
+  "J011": "Sinusitis frontal aguda",
+  "J012": "Sinusitis etmoidal aguda",
+  "J013": "Sinusitis esfenoidal aguda",
+  "J014": "Pansinusitis aguda",
+  "J019": "Sinusitis aguda no especificada",
+  "J129": "Neumonía viral no especificada",
+  "J159": "Neumonía bacteriana no especificada",
+  "J181": "Neumonía lobar no especificada",
+  "A369": "Difteria no especificada",
+  "A370": "Tos ferina debida a Bordetella pertussis",
+  "A371": "Tos ferina debida a Bordetella parapertussis",
+  "A378": "Tos ferina debida a otras especies de Bordetella",
+  "A379": "Tos ferina no especificada",
+  "J120": "Neumonía por adenovirus",
+  "J121": "Neumonía por VSR",
+  "J122": "Neumonía por virus parainfluenza",
+  "J123": "Neumonía por metapneumovirus",
+  "J128": "Otras neumonías virales",
+  "J13X": "Neumonía debida a Streptococcus pneumoniae",
+  "J14X": "Neumonía debida a Haemophilus influenzae",
+  "J150": "Neumonía debida a Klebsiella pneumoniae",
+  "J151": "Neumonía debida a Pseudomonas",
+  "J152": "Neumonía debida a Staphylococcus",
+  "J153": "Neumonía debida a Streptococcus del grupo B",
+  "J154": "Neumonía debida a otros estreptococos",
+  "J157": "Neumonía debida a Mycoplasma pneumoniae",
+  "J158": "Otras neumonías bacterianas",
+  "J160": "Neumonía por Chlamydia",
+  "J168": "Neumonía por otros microorganismos especificados",
+  "J050": "Laringitis obstructiva aguda [crup]",
+  "J051": "Epiglotitis aguda",
+  "J851": "Absceso del pulmón con neumonía",
+  "J860": "Piotórax con fístula",
+  "J869": "Piotórax sin fístula",
+  "J90X": "Derrame pleural no clasificado",
+  "J939": "Neumotórax no especificado",
+  "J100": "Influenza con neumonía",
+  "J110": "Influenza con neumonía (virus no identificado)",
+  "J155": "Neumonía debida a Escherichia coli",
+  "J156": "Neumonía por otras bacterias gramnegativas",
+  "J180": "Bronconeumonía no especificada",
+  "J182": "Neumonía hipostática no especificada",
+  "J188": "Otras neumonías de microorganismo no especificado",
+  "J210": "Bronquiolitis aguda por VSR",
+  "J211": "Bronquiolitis aguda por metapneumovirus",
+  "J218": "Bronquiolitis aguda por otros microorganismos",
+  "J219": "Bronquiolitis aguda no especificada",
+  "J440": "Enfermedad pulmonar obstructiva con infección aguda",
+  "J441": "Enfermedad pulmonar obstructiva con exacerbación aguda",
+  "J448": "Otras enfermedades pulmonares obstructivas crónicas",
+  "J449": "Enfermedad pulmonar obstructiva crónica no especificada",
+  "J450": "Asma predominantemente alérgica",
+  "J451": "Asma no alérgica",
+  "J459": "Asma no especificada",
+  "J46X": "Estado asmático agudo severo",
+  "A009": "Cólera no especificado",
+  "A010": "Fiebre tifoidea",
+  "A011": "Fiebre paratifoidea A",
+  "A012": "Fiebre paratifoidea B",
+  "A013": "Fiebre paratifoidea C",
+  "A014": "Fiebre paratifoidea no especificada",
+  "A020": "Enteritis debida a Salmonella",
+  "A040": "Infección debida a Escherichia coli enteropatógena",
+  "A041": "Infección debida a Escherichia coli enterotoxígena",
+  "A049": "Infección bacteriana intestinal no especificada",
+  "A059": "Intoxicación alimentaria bacteriana no especificada",
+  "A070": "Balantidiasis",
+  "A072": "Criptosporidiosis",
+  "A08": "Infecciones intestinales víricas y otras",
+  "A082": "Enteritis debida a adenovirus",
+  "A083": "Otras enteritis virales",
+  "A084": "Infección intestinal viral sin especificación",
+  "A090": "Otras gastroenteritis y colitis de origen infeccioso",
+  "A099": "Gastroenteritis y colitis de origen no especificado",
+  "A030": "Shigelosis debida a Shigella dysenteriae",
+  "A039": "Shigelosis de tipo no especificado",
+  "A042": "Infección debida a Escherichia coli enteroinvasiva",
+  "A043": "Infección debida a Escherichia coli enterohemorrágica",
+  "A045": "Enteritis debida a Campylobacter",
+  "A060": "Disentería amebiana aguda",
+  "A09X": "Diarrea y gastroenteritis de presunto origen infeccioso",
+  "E86X": "Depleción del volumen [deshidratación]",
+  "R571": "Choque hipovolémico",
+  "E872": "Acidosis",
+  "K560": "Íleo paralítico"
+};
 
 // Catálogo de las 25 Actividades Operativas para la Matriz Mensual
 const ACTIVIDADES_PPR = [
@@ -529,8 +648,9 @@ function poblarIndicadores(data) {
   poblarMatrizMensual(data);
 }
 
+
 // =========================================================================
-// 4. MATRIZ COMPARATIVA MES A MES (OPCIÓN 2: REPORTE CONSOLIDADO)
+// 4. MATRIZ COMPARATIVA MES A MES UNIFICADA CON DESGLOSE CIE-10
 // =========================================================================
 function formatearNombreMes(mesKey) {
   const nombres = {
@@ -554,6 +674,14 @@ function obtenerValorAO(dataPeriodo, codigo, grupo) {
   return raw !== undefined ? parseInt(raw, 10) || 0 : 0;
 }
 
+function obtenerConteosCieAO(dataPeriodo, codigo) {
+  if (!dataPeriodo || !dataPeriodo.pediatria || !dataPeriodo.pediatria.conteos_cie) return {};
+  const key = codigo === 'nuemonia' ? 'neumonia' : codigo;
+  return dataPeriodo.pediatria.conteos_cie[key] || {};
+}
+
+let todosExpandidos = false;
+
 function poblarMatrizMensual(data) {
   const matrixThead = document.getElementById('matrixThead');
   const matrixTbody = document.getElementById('matrixTbody');
@@ -573,12 +701,13 @@ function poblarMatrizMensual(data) {
     matrixThead.innerHTML = `
       <tr>
         <th class="py-3 px-4">Actividad Operativa</th>
+        <th class="py-3 px-4 text-center">Tipo</th>
         <th class="py-3 px-4 text-center">Total Acumulado</th>
       </tr>
     `;
     matrixTbody.innerHTML = `
       <tr>
-        <td colspan="2" class="p-8 text-center text-slate-400">
+        <td colspan="3" class="p-8 text-center text-slate-400">
           No se detectaron fechas en el archivo para el desglose mensual.
         </td>
       </tr>
@@ -589,68 +718,91 @@ function poblarMatrizMensual(data) {
   // 1. Construir Encabezados de la Tabla
   let theadHtml = `
     <tr>
-      <th class="py-3 px-4 w-72 sm:w-80 sticky left-0 bg-slate-100 z-10 border-r border-slate-200">
-        Actividad Operativa
+      <th class="py-3 px-4 w-80 sm:w-96 sticky left-0 bg-slate-100 z-10 border-r border-slate-200">
+        Actividad Operativa &amp; Desglose CIE-10
       </th>
-      <th class="py-3 px-3 w-24 text-center border-r border-slate-200">
+      <th class="py-3 px-3 w-20 text-center border-r border-slate-200">
         Tipo
       </th>
   `;
 
   meses.forEach(m => {
     theadHtml += `
-      <th class="py-3 px-3 text-center border-r border-slate-200 min-w-[80px]">
+      <th class="py-3 px-3 text-center border-r border-slate-200 min-w-[85px]">
         <span class="block font-bold text-slate-800">${formatearNombreMes(m)}</span>
       </th>
     `;
   });
 
   theadHtml += `
-      <th class="py-3 px-4 text-center bg-emerald-100/70 text-emerald-950 font-extrabold min-w-[100px]">
+      <th class="py-3 px-4 text-center bg-emerald-100/70 text-emerald-950 font-extrabold min-w-[110px]">
         Total Acumulado
       </th>
     </tr>
   `;
   matrixThead.innerHTML = theadHtml;
 
-  // 2. Construir Filas de las 25 AOs agrupadas
+  // 2. Construir Filas de las 25 AOs agrupadas y sus CIE-10 hijos
   let tbodyHtml = '';
   let currentGroup = '';
 
   ACTIVIDADES_PPR.forEach(ao => {
-    // Si cambia de grupo, agregar fila separadora de categoría
+    // Si cambia de grupo, agregar fila separadora de categoría interactiva (colapsable)
     if (ao.grupo !== currentGroup) {
       currentGroup = ao.grupo;
       const isVac = currentGroup === 'inmunizaciones';
       tbodyHtml += `
-        <tr class="${isVac ? 'bg-sky-50 text-sky-900 border-sky-200' : 'bg-emerald-50 text-emerald-900 border-emerald-200'} font-bold uppercase tracking-wider text-[11px] border-y">
+        <tr class="btn-toggle-group cursor-pointer select-none ${isVac ? 'bg-sky-50 hover:bg-sky-100/80 text-sky-900 border-sky-200' : 'bg-emerald-50 hover:bg-emerald-100/80 text-emerald-900 border-emerald-200'} font-bold uppercase tracking-wider text-[11px] border-y transition" data-group="${currentGroup}" title="Clic para colapsar o expandir ${isVac ? 'Inmunizaciones' : 'Pediatría'}">
           <td colspan="${meses.length + 3}" class="py-2.5 px-4">
-            <i class="fa-solid ${isVac ? 'fa-syringe text-sky-600' : 'fa-stethoscope text-emerald-600'} mr-2"></i>
-            ${ao.grupoTitulo}
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <i class="fa-solid fa-chevron-down text-[10px] transition-transform duration-200" id="chevron-group-${currentGroup}"></i>
+                <i class="fa-solid ${isVac ? 'fa-syringe text-sky-600' : 'fa-stethoscope text-emerald-600'}"></i>
+                <span>${ao.grupoTitulo}</span>
+              </div>
+              <div class="flex items-center gap-2 font-normal lowercase tracking-normal text-[11px]">
+                <span class="px-2 py-0.5 rounded-full ${isVac ? 'bg-sky-200/70 text-sky-800' : 'bg-emerald-200/70 text-emerald-800'} font-bold">
+                  ${isVac ? '9 Actividades' : '16 Actividades'}
+                </span>
+                <span class="text-slate-400 text-[10px] hidden sm:inline">(clic para colapsar / expandir grupo)</span>
+              </div>
+            </div>
           </td>
         </tr>
       `;
     }
 
     const totalVal = obtenerValorAO(data, ao.codigo, ao.grupo);
-    const linkCie = ao.grupo === 'pediatria' ? `/cie10#ao-card-${ao.codigo === 'nuemonia' ? 'neumonia' : ao.codigo}` : null;
+    const conteosTot = ao.grupo === 'pediatria' ? obtenerConteosCieAO(data, ao.codigo) : {};
+    const codigosCieKeys = Object.keys(conteosTot);
+    const tieneCie = codigosCieKeys.length > 0;
 
+    // Fila Padre (Actividad Operativa)
     tbodyHtml += `
-      <tr class="hover:bg-slate-50 transition border-b border-slate-100 matrix-row" data-search="${ao.codigo.toLowerCase()} ${ao.titulo.toLowerCase()} ${ao.criterio.toLowerCase()}">
-        <!-- Nombre AO -->
-        <td class="py-2.5 px-4 sticky left-0 bg-white border-r border-slate-200 shadow-xs">
+      <tr id="matrix-row-${ao.codigo}" class="hover:bg-slate-50 transition border-b border-slate-200 matrix-row matrix-parent-row" data-ao="${ao.codigo}" data-grupo="${ao.grupo}" data-search="${ao.codigo.toLowerCase()} ${ao.titulo.toLowerCase()} ${ao.criterio.toLowerCase()}">
+        <!-- Nombre AO con toggle acordeón -->
+        <td class="py-2.5 px-4 sticky left-0 bg-white border-r border-slate-200 shadow-xs z-1">
           <div class="flex items-center gap-2">
-            <span class="font-mono font-bold text-[10px] px-1.5 py-0.5 rounded ${ao.grupo === 'inmunizaciones' ? 'bg-sky-100 text-sky-800' : 'bg-emerald-100 text-emerald-800'}">
+            ${tieneCie ? `
+              <button type="button" class="btn-toggle-ao w-6 h-6 rounded hover:bg-slate-100 text-slate-500 hover:text-slate-800 flex items-center justify-center shrink-0 transition" data-ao="${ao.codigo}" title="Mostrar/Ocultar códigos CIE-10">
+                <i class="fa-solid fa-chevron-right text-[10px] transition-transform duration-200" id="chevron-${ao.codigo}"></i>
+              </button>
+            ` : `
+              <span class="w-6 h-6 flex items-center justify-center text-slate-300 shrink-0">
+                <i class="fa-solid ${ao.grupo === 'inmunizaciones' ? 'fa-syringe text-sky-400' : 'fa-circle-dot'} text-[10px]"></i>
+              </span>
+            `}
+            <span class="font-mono font-bold text-[10px] px-1.5 py-0.5 rounded shrink-0 ${ao.grupo === 'inmunizaciones' ? 'bg-sky-100 text-sky-800' : 'bg-emerald-100 text-emerald-800'}">
               AO ${ao.codigo.toUpperCase()}
             </span>
             <div class="min-w-0 flex-1">
               <span class="font-semibold text-slate-800 block truncate text-xs" title="${ao.titulo}">${ao.titulo}</span>
               <span class="text-[10px] text-slate-400 block truncate">${ao.criterio}</span>
             </div>
-            ${linkCie ? `
-              <a href="${linkCie}" class="ml-1 text-emerald-700 hover:text-emerald-900 text-[10px] shrink-0 font-bold px-1.5 py-0.5 rounded bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition" title="Ver códigos CIE-10">
-                CIE <i class="fa-solid fa-arrow-right text-[8px]"></i>
-              </a>
+            ${tieneCie ? `
+              <span class="text-[10px] text-slate-500 bg-slate-100 font-medium px-1.5 py-0.5 rounded border border-slate-200 shrink-0">
+                ${codigosCieKeys.length} CIE-10
+              </span>
             ` : ''}
           </div>
         </td>
@@ -661,7 +813,7 @@ function poblarMatrizMensual(data) {
         </td>
     `;
 
-    // Celdas por Mes
+    // Celdas por Mes (AO)
     meses.forEach(m => {
       const dataMes = mensual[m];
       const valMes = obtenerValorAO(dataMes, ao.codigo, ao.grupo);
@@ -672,7 +824,7 @@ function poblarMatrizMensual(data) {
       `;
     });
 
-    // Celda Total Acumulado
+    // Celda Total Acumulado (AO)
     tbodyHtml += `
         <td class="py-2.5 px-4 text-center font-mono font-extrabold bg-slate-50/80">
           <span class="inline-block px-2.5 py-0.5 rounded-lg ${totalVal > 0 ? 'bg-emerald-600 text-white shadow-xs' : 'bg-slate-200 text-slate-500'}">
@@ -681,24 +833,263 @@ function poblarMatrizMensual(data) {
         </td>
       </tr>
     `;
+
+    // Filas Hijas (Detalle de cada CIE-10 para esta AO)
+    if (tieneCie) {
+      codigosCieKeys.forEach(cieCode => {
+        const descCie = CATALOGO_CIE[cieCode] || 'Diagnóstico pediátrico';
+        const valTotCie = conteosTot[cieCode] || 0;
+
+        tbodyHtml += `
+          <tr class="matrix-child-row matrix-child-${ao.codigo} hidden bg-slate-50/70 hover:bg-emerald-50/30 transition border-b border-slate-100" data-parent-ao="${ao.codigo}" data-search="${ao.codigo.toLowerCase()} ${cieCode.toLowerCase()} ${descCie.toLowerCase()}">
+            <!-- Nombre y código CIE-10 con sangría -->
+            <td class="py-1.5 pl-10 pr-4 sticky left-0 bg-slate-50/95 border-r border-slate-200 shadow-xs z-1">
+              <div class="flex items-center gap-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
+                <span class="font-mono font-bold text-[10px] px-1.5 py-0.5 rounded bg-white text-slate-700 border border-slate-200 shrink-0 shadow-2xs">${cieCode}</span>
+                <span class="text-[11px] text-slate-600 truncate flex-1" title="${descCie}">${descCie}</span>
+              </div>
+            </td>
+
+            <!-- Tipo -->
+            <td class="py-1.5 px-3 text-center border-r border-slate-200 font-mono text-[9px] text-slate-400">
+              CIE-10
+            </td>
+        `;
+
+        // Conteos mensuales del CIE-10
+        meses.forEach(m => {
+          const conteoMesCie = obtenerConteosCieAO(mensual[m], ao.codigo);
+          const valMesCie = conteoMesCie[cieCode] || 0;
+          tbodyHtml += `
+            <td class="py-1.5 px-3 text-center border-r border-slate-200 font-mono text-xs ${valMesCie > 0 ? 'font-bold text-slate-800 bg-emerald-50/20' : 'text-slate-300'}">
+              ${valMesCie > 0 ? `<span class="inline-block px-1.5 py-0.5 rounded bg-slate-200/80 text-slate-800 font-bold text-[11px]">${valMesCie}</span>` : '0'}
+            </td>
+          `;
+        });
+
+        // Total acumulado del CIE-10
+        tbodyHtml += `
+            <td class="py-1.5 px-4 text-center font-mono font-bold text-xs bg-slate-50/90">
+              <span class="inline-block px-2 py-0.5 rounded-full ${valTotCie > 0 ? 'bg-slate-200 text-slate-800 font-bold' : 'text-slate-300'} text-[11px]">
+                ${valTotCie}
+              </span>
+            </td>
+          </tr>
+        `;
+      });
+    }
   });
 
   matrixTbody.innerHTML = tbodyHtml;
+
+  // Registrar listeners para colapsar/expandir Grupos Principales (Inmunizaciones / Pediatría)
+  document.querySelectorAll('.btn-toggle-group').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const group = btn.getAttribute('data-group');
+      toggleGroup(group);
+    });
+  });
+
+  // Registrar listeners de expandir/colapsar para cada botón chevron de AO
+  document.querySelectorAll('.btn-toggle-ao').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const aoCode = btn.getAttribute('data-ao');
+      toggleAoCie10(aoCode);
+    });
+  });
+
+  // Si había estado expandido previo, sincronizar
+  if (todosExpandidos) {
+    expandirTodosCie10(true);
+  }
 }
 
-// Búsqueda en tiempo real en la Matriz
+// Alternar expansión/colapso de Grupos Principales (Inmunizaciones / Pediatría)
+function toggleGroup(group, forzarEstado = null) {
+  const parentRows = document.querySelectorAll(`.matrix-parent-row[data-grupo="${group}"]`);
+  const chevron = document.getElementById(`chevron-group-${group}`);
+  if (!parentRows.length) return;
+
+  const deberiaMostrar = forzarEstado !== null ? forzarEstado : parentRows[0].classList.contains('hidden');
+
+  parentRows.forEach(row => {
+    const aoCode = row.getAttribute('data-ao');
+    if (deberiaMostrar) {
+      row.classList.remove('hidden');
+      // Si el chevron individual de esta AO estaba abierto, re-mostrar sus hijos CIE-10
+      const aoChevron = document.getElementById(`chevron-${aoCode}`);
+      if (aoChevron && aoChevron.classList.contains('rotate-90')) {
+        document.querySelectorAll(`.matrix-child-${aoCode}`).forEach(c => c.classList.remove('hidden'));
+      }
+    } else {
+      row.classList.add('hidden');
+      // Ocultar también cualquier hijo abierto de esta AO
+      document.querySelectorAll(`.matrix-child-${aoCode}`).forEach(c => c.classList.add('hidden'));
+    }
+  });
+
+  if (chevron) {
+    if (deberiaMostrar) {
+      chevron.classList.remove('-rotate-90');
+    } else {
+      chevron.classList.add('-rotate-90');
+    }
+  }
+}
+
+// Alternar expansión de una AO individual
+function toggleAoCie10(aoCode, forzarEstado = null) {
+  const childRows = document.querySelectorAll(`.matrix-child-${aoCode}`);
+  const chevron = document.getElementById(`chevron-${aoCode}`);
+  if (!childRows.length) return;
+
+  const deberiaMostrar = forzarEstado !== null ? forzarEstado : childRows[0].classList.contains('hidden');
+
+  childRows.forEach(row => {
+    if (deberiaMostrar) {
+      row.classList.remove('hidden');
+    } else {
+      row.classList.add('hidden');
+    }
+  });
+
+  if (chevron) {
+    if (deberiaMostrar) {
+      chevron.classList.add('rotate-90', 'text-emerald-600');
+    } else {
+      chevron.classList.remove('rotate-90', 'text-emerald-600');
+    }
+  }
+}
+
+// Expandir o Colapsar Todos los CIE-10 globalmente
+function expandirTodosCie10(expandir) {
+  todosExpandidos = expandir;
+  const allChildRows = document.querySelectorAll('.matrix-child-row');
+  const allChevrons = document.querySelectorAll('.btn-toggle-ao i');
+  const toggleBtnText = document.getElementById('toggleAllCie10Text');
+
+  allChildRows.forEach(row => {
+    if (expandir) row.classList.remove('hidden');
+    else row.classList.add('hidden');
+  });
+
+  allChevrons.forEach(chev => {
+    if (expandir) chev.classList.add('rotate-90', 'text-emerald-600');
+    else chev.classList.remove('rotate-90', 'text-emerald-600');
+  });
+
+  if (toggleBtnText) {
+    toggleBtnText.textContent = expandir ? 'Colapsar CIE-10' : 'Expandir CIE-10';
+  }
+}
+
+// Botón de alternar todo en la cabecera de la matriz
+const btnToggleAllCie10 = document.getElementById('btnToggleAllCie10');
+if (btnToggleAllCie10) {
+  btnToggleAllCie10.addEventListener('click', () => {
+    expandirTodosCie10(!todosExpandidos);
+  });
+}
+
+// Búsqueda en tiempo real en la Matriz con apertura automática de CIE-10
 const matrixSearchInput = document.getElementById('matrixSearchInput');
 if (matrixSearchInput) {
   matrixSearchInput.addEventListener('input', (e) => {
     const q = e.target.value.toLowerCase().trim();
-    const rows = document.querySelectorAll('.matrix-row');
-    rows.forEach(r => {
-      const text = r.getAttribute('data-search') || '';
-      if (!q || text.includes(q)) r.classList.remove('hidden');
-      else r.classList.add('hidden');
+    const parentRows = document.querySelectorAll('.matrix-parent-row');
+    const childRows = document.querySelectorAll('.matrix-child-row');
+
+    if (!q) {
+      // Restaurar visibilidad de padres, hijos y grupos
+      document.querySelectorAll('.btn-toggle-group').forEach(btn => {
+        btn.classList.remove('hidden');
+        const grp = btn.getAttribute('data-group');
+        toggleGroup(grp, true);
+      });
+      parentRows.forEach(p => p.classList.remove('hidden'));
+      childRows.forEach(c => {
+        if (todosExpandidos) c.classList.remove('hidden');
+        else c.classList.add('hidden');
+      });
+      return;
+    }
+
+    // Filtrar padres e hijos
+    const parentMatches = new Set();
+    const groupMatches = new Set();
+
+    // 1. Revisar si el hijo coincide con la búsqueda
+    childRows.forEach(c => {
+      const search = c.getAttribute('data-search') || '';
+      const parentAo = c.getAttribute('data-parent-ao');
+      if (search.includes(q)) {
+        c.classList.remove('hidden');
+        parentMatches.add(parentAo);
+      } else {
+        c.classList.add('hidden');
+      }
+    });
+
+    // 2. Revisar padres
+    parentRows.forEach(p => {
+      const ao = p.getAttribute('data-ao');
+      const grp = p.getAttribute('data-grupo');
+      const search = p.getAttribute('data-search') || '';
+      if (search.includes(q) || parentMatches.has(ao)) {
+        p.classList.remove('hidden');
+        if (grp) groupMatches.add(grp);
+        const chevron = document.getElementById(`chevron-${ao}`);
+        if (chevron && parentMatches.has(ao)) {
+          chevron.classList.add('rotate-90', 'text-emerald-600');
+        }
+      } else {
+        p.classList.add('hidden');
+      }
+    });
+
+    // 3. Mostrar/ocultar y expandir encabezados de grupo según coincidencias
+    document.querySelectorAll('.btn-toggle-group').forEach(btn => {
+      const grp = btn.getAttribute('data-group');
+      if (groupMatches.has(grp)) {
+        btn.classList.remove('hidden');
+        const chev = document.getElementById(`chevron-group-${grp}`);
+        if (chev) chev.classList.remove('-rotate-90');
+      } else {
+        btn.classList.add('hidden');
+      }
     });
   });
 }
+
+// Salto desde la Vista de Barras directamente a la Matriz y expansión de esa AO
+function cambiarAMatrizYExpandir(aoCode) {
+  if (viewMatrixBtn) {
+    viewMatrixBtn.click();
+  }
+  setTimeout(() => {
+    toggleGroup('pediatria', true);
+    toggleAoCie10(aoCode, true);
+    const row = document.getElementById(`matrix-row-${aoCode}`);
+    if (row) {
+      row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      row.classList.add('bg-emerald-100/60');
+      setTimeout(() => row.classList.remove('bg-emerald-100/60'), 2000);
+    }
+  }, 150);
+}
+
+// Conectar botones en vista de barras con salto a la matriz
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.btn-jump-matrix');
+  if (btn) {
+    const ao = btn.getAttribute('data-ao');
+    if (ao) cambiarAMatrizYExpandir(ao);
+  }
+});
+
 
 // Toggle entre Vista Barras y Vista Matriz Mensual
 if (viewBarsBtn && viewMatrixBtn) {
