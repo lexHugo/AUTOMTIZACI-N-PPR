@@ -44,27 +44,76 @@ class PandasHISExcelReader(HISExcelReaderPort):
     # UPS_PERMITIDAS = {"301204", "301202", "303712"}
     UPS_PERMITIDAS = {}
 
-    def read_his_excel(self, file_content: bytes) -> List[VariablesPPR]:
+    @staticmethod
+    def _detect_csv_params(file_content: bytes) -> tuple[str, str]:
+        """Detecta la codificación (utf-8 / latin-1) y el delimitador (, ; | \t) del CSV."""
+        encoding = "utf-8"
+        for enc in ["utf-8-sig", "utf-8", "latin-1", "cp1252"]:
+            try:
+                head = file_content[:8192].decode(enc)
+                encoding = enc
+                break
+            except UnicodeDecodeError:
+                continue
+        else:
+            encoding = "latin-1"
+            head = file_content[:8192].decode("latin-1", errors="replace")
+
+        first_line = head.splitlines()[0] if head.splitlines() else ""
+        counts = {
+            ";": first_line.count(";"),
+            ",": first_line.count(","),
+            "|": first_line.count("|"),
+            "\t": first_line.count("\t"),
+        }
+        best_sep = max(counts, key=counts.get)
+        if counts[best_sep] == 0:
+            best_sep = ","
+        return encoding, best_sep
+
+    def read_his_excel(self, file_content: bytes, filename: str = "") -> List[VariablesPPR]:
         """
-        Lee el Excel HIS aplicando usecols para optimizar memoria,
+        Lee el archivo HIS (Excel .xlsx/.xls o CSV .csv) aplicando usecols para optimizar memoria,
         sanitiza tipos de datos y retorna la lista de VariablesPPR.
         """
-        # Determinar el motor de lectura: usar calamine (Rust) por velocidad; fallback a openpyxl
-        try:
-            # 1. Leer solo los encabezados (nrows=0) para identificar las columnas presentes
-            sample_df = pd.read_excel(io.BytesIO(file_content), nrows=0, engine="calamine")
-            engine_to_use = "calamine"
-        except Exception:
-            try:
-                sample_df = pd.read_excel(io.BytesIO(file_content), nrows=0, engine="openpyxl")
-                engine_to_use = "openpyxl"
-            except Exception as exc:
-                raise DomainException(f"Error al abrir el archivo Excel HIS: {exc}")
+        is_excel = (
+            file_content.startswith(b"PK\x03\x04")
+            or file_content.startswith(b"\xd0\xcf\x11\xe0")
+            or filename.lower().endswith((".xlsx", ".xls"))
+        ) and not filename.lower().endswith(".csv")
 
-        # Normalizar los nombres de columnas del Excel para búsqueda insensible a mayúsculas/espacios
+        csv_enc = "utf-8"
+        csv_sep = ","
+        engine_to_use = "calamine"
+
+        if is_excel:
+            try:
+                # 1. Leer solo los encabezados (nrows=0) para identificar las columnas presentes
+                sample_df = pd.read_excel(io.BytesIO(file_content), nrows=0, engine="calamine")
+                engine_to_use = "calamine"
+            except Exception:
+                try:
+                    sample_df = pd.read_excel(io.BytesIO(file_content), nrows=0, engine="openpyxl")
+                    engine_to_use = "openpyxl"
+                except Exception as exc:
+                    raise DomainException(f"Error al abrir el archivo Excel HIS: {exc}")
+        else:
+            # Procesamiento de archivo CSV
+            try:
+                csv_enc, csv_sep = self._detect_csv_params(file_content)
+                sample_df = pd.read_csv(
+                    io.BytesIO(file_content),
+                    nrows=0,
+                    sep=csv_sep,
+                    encoding=csv_enc,
+                )
+            except Exception as exc:
+                raise DomainException(f"Error al abrir el archivo CSV HIS: {exc}")
+
+        # Normalizar los nombres de columnas para búsqueda insensible a mayúsculas/espacios
         excel_columns = {str(col).strip().lower(): col for col in sample_df.columns}
 
-        # 2. Determinar cuáles columnas del Excel necesitamos leer
+        # 2. Determinar cuáles columnas necesitamos leer
         fields_to_excel_col: Dict[str, str] = {}
         missing_required = []
 
@@ -80,8 +129,9 @@ class PandasHISExcelReader(HISExcelReaderPort):
                 missing_required.append(f"{field_name} (se esperaba: {', '.join(candidates)})")
 
         if missing_required:
+            tipo_doc = "Excel" if is_excel else "CSV"
             raise DomainException(
-                f"El archivo Excel HIS no contiene las siguientes columnas obligatorias: {', '.join(missing_required)}"
+                f"El archivo {tipo_doc} HIS no contiene las siguientes columnas obligatorias: {', '.join(missing_required)}"
             )
 
         # 3. Leer únicamente las columnas que coinciden (usecols)
@@ -97,24 +147,37 @@ class PandasHISExcelReader(HISExcelReaderPort):
         if "Valor_Lab" in fields_to_excel_col:
             dtype_spec[fields_to_excel_col["Valor_Lab"]] = str
 
-        try:
-            df = pd.read_excel(
-                io.BytesIO(file_content),
-                usecols=cols_to_read,
-                dtype=dtype_spec,
-                engine=engine_to_use,
-            )
-        except Exception:
-            # Fallback a openpyxl por seguridad
+        if is_excel:
             try:
                 df = pd.read_excel(
                     io.BytesIO(file_content),
                     usecols=cols_to_read,
                     dtype=dtype_spec,
-                    engine="openpyxl",
+                    engine=engine_to_use,
+                )
+            except Exception:
+                # Fallback a openpyxl por seguridad
+                try:
+                    df = pd.read_excel(
+                        io.BytesIO(file_content),
+                        usecols=cols_to_read,
+                        dtype=dtype_spec,
+                        engine="openpyxl",
+                    )
+                except Exception as exc:
+                    raise DomainException(f"Error procesando columnas del Excel HIS: {exc}")
+        else:
+            try:
+                df = pd.read_csv(
+                    io.BytesIO(file_content),
+                    usecols=cols_to_read,
+                    dtype=dtype_spec,
+                    sep=csv_sep,
+                    encoding=csv_enc,
+                    low_memory=False,
                 )
             except Exception as exc:
-                raise DomainException(f"Error procesando columnas del Excel HIS: {exc}")
+                raise DomainException(f"Error procesando columnas del CSV HIS: {exc}")
 
         if df.empty:
             return []

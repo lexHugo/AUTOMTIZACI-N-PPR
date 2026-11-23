@@ -15,17 +15,17 @@ router = APIRouter(prefix="/ppr1001", tags=["PPR1001 - Indicadores Pediátricos"
     "/procesar",
     response_model=IndicadoresResponse,
     status_code=status.HTTP_200_OK,
-    summary="Procesar Excel HIS y calcular los 9 indicadores",
-    description="Recibe el archivo Excel exportado de HIS MINSA, filtra variables y calcula las 9 actividades operativas.",
+    summary="Procesar Trama HIS (Excel o CSV) y calcular indicadores PPR1001",
+    description="Recibe el archivo exportado de HIS MINSA (.xlsx, .xls o .csv), filtra variables y calcula las 25 actividades operativas.",
 )
 async def procesar_his_excel(
-    file: UploadFile = File(..., description="Archivo Excel HIS (.xlsx o .xls)"),
+    file: UploadFile = File(..., description="Archivo HIS (.xlsx, .xls o .csv)"),
     use_case: ProcesarPPR1001UseCase = Depends(get_procesar_ppr1001_use_case),
 ):
-    if not file.filename or not file.filename.endswith((".xlsx", ".xls")):
+    if not file.filename or not file.filename.lower().endswith((".xlsx", ".xls", ".csv")):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Formato de archivo inválido. Por favor sube un archivo con extensión .xlsx o .xls",
+            detail="Formato de archivo inválido. Por favor sube un archivo con extensión .xlsx, .xls o .csv",
         )
 
     file_bytes = await file.read()

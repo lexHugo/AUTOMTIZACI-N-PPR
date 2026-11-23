@@ -38,8 +38,8 @@ class ProcesarPPR1001UseCase:
         self.historico_repo = historico_repo
 
     def execute(self, file_content: bytes, nombre_archivo: str = "trama_his.xlsx") -> IndicadorDTO:
-        # 1. Leer y filtrar el Excel a lista de entidades VariablesPPR
-        variables = self.his_reader.read_his_excel(file_content)
+        # 1. Leer y filtrar el archivo (Excel/CSV) a lista de entidades VariablesPPR
+        variables = self.his_reader.read_his_excel(file_content, filename=nombre_archivo)
 
         # 2. Agrupar por cita y por mes en memoria
         citas_total = defaultdict(list)

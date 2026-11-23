@@ -145,7 +145,7 @@ class PPR1001Service(PPRCalculatorPort):
 
         for items in citas.values():
             if any(
-                (item.edad_en_anios() == 2 or 24 <= item.edad_en_meses() <= 35)
+                (item.edad_en_anios() == 2)
                 and self._norm(item.Codigo_Item) == "90657"
                 and self._norm(item.Tipo_Diagnostico) == "D"
                 and self._norm(item.Valor_Lab) in labs_validos
@@ -190,7 +190,7 @@ class PPR1001Service(PPRCalculatorPort):
 
         for items in citas.values():
             tiene_neumococo = any(
-                (item.edad_en_meses() < 60 or item.edad_en_anios() < 5)
+                (item.edad_en_anios() < 1)
                 and self._norm(item.Codigo_Item) == "90670"
                 and self._norm(item.Tipo_Diagnostico) == "D"
                 and self._norm(item.Valor_Lab) in labs_validos
@@ -234,7 +234,7 @@ class PPR1001Service(PPRCalculatorPort):
         for items in citas.values():
             es_alto_riesgo = any(
                 (
-                    self._norm(item.Id_ups) == "301202"
+                    self._norm(item.Id_ups) in {"301202", "303712"}
                     and self._norm(item.Codigo_Item) == "Z001"
                     and self._norm(item.Tipo_Diagnostico) in {"D", "R"}
                 )

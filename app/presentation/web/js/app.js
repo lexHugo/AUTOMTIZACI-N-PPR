@@ -156,8 +156,8 @@ const ACTIVIDADES_PPR = [
   },
   {
     codigo: "3325404",
-    titulo: "Vacunación Antipolio (IPV / APO)",
-    criterio: "CPT 90713 (IPV) y CPT 90712 (APO)",
+    titulo: "(BCG + HvB)",
+    criterio: "90585 (BCG) y CPT 90744 (HvB)",
     tipo: "CPT",
     grupo: "inmunizaciones",
     grupoTitulo: "Inmunizaciones & Vacunas (ppr1001_vacunas.py)",
@@ -166,7 +166,7 @@ const ACTIVIDADES_PPR = [
   },
   {
     codigo: "3325405",
-    titulo: "Vacunación Rotavirus (1ra y 2da Dosis)",
+    titulo: "INFLUENZA PEDIATRICA",
     criterio: "CPT 90681 (2 meses y 4 meses)",
     tipo: "CPT",
     grupo: "inmunizaciones",
@@ -176,7 +176,7 @@ const ACTIVIDADES_PPR = [
   },
   {
     codigo: "3325406",
-    titulo: "Vacunación Antineumocócica (1ra, 2da, 3ra Dosis)",
+    titulo: "INFLUENZA",
     criterio: "CPT 90669 (2m, 4m y refuerzo al año)",
     tipo: "CPT",
     grupo: "inmunizaciones",
@@ -186,7 +186,7 @@ const ACTIVIDADES_PPR = [
   },
   {
     codigo: "3325407",
-    titulo: "Vacunación SPR (Sarampión, Paperas, Rubéola)",
+    titulo: "VACUNACION NINO DE MADRE CON VIH (NEUMOCOCO 3)",
     criterio: "CPT 90707 (1ra Dosis 12m, 2da Dosis 18m)",
     tipo: "CPT",
     grupo: "inmunizaciones",
@@ -196,7 +196,7 @@ const ACTIVIDADES_PPR = [
   },
   {
     codigo: "3325408",
-    titulo: "Vacunación DPT Refuerzos (1er y 2do Refuerzo)",
+    titulo: "ATENCION DE EVENTOS ADVERSOS A VACUNAS",
     criterio: "CPT 90701 (18 meses y 4 años)",
     tipo: "CPT",
     grupo: "inmunizaciones",
@@ -207,7 +207,7 @@ const ACTIVIDADES_PPR = [
   {
     codigo: "3325508",
     titulo: "Vacunación Influenza Pediátrica",
-    criterio: "CPT 90657 (Lactantes desde 6 meses)",
+    criterio: "SEGUIMIENTO DEL NINO Y NINA DE ALTO RIESGO",
     tipo: "CPT",
     grupo: "inmunizaciones",
     grupoTitulo: "Inmunizaciones & Vacunas (ppr1001_vacunas.py)",
@@ -505,8 +505,9 @@ if (dropzone && fileInput) {
 }
 
 function handleFile(file) {
-  if (!file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
-    showAlert('El archivo seleccionado no es un Excel válido (.xlsx o .xls).', 'error');
+  const lowerName = file.name.toLowerCase();
+  if (!lowerName.endsWith('.xlsx') && !lowerName.endsWith('.xls') && !lowerName.endsWith('.csv')) {
+    showAlert('El archivo seleccionado no es un formato válido (.xlsx, .xls o .csv).', 'error');
     return;
   }
   currentFile = file;
@@ -552,7 +553,7 @@ processBtn.addEventListener('click', async () => {
   formData.append('file', currentFile);
 
   processBtn.disabled = true;
-  processBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Procesando con Calamine (Rust)...</span>';
+  processBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Procesando archivo HIS...</span>';
   hideAlert();
 
   try {
@@ -564,7 +565,7 @@ processBtn.addEventListener('click', async () => {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.detail || 'Ocurrió un error al procesar el archivo Excel.');
+      throw new Error(data.detail || 'Ocurrió un error al procesar el archivo HIS (Excel o CSV).');
     }
 
     datosCargados = data;
