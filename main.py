@@ -15,8 +15,13 @@ from app.presentation.api.v1.router import api_v1_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Ciclo de vida de la aplicación. Conexión a BD pausada temporalmente."""
-    print(">> [App] Pediatría PPR1001 API iniciada correctamente.")
+    """Ciclo de vida de la aplicación. Inicializa el Data Mart en SQLite."""
+    try:
+        from app.infrastructure.database.session import init_db
+        init_db()
+        print(">> [App] Data Mart SQLite PPR1001 inicializado correctamente.")
+    except Exception as exc:
+        print(f">> [App - Advertencia] No se pudo inicializar la base de datos: {exc}")
     yield
 
 

@@ -1,5 +1,6 @@
 import os
 import urllib.parse
+from typing import Optional
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -8,6 +9,10 @@ try:
     from pydantic_settings import BaseSettings, SettingsConfigDict
 
     class Settings(BaseSettings):
+        DB_TYPE: str = "sqlite"  # "sqlite" o "mssql"
+        DATABASE_URL: Optional[str] = None
+        SQLITE_DB_PATH: str = "./pediatria_ppr.db"
+
         DB_DRIVER: str = "ODBC Driver 17 for SQL Server"
         DB_SERVER: str = "localhost"
         DB_PORT: int = 1433
@@ -27,6 +32,10 @@ try:
 
         @property
         def database_url(self) -> str:
+            if self.DATABASE_URL:
+                return self.DATABASE_URL
+            if self.DB_TYPE.lower() == "sqlite":
+                return f"sqlite:///{self.SQLITE_DB_PATH}"
             odbc_str = (
                 f"DRIVER={{{self.DB_DRIVER}}};"
                 f"SERVER={self.DB_SERVER},{self.DB_PORT};"
@@ -41,6 +50,10 @@ try:
 
 except ImportError:
     class Settings:  # type: ignore
+        DB_TYPE: str = os.getenv("DB_TYPE", "sqlite")
+        DATABASE_URL: Optional[str] = os.getenv("DATABASE_URL", None)
+        SQLITE_DB_PATH: str = os.getenv("SQLITE_DB_PATH", "./pediatria_ppr.db")
+
         DB_DRIVER: str = os.getenv("DB_DRIVER", "ODBC Driver 17 for SQL Server")
         DB_SERVER: str = os.getenv("DB_SERVER", "localhost")
         DB_PORT: int = int(os.getenv("DB_PORT", "1433"))
@@ -54,6 +67,10 @@ except ImportError:
 
         @property
         def database_url(self) -> str:
+            if self.DATABASE_URL:
+                return self.DATABASE_URL
+            if self.DB_TYPE.lower() == "sqlite":
+                return f"sqlite:///{self.SQLITE_DB_PATH}"
             odbc_str = (
                 f"DRIVER={{{self.DB_DRIVER}}};"
                 f"SERVER={self.DB_SERVER},{self.DB_PORT};"
