@@ -57,6 +57,7 @@ class IndicadorDTO:
     pediatria: IndicadorPediatriaDTO = field(default_factory=IndicadorPediatriaDTO)
     mensual: Dict[str, ResumenPeriodoDTO] = field(default_factory=dict)
     meses: List[str] = field(default_factory=list)
+    meses_faltantes: List[str] = field(default_factory=list)
 
     # Delegación de accesos directos por compatibilidad
     @property

@@ -44,7 +44,7 @@ class CitaHISModel(Base):
     __tablename__ = "citas_his"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
-    id_cita = Column(String(100), index=True, nullable=False)
+    id_cita = Column(String(100), unique=True, index=True, nullable=False)
     id_archivo = Column(Integer, ForeignKey("archivos_cargados.id"), index=True, nullable=True)
     fecha_atencion = Column(Date, index=True, nullable=False)
     mes_periodo = Column(String(7), index=True, nullable=False)  # Formato: "YYYY-MM" (ej: "2026-01")
@@ -73,7 +73,7 @@ class ItemDiagnosticoModel(Base):
     __tablename__ = "items_diagnostico"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
-    id_cita_ref = Column(Integer, ForeignKey("citas_his.id"), index=True, nullable=False)
+    id_cita_ref = Column(Integer, ForeignKey("citas_his.id"), index=True, nullable=True)
     id_cita = Column(String(100), index=True, nullable=False)
     codigo_item = Column(String(50), index=True, nullable=False)  # Ej: "D509", "J00X", "90708"
     tipo_diagnostico = Column(String(10), default="D", nullable=False)  # "D" (Definitivo), "P" (Presuntivo), "R" (Repetido)

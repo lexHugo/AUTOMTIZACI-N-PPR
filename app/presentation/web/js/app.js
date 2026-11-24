@@ -406,10 +406,32 @@ const matrixViewContainer = document.getElementById('matrixViewContainer');
 const subFilterGroup = document.getElementById('subFilterGroup');
 
 // =========================================================================
-// 1. INICIALIZACIÓN Y PERSISTENCIA (LOCALSTORAGE)
+// 1. INICIALIZACIÓN (DATA MART DIRECTO - SIN LOCALSTORAGE)
 // =========================================================================
-function iniciarApp() {
-  restaurarDesdeLocalStorage();
+async function iniciarApp() {
+  // Limpiar cualquier residuo previo de LocalStorage o SessionStorage
+  limpiarResiduosStorage();
+
+  // Consultar automáticamente si ya existen datos acumulados en el Data Mart SQLite
+  try {
+    const response = await fetch('/api/v1/ppr1001/acumulado');
+    if (response.ok) {
+      const data = await response.json();
+      if (data && data.meses && data.meses.length > 0) {
+        datosCargados = data;
+        if (persistedFileName) persistedFileName.textContent = "Data Mart (SQLite)";
+        if (persistedTime) persistedTime.textContent = `(Meses: ${data.meses.length})`;
+        if (persistedBadge) persistedBadge.classList.remove('hidden');
+        if (resetBtn) resetBtn.classList.remove('hidden');
+
+        poblarIndicadores(data);
+        resultsTopBar.classList.remove('hidden');
+        resultsSection.classList.remove('hidden');
+      }
+    }
+  } catch (e) {
+    console.log("Data Mart sin datos previos o esperando carga inicial:", e);
+  }
 }
 
 if (document.readyState === 'loading') {
@@ -418,54 +440,16 @@ if (document.readyState === 'loading') {
   iniciarApp();
 }
 
-function guardarEnLocalStorage(data, nombreArchivo) {
+function limpiarResiduosStorage() {
   try {
-    localStorage.setItem('ppr1001_resultado', JSON.stringify(data));
-    localStorage.setItem('ppr1001_nombre_archivo', nombreArchivo);
-    localStorage.setItem('ppr1001_fecha_proceso', new Date().toLocaleTimeString());
-    // Sincronizar también con sessionStorage por compatibilidad
-    sessionStorage.setItem('ultimoResultadoPPR', JSON.stringify(data));
-    sessionStorage.setItem('ultimoNombreArchivo', nombreArchivo);
+    localStorage.removeItem('ppr1001_resultado');
+    localStorage.removeItem('ppr1001_nombre_archivo');
+    localStorage.removeItem('ppr1001_fecha_proceso');
+    sessionStorage.removeItem('ultimoResultadoPPR');
+    sessionStorage.removeItem('ultimoNombreArchivo');
   } catch (e) {
-    console.warn("No se pudo guardar en localStorage (cuota excedida o privado):", e);
+    // Silencioso
   }
-}
-
-function restaurarDesdeLocalStorage() {
-  try {
-    const rawData = localStorage.getItem('ppr1001_resultado') || sessionStorage.getItem('ultimoResultadoPPR');
-    const nombreArchivo = localStorage.getItem('ppr1001_nombre_archivo') || sessionStorage.getItem('ultimoNombreArchivo');
-    const fechaProceso = localStorage.getItem('ppr1001_fecha_proceso');
-
-    if (rawData && nombreArchivo) {
-      const data = JSON.parse(rawData);
-      datosCargados = data;
-
-      // Mostrar badge de persistencia
-      persistedFileName.textContent = nombreArchivo;
-      persistedTime.textContent = `(Guardado: ${fechaProceso || ''})`;
-      persistedBadge.classList.remove('hidden');
-
-      // Habilitar botón de limpiar
-      resetBtn.classList.remove('hidden');
-
-      // Poblar indicadores y matriz mensual
-      poblarIndicadores(data);
-
-      resultsTopBar.classList.remove('hidden');
-      resultsSection.classList.remove('hidden');
-    }
-  } catch (e) {
-    console.error("Error al restaurar desde localStorage:", e);
-  }
-}
-
-function limpiarLocalStorage() {
-  localStorage.removeItem('ppr1001_resultado');
-  localStorage.removeItem('ppr1001_nombre_archivo');
-  localStorage.removeItem('ppr1001_fecha_proceso');
-  sessionStorage.removeItem('ultimoResultadoPPR');
-  sessionStorage.removeItem('ultimoNombreArchivo');
 }
 
 // =========================================================================
@@ -523,7 +507,6 @@ function handleFile(file) {
 resetBtn.addEventListener('click', () => {
   currentFile = null;
   datosCargados = null;
-  limpiarLocalStorage();
 
   fileInput.value = '';
   fileLabel.classList.remove('hidden');
@@ -570,12 +553,9 @@ processBtn.addEventListener('click', async () => {
 
     datosCargados = data;
 
-    // Guardar copia local persistente
-    guardarEnLocalStorage(data, currentFile.name);
-
-    // Actualizar badge
+    // Actualizar badge con nombre de archivo subido
     persistedFileName.textContent = currentFile.name;
-    persistedTime.textContent = `(Procesado: ${new Date().toLocaleTimeString()})`;
+    persistedTime.textContent = `(Cargado: ${new Date().toLocaleTimeString()})`;
     persistedBadge.classList.remove('hidden');
 
     // Poblar indicadores y matriz mensual
@@ -594,6 +574,37 @@ processBtn.addEventListener('click', async () => {
     processBtn.innerHTML = '<i class="fa-solid fa-calculator"></i> <span>Procesar Indicadores</span>';
   }
 });
+
+// Botón: Consultar Acumulado directamente desde el Data Mart SQLite
+const btnConsultarDatamart = document.getElementById('btnConsultarDatamart');
+if (btnConsultarDatamart) {
+  btnConsultarDatamart.addEventListener('click', async () => {
+    btnConsultarDatamart.disabled = true;
+    btnConsultarDatamart.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Consultando Data Mart...</span>';
+    hideAlert();
+    try {
+      const response = await fetch('/api/v1/ppr1001/acumulado');
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.detail || 'Error al consultar acumulado del Data Mart.');
+      }
+      datosCargados = data;
+      if (persistedFileName) persistedFileName.textContent = "Data Mart SQLite (Acumulado)";
+      if (persistedTime) persistedTime.textContent = `(Sincronizado: ${new Date().toLocaleTimeString()})`;
+      if (persistedBadge) persistedBadge.classList.remove('hidden');
+      poblarIndicadores(data);
+      resultsTopBar.classList.remove('hidden');
+      resultsSection.classList.remove('hidden');
+      showAlert('¡Datos acumulados cargados exitosamente desde la base de datos Data Mart!', 'success');
+      resultsTopBar.scrollIntoView({ behavior: 'smooth' });
+    } catch (err) {
+      showAlert(err.message, 'error');
+    } finally {
+      btnConsultarDatamart.disabled = false;
+      btnConsultarDatamart.innerHTML = '<i class="fa-solid fa-database text-emerald-300"></i> <span>Ver Acumulado en Base de Datos</span>';
+    }
+  });
+}
 
 // =========================================================================
 // 3. POBLAR INDICADORES PPR (25 ACTIVIDADES OPERATIVAS)
@@ -692,9 +703,31 @@ function poblarMatrizMensual(data) {
 
   const meses = data.meses || [];
   const mensual = data.mensual || {};
+  const mesesFaltantes = new Set(data.meses_faltantes || []);
+
+  // Alerta informativa si existen meses faltantes / huecos en la trama
+  const matrixGapAlert = document.getElementById('matrixGapAlert');
+  const matrixGapMonthsList = document.getElementById('matrixGapMonthsList');
+  if (matrixGapAlert && matrixGapMonthsList) {
+    if (mesesFaltantes.size > 0) {
+      const nombresFaltantes = Array.from(mesesFaltantes).map(formatearNombreMes).join(', ');
+      matrixGapMonthsList.textContent = nombresFaltantes;
+      matrixGapAlert.classList.remove('hidden');
+    } else {
+      matrixGapAlert.classList.add('hidden');
+    }
+  }
 
   if (monthsCountBadge) {
-    monthsCountBadge.textContent = `${meses.length} ${meses.length === 1 ? 'Mes detectado' : 'Meses detectados'}`;
+    if (mesesFaltantes.size > 0) {
+      monthsCountBadge.innerHTML = `<span class="text-emerald-700">${meses.length - mesesFaltantes.size} con datos</span> &bull; <span class="text-amber-700 font-bold">${mesesFaltantes.size} ${mesesFaltantes.size === 1 ? 'pendiente' : 'pendientes'}</span>`;
+      monthsCountBadge.classList.remove('bg-emerald-50', 'text-emerald-700', 'border-emerald-200');
+      monthsCountBadge.classList.add('bg-amber-50', 'text-amber-800', 'border-amber-200');
+    } else {
+      monthsCountBadge.textContent = `${meses.length} ${meses.length === 1 ? 'Mes detectado' : 'Meses detectados'}`;
+      monthsCountBadge.classList.remove('bg-amber-50', 'text-amber-800', 'border-amber-200');
+      monthsCountBadge.classList.add('bg-emerald-50', 'text-emerald-700', 'border-emerald-200');
+    }
   }
 
   // Si no hay desglose mensual en la trama, mostrar mensaje
@@ -728,11 +761,23 @@ function poblarMatrizMensual(data) {
   `;
 
   meses.forEach(m => {
-    theadHtml += `
-      <th class="py-3 px-3 text-center border-r border-slate-200 min-w-[85px]">
-        <span class="block font-bold text-slate-800">${formatearNombreMes(m)}</span>
-      </th>
-    `;
+    const esFaltante = mesesFaltantes.has(m);
+    if (esFaltante) {
+      theadHtml += `
+        <th class="py-2.5 px-3 text-center border-r border-amber-200 bg-amber-50/80 min-w-[95px]" title="Período sin datos en la base de datos (Pendiente de carga)">
+          <span class="block font-bold text-amber-900">${formatearNombreMes(m)}</span>
+          <span class="inline-flex items-center gap-1 mt-0.5 px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-200/90 text-amber-900 border border-amber-300">
+            <i class="fa-solid fa-clock text-[8px]"></i> Sin datos
+          </span>
+        </th>
+      `;
+    } else {
+      theadHtml += `
+        <th class="py-3 px-3 text-center border-r border-slate-200 min-w-[85px]">
+          <span class="block font-bold text-slate-800">${formatearNombreMes(m)}</span>
+        </th>
+      `;
+    }
   });
 
   theadHtml += `
@@ -816,13 +861,22 @@ function poblarMatrizMensual(data) {
 
     // Celdas por Mes (AO)
     meses.forEach(m => {
-      const dataMes = mensual[m];
-      const valMes = obtenerValorAO(dataMes, ao.codigo, ao.grupo);
-      tbodyHtml += `
-        <td class="py-2.5 px-3 text-center border-r border-slate-200 font-mono ${valMes > 0 ? 'font-bold text-slate-900 bg-emerald-50/40' : 'text-slate-300'}">
-          ${valMes > 0 ? `<span class="inline-block px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold text-xs">${valMes}</span>` : '0'}
-        </td>
-      `;
+      const esFaltante = mesesFaltantes.has(m);
+      if (esFaltante) {
+        tbodyHtml += `
+          <td class="py-2.5 px-3 text-center border-r border-amber-100 bg-amber-50/25 font-mono text-slate-400 select-none" title="Mes ${formatearNombreMes(m)}: Sin datos registrados">
+            <span class="inline-block px-1.5 py-0.5 rounded bg-slate-100 text-slate-400 text-xs font-semibold">-</span>
+          </td>
+        `;
+      } else {
+        const dataMes = mensual[m];
+        const valMes = obtenerValorAO(dataMes, ao.codigo, ao.grupo);
+        tbodyHtml += `
+          <td class="py-2.5 px-3 text-center border-r border-slate-200 font-mono ${valMes > 0 ? 'font-bold text-slate-900 bg-emerald-50/40' : 'text-slate-300'}">
+            ${valMes > 0 ? `<span class="inline-block px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold text-xs">${valMes}</span>` : '0'}
+          </td>
+        `;
+      }
     });
 
     // Celda Total Acumulado (AO)
@@ -860,13 +914,22 @@ function poblarMatrizMensual(data) {
 
         // Conteos mensuales del CIE-10
         meses.forEach(m => {
-          const conteoMesCie = obtenerConteosCieAO(mensual[m], ao.codigo);
-          const valMesCie = conteoMesCie[cieCode] || 0;
-          tbodyHtml += `
-            <td class="py-1.5 px-3 text-center border-r border-slate-200 font-mono text-xs ${valMesCie > 0 ? 'font-bold text-slate-800 bg-emerald-50/20' : 'text-slate-300'}">
-              ${valMesCie > 0 ? `<span class="inline-block px-1.5 py-0.5 rounded bg-slate-200/80 text-slate-800 font-bold text-[11px]">${valMesCie}</span>` : '0'}
-            </td>
-          `;
+          const esFaltante = mesesFaltantes.has(m);
+          if (esFaltante) {
+            tbodyHtml += `
+              <td class="py-1.5 px-3 text-center border-r border-amber-100 bg-amber-50/20 font-mono text-xs text-slate-400 select-none" title="Mes ${formatearNombreMes(m)}: Sin datos registrados">
+                <span class="inline-block px-1.5 py-0.5 rounded bg-slate-100 text-slate-400 text-[11px] font-semibold">-</span>
+              </td>
+            `;
+          } else {
+            const conteoMesCie = obtenerConteosCieAO(mensual[m], ao.codigo);
+            const valMesCie = conteoMesCie[cieCode] || 0;
+            tbodyHtml += `
+              <td class="py-1.5 px-3 text-center border-r border-slate-200 font-mono text-xs ${valMesCie > 0 ? 'font-bold text-slate-800 bg-emerald-50/20' : 'text-slate-300'}">
+                ${valMesCie > 0 ? `<span class="inline-block px-1.5 py-0.5 rounded bg-slate-200/80 text-slate-800 font-bold text-[11px]">${valMesCie}</span>` : '0'}
+              </td>
+            `;
+          }
         });
 
         // Total acumulado del CIE-10

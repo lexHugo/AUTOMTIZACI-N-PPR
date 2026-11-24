@@ -61,6 +61,7 @@ class IndicadoresResponse(BaseModel):
     pediatria: IndicadoresPediatriaResponse
     mensual: Dict[str, ResumenPeriodoResponse] = {}
     meses: List[str] = []
+    meses_faltantes: List[str] = []
 
     model_config = {
         "from_attributes": True

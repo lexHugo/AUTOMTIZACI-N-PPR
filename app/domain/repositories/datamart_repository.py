@@ -1,0 +1,57 @@
+from abc import ABC, abstractmethod
+from typing import List, Dict, Any, Optional
+from app.domain.entities.variables_ppr import VariablesPPR
+
+
+class DataMartRepositoryInterface(ABC):
+    """
+    Puerto de persistencia para el Data Mart de HIS MINSA.
+    Gestiona el almacenamiento granular de atenciones (citas e items) y su acumulación mensual.
+    """
+
+    @abstractmethod
+    def guardar_trama(
+        self,
+        nombre_archivo: str,
+        tipo_formato: str,
+        variables: List[VariablesPPR],
+        usuario: str = "estadistica"
+    ) -> Dict[str, Any]:
+        """
+        Inserta la trama de variables en el Data Mart.
+        Realiza desduplicación de citas e items diagnósticos para permitir cargas incrementales.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def obtener_variables_acumuladas(
+        self,
+        meses: Optional[List[str]] = None,
+        anio: Optional[int] = None
+    ) -> List[VariablesPPR]:
+        """
+        Recupera las variables clínicas acumuladas para los meses o año especificados.
+        Si no se especifican filtros, recupera la totalidad de la historia almacenada.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def listar_meses_disponibles(self) -> List[str]:
+        """
+        Retorna la lista ordenada cronológicamente de meses disponibles en el Data Mart (ej: ['2026-01', '2026-02']).
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def listar_archivos_cargados(self, limit: int = 50) -> List[Dict[str, Any]]:
+        """
+        Retorna el historial de archivos cargados para fines de trazabilidad y auditoría.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def reiniciar_datamart(self) -> bool:
+        """
+        Limpia los datos del Data Mart (citas, items y archivos cargados).
+        """
+        raise NotImplementedError

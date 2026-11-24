@@ -100,6 +100,10 @@
 
       <!-- Botones de Acción -->
       <div class="mt-4 flex flex-col sm:flex-row justify-end items-center gap-2.5">
+        <button id="btnConsultarDatamart" class="w-full sm:w-auto px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-medium rounded-xl shadow-xs transition text-xs flex items-center justify-center gap-2" title="Consultar los datos consolidados en el Data Mart SQLite sin volver a subir archivos">
+          <i class="fa-solid fa-database text-emerald-300"></i>
+          <span>Ver Acumulado en Base de Datos</span>
+        </button>
         <button id="resetBtn" class="hidden px-4 py-2 text-xs text-slate-600 hover:text-rose-600 font-semibold transition flex items-center gap-1.5">
           <i class="fa-solid fa-trash-can"></i> Limpiar / Nueva Carga
         </button>
@@ -1235,6 +1239,15 @@
               </div>
             </div>
 
+            <!-- Alerta de Meses Faltantes / Brecha en Matriz (Alternativa B) -->
+            <div id="matrixGapAlert" class="hidden bg-amber-50 border-b border-amber-200 px-4 py-2.5 text-xs text-amber-900 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <i class="fa-solid fa-triangle-exclamation text-amber-600 text-sm"></i>
+                <span><strong>Aviso de Continuidad:</strong> Se detectaron meses sin datos cargados: <strong id="matrixGapMonthsList" class="text-amber-800"></strong>. La matriz incluye estas columnas en <strong>0 / pendiente (-)</strong> para mantener la secuencia cronológica.</span>
+              </div>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-amber-200 text-amber-900 font-bold text-[10px] uppercase tracking-wider shrink-0">Meses Pendientes</span>
+            </div>
+
             <!-- Tabla de la Matriz Mensual -->
             <div class="overflow-x-auto max-h-[72vh]">
               <table class="w-full text-left text-xs border-collapse">
@@ -1285,6 +1298,6 @@
   <!-- ========================================================================= -->
   <!-- JAVASCRIPT: LÓGICA DE PERSISTENCIA, PESTAÑAS Y CÁLCULO                   -->
   <!-- ========================================================================= -->
-  <script src="/static/js/app.js"></script>
+  <script src="/static/js/app.js?v=3.0"></script>
 </body>
 </html>
