@@ -20,6 +20,7 @@ class VariablesPPR:
     Valor_Lab: Optional[str] = None
     Id_Correlativo: Optional[int] = None  
     Id_Correlativo_Lab: Optional[int] = None 
+    Id_Personal: Optional[str] = None 
 
     def estandarizar_edad(self) -> int:
         """Alias para obtener la edad en meses."""

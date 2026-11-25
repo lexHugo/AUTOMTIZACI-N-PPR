@@ -36,16 +36,39 @@ class ArchivoCargadoModel(Base):
         return f"<ArchivoCargado(id={self.id}, nombre='{self.nombre_archivo}', meses='{self.meses_detectados}')>"
 
 
+class PersonalSaludModel(Base):
+    """
+    Tabla Maestra de Personal de Salud (Médicos, Enfermeras, etc.).
+    Permite validar la profesión del profesional que atendió la cita para
+    cálculos donde se exige estrictamente atención por Médico.
+    """
+    __tablename__ = "personal_salud"
+
+    id = Column(Integer, primary_key=True, autoincrement=True, index=True)
+    id_personal = Column(String(50), unique=True, index=True, nullable=False)
+    cod_profesion = Column(String(20), index=True, nullable=False)  # Ej: "01" (Médico), "02" (Enfermera)
+    nombres = Column(String(255), nullable=True)
+    dni = Column(String(20), index=True, nullable=True)
+    fecha_registro = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    # Relación con las citas atendidas por este profesional
+    citas = relationship("CitaHISModel", back_populates="personal")
+
+    def __repr__(self):
+        return f"<PersonalSalud(id_personal='{self.id_personal}', nombres='{self.nombres}', prof='{self.cod_profesion}')>"
+
+
 class CitaHISModel(Base):
     """
     Tabla de Atenciones / Citas Médicas del HIS MINSA.
-    Contiene la cabecera del encuentro (paciente, fecha, edad y servicio/UPS).
+    Contiene la cabecera del encuentro (paciente, fecha, edad, servicio/UPS y personal).
     """
     __tablename__ = "citas_his"
 
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
     id_cita = Column(String(100), unique=True, index=True, nullable=False)
     id_archivo = Column(Integer, ForeignKey("archivos_cargados.id"), index=True, nullable=True)
+    id_personal = Column(String(50), ForeignKey("personal_salud.id_personal"), index=True, nullable=True)
     fecha_atencion = Column(Date, index=True, nullable=False)
     mes_periodo = Column(String(7), index=True, nullable=False)  # Formato: "YYYY-MM" (ej: "2026-01")
     lote = Column(String(50), nullable=True)
@@ -55,6 +78,7 @@ class CitaHISModel(Base):
 
     # Relaciones
     archivo = relationship("ArchivoCargadoModel", back_populates="citas")
+    personal = relationship("PersonalSaludModel", back_populates="citas")
     items = relationship("ItemDiagnosticoModel", back_populates="cita", cascade="all, delete-orphan")
 
     __table_args__ = (
@@ -62,7 +86,7 @@ class CitaHISModel(Base):
     )
 
     def __repr__(self):
-        return f"<CitaHIS(id_cita='{self.id_cita}', fecha='{self.fecha_atencion}', ups='{self.id_ups}')>"
+        return f"<CitaHIS(id_cita='{self.id_cita}', fecha='{self.fecha_atencion}', ups='{self.id_ups}', personal='{self.id_personal}')>"
 
 
 class ItemDiagnosticoModel(Base):

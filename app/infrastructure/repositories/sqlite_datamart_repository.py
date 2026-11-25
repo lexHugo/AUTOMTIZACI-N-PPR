@@ -8,6 +8,7 @@ from app.domain.entities.variables_ppr import VariablesPPR
 from app.domain.repositories.datamart_repository import DataMartRepositoryInterface
 from app.infrastructure.models.datamart_models import (
     ArchivoCargadoModel,
+    PersonalSaludModel,
     CitaHISModel,
     ItemDiagnosticoModel,
 )
@@ -18,7 +19,7 @@ logger = logging.getLogger(__name__)
 class SqliteDataMartRepository(DataMartRepositoryInterface):
     """
     Implementación del Data Mart en SQLite usando SQLAlchemy.
-    Optimizado para inserciones por lotes e idempotencia (on conflict do nothing).
+    Optimizado para inserciones por lotes e idempotencia (on conflict do nothing / update).
     """
 
     def __init__(self, db_session: Session):
@@ -34,7 +35,7 @@ class SqliteDataMartRepository(DataMartRepositoryInterface):
         """
         Inserta la trama en las tablas normalizadas del Data Mart:
         1. Registra archivo en `archivos_cargados`.
-        2. Inserta atenciones únicas en `citas_his`.
+        2. Inserta atenciones únicas en `citas_his` (incluyendo `id_personal`).
         3. Inserta diagnósticos/procedimientos en `items_diagnostico`.
         """
         if not variables:
@@ -83,6 +84,7 @@ class SqliteDataMartRepository(DataMartRepositoryInterface):
                 citas_dict[v.Id_cita] = {
                     "id_cita": v.Id_cita,
                     "id_archivo": archivo.id,
+                    "id_personal": (v.Id_Personal.strip() if v.Id_Personal else None),
                     "fecha_atencion": v.Fecha_Atencion,
                     "mes_periodo": mes_periodo,
                     "lote": v.Lote or "",
@@ -163,6 +165,7 @@ class SqliteDataMartRepository(DataMartRepositoryInterface):
                 CitaHISModel.id_ups,
                 CitaHISModel.edad,
                 CitaHISModel.tipo_edad,
+                CitaHISModel.id_personal,
                 ItemDiagnosticoModel.codigo_item,
                 ItemDiagnosticoModel.tipo_diagnostico,
                 ItemDiagnosticoModel.valor_lab,
@@ -198,8 +201,68 @@ class SqliteDataMartRepository(DataMartRepositoryInterface):
                 Valor_Lab=row.valor_lab,
                 Id_Correlativo=row.id_correlativo,
                 Id_Correlativo_Lab=row.id_correlativo_lab,
+                Id_Personal=row.id_personal,
             )
             for row in rows
+        ]
+
+    def guardar_personal_maestro(
+        self,
+        personal_list: List[Dict[str, Any]],
+    ) -> Dict[str, Any]:
+        """
+        Inserta o actualiza el catálogo maestro de personal de salud (Médicos, Enfermeras, etc.).
+        Utiliza ON CONFLICT DO UPDATE sobre id_personal para actualizar nombres, dni y profesion.
+        """
+        if not personal_list:
+            return {"total_recibidos": 0, "total_procesados": 0}
+
+        BATCH_SIZE = 1000
+        total_procesados = 0
+
+        for i in range(0, len(personal_list), BATCH_SIZE):
+            batch = personal_list[i : i + BATCH_SIZE]
+            stmt = sqlite_insert(PersonalSaludModel).values(batch)
+            stmt = stmt.on_conflict_do_update(
+                index_elements=["id_personal"],
+                set_={
+                    "cod_profesion": stmt.excluded.cod_profesion,
+                    "nombres": stmt.excluded.nombres,
+                    "dni": stmt.excluded.dni,
+                },
+            )
+            self.db.execute(stmt)
+            total_procesados += len(batch)
+
+        self.db.commit()
+        logger.info(f"Maestro de personal actualizado: {total_procesados} registros procesados.")
+        return {
+            "total_recibidos": len(personal_list),
+            "total_procesados": total_procesados,
+        }
+
+    def listar_personal(
+        self,
+        cod_profesion: Optional[str] = None,
+    ) -> List[Dict[str, Any]]:
+        """
+        Retorna la lista del personal de salud, opcionalmente filtrado por código de profesión.
+        """
+        query = self.db.query(PersonalSaludModel)
+        if cod_profesion:
+            query = query.filter(PersonalSaludModel.cod_profesion == cod_profesion.strip())
+        query = query.order_by(PersonalSaludModel.nombres.asc())
+        rows = query.all()
+        return [
+            {
+                "id": r.id,
+                "id_personal": r.id_personal,
+                "cod_profesion": r.cod_profesion,
+                "nombres": r.nombres,
+                "dni": r.dni,
+                "fecha_registro": r.fecha_registro.strftime("%Y-%m-%d %H:%M:%S") if r.fecha_registro else None,
+            }
+            for r in rows
         ]
 
     def listar_meses_disponibles(self) -> List[str]:
@@ -240,11 +303,12 @@ class SqliteDataMartRepository(DataMartRepositoryInterface):
 
     def reiniciar_datamart(self) -> bool:
         """
-        Elimina todas las filas de items, citas y archivos cargados.
+        Elimina todas las filas de items, citas, personal y archivos cargados.
         """
         try:
             self.db.query(ItemDiagnosticoModel).delete()
             self.db.query(CitaHISModel).delete()
+            self.db.query(PersonalSaludModel).delete()
             self.db.query(ArchivoCargadoModel).delete()
             self.db.commit()
             return True

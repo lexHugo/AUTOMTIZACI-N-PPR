@@ -50,8 +50,28 @@ class DataMartRepositoryInterface(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def guardar_personal_maestro(
+        self,
+        personal_list: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
+        """
+        Inserta o actualiza el catálogo maestro de personal de salud (Médicos, Enfermeras, etc.).
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def listar_personal(
+        self,
+        cod_profesion: Optional[str] = None
+    ) -> List[Dict[str, Any]]:
+        """
+        Retorna el listado del personal de salud registrado, opcionalmente filtrado por código de profesión.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
     def reiniciar_datamart(self) -> bool:
         """
-        Limpia los datos del Data Mart (citas, items y archivos cargados).
+        Limpia los datos del Data Mart (citas, items, personal y archivos cargados).
         """
         raise NotImplementedError

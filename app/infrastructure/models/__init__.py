@@ -1,6 +1,7 @@
 from app.infrastructure.models.historico_ppr_model import HistoricoPPRModel
 from app.infrastructure.models.datamart_models import (
     ArchivoCargadoModel,
+    PersonalSaludModel,
     CitaHISModel,
     ItemDiagnosticoModel,
 )
@@ -8,6 +9,7 @@ from app.infrastructure.models.datamart_models import (
 __all__ = [
     "HistoricoPPRModel",
     "ArchivoCargadoModel",
+    "PersonalSaludModel",
     "CitaHISModel",
     "ItemDiagnosticoModel",
 ]

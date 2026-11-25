@@ -27,6 +27,7 @@ class PandasHISExcelReader(HISExcelReaderPort):
         "Valor_Lab": ["valor_lab", "valorlab"],
         "Id_Correlativo": ["id_correlativo", "idcorrelativo", "correlativo"],
         "Id_Correlativo_Lab": ["id_correlativo_lab", "idcorrelativolab", "correlativo_lab", "correlativolab"],
+        "Id_Personal": ["id_personal", "idpersonal", "personal", "nro_doc_personal", "doc_personal", "id_personal_atiende"],
     }
 
     REQUIRED_FIELDS = [
@@ -265,6 +266,7 @@ class PandasHISExcelReader(HISExcelReaderPort):
                 Valor_Lab=clean_optional_str(row.get("Valor_Lab")),
                 Id_Correlativo=clean_optional_int(row.get("Id_Correlativo")),
                 Id_Correlativo_Lab=clean_optional_int(row.get("Id_Correlativo_Lab")),
+                Id_Personal=clean_optional_str(row.get("Id_Personal")),
             )
             entities.append(entity)
 

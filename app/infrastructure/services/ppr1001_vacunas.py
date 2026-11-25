@@ -140,7 +140,7 @@ class PPR1001Service(PPRCalculatorPort):
         self, datos: Union[Dict[str, List[VariablesPPR]], List[VariablesPPR]]
     ) -> str:
         citas = self._obtener_citas(datos)
-        labs_validos: Set[str] = {"", "1"}
+        labs_validos: Set[str] = {"DU"}
         cumplen = 0
 
         for items in citas.values():
@@ -162,8 +162,8 @@ class PPR1001Service(PPRCalculatorPort):
         self, datos: Union[Dict[str, List[VariablesPPR]], List[VariablesPPR]]
     ) -> str:
         citas = self._obtener_citas(datos)
-        cpt_validos: Set[str] = {"90658", "90657"}
-        labs_validos: Set[str] = {"", "1"}
+        cpt_validos: Set[str] = {"90658"}
+        labs_validos: Set[str] = {"DU"}
         cumplen = 0
 
         for items in citas.values():

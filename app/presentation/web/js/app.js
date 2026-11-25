@@ -126,7 +126,7 @@ const ACTIVIDADES_PPR = [
   // 1. INMUNIZACIONES (9 AOs)
   {
     codigo: "3325401",
-    titulo: "Vacunación BCG (Dosis Recién Nacido)",
+    titulo: "VACUNACIÓN BCG EN RECIEN NACIDOS",
     criterio: "CPT 90708 (Dosis RN < 28 días)",
     tipo: "CPT",
     grupo: "inmunizaciones",
@@ -136,7 +136,7 @@ const ACTIVIDADES_PPR = [
   },
   {
     codigo: "3325402",
-    titulo: "Vacunación Hepatitis B Pediátrica (HVB)",
+    titulo: "VACUNACIÓN HEPATITIS B PEDIÁTRICA (HVB)",
     criterio: "CPT 90744 (Dosis RN en 12-24 horas)",
     tipo: "CPT",
     grupo: "inmunizaciones",
@@ -146,7 +146,7 @@ const ACTIVIDADES_PPR = [
   },
   {
     codigo: "3325403",
-    titulo: "Vacunación Pentavalente (1ra, 2da, 3ra Dosis)",
+    titulo: "VACUNACIÓN PENTAVALENTE (1ra, 2da, 3ra Dosis)",
     criterio: "CPT 90723, 90720 (Lab 1, 2, 3 a 2m, 4m, 6m)",
     tipo: "CPT",
     grupo: "inmunizaciones",

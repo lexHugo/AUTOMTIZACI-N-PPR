@@ -86,6 +86,121 @@ def listar_archivos_datamart(
     return repo.listar_archivos_cargados()
 
 
+@router.post(
+    "/datamart/personal/cargar-maestro",
+    status_code=status.HTTP_200_OK,
+    summary="Cargar archivo Excel o CSV Maestro de Personal de Salud (Médicos y Enfermeras)",
+    description="Recibe el archivo maestro con las columnas Id_Personal, Cod_Profesion, Nombres y DNI.",
+)
+async def cargar_maestro_personal(
+    file: UploadFile = File(..., description="Archivo Excel (.xlsx, .xls) o CSV con el catálogo maestro de personal"),
+    repo: DataMartRepositoryInterface = Depends(get_datamart_repository),
+):
+    import io
+    import pandas as pd
+
+    if not file.filename or not file.filename.lower().endswith((".xlsx", ".xls", ".csv")):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Formato de archivo inválido. Por favor sube un archivo con extensión .xlsx, .xls o .csv",
+        )
+
+    file_bytes = await file.read()
+    if not file_bytes:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El archivo proporcionado está vacío.",
+        )
+
+    try:
+        if file.filename.lower().endswith(".csv"):
+            df = pd.read_csv(io.BytesIO(file_bytes), dtype=str)
+        else:
+            try:
+                df = pd.read_excel(io.BytesIO(file_bytes), dtype=str, engine="calamine")
+            except Exception:
+                df = pd.read_excel(io.BytesIO(file_bytes), dtype=str, engine="openpyxl")
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Error al leer el archivo de personal: {str(exc)}",
+        )
+
+    # Normalizar nombres de columnas para detección flexible
+    col_dict = {str(c).strip().lower(): c for c in df.columns}
+
+    def buscar_columna(posibles: List[str]) -> Optional[str]:
+        for p in posibles:
+            if p in col_dict:
+                return col_dict[p]
+        return None
+
+    col_id = buscar_columna(["id_personal", "idpersonal", "id", "personal", "id_personal_declarado"])
+    col_prof = buscar_columna([
+        "cod_profesion", "codprofesion", "id_profesion", "profesion_cod",
+        "profesion", "cod_prof", "codigo_profesion", "idprofesion"
+    ])
+    col_nom = buscar_columna([
+        "nombres", "nombre", "personal", "nombres_apellidos", "apellidos_nombres",
+        "personal_salud", "doctor", "enfermera", "descripcion_personal"
+    ])
+    col_dni = buscar_columna([
+        "dni", "nro_doc", "documento", "numero_documento", "num_doc", "nro_documento"
+    ])
+
+    if not col_id or not col_prof:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"El archivo debe contener obligatoriamente las columnas 'Id_Personal' y 'Cod_Profesion'. Columnas detectadas: {list(df.columns)}",
+        )
+
+    registros = []
+    for _, row in df.iterrows():
+        id_val = str(row[col_id]).strip() if pd.notna(row[col_id]) else ""
+        prof_val = str(row[col_prof]).strip() if pd.notna(row[col_prof]) else ""
+        if not id_val or id_val.lower() == "nan":
+            continue
+
+        if prof_val.endswith(".0"):
+            prof_val = str(int(float(prof_val)))
+
+        nom_val = str(row[col_nom]).strip() if (col_nom and pd.notna(row[col_nom])) else None
+        if nom_val and nom_val.lower() == "nan":
+            nom_val = None
+
+        dni_val = str(row[col_dni]).strip() if (col_dni and pd.notna(row[col_dni])) else None
+        if dni_val and dni_val.lower() == "nan":
+            dni_val = None
+
+        registros.append({
+            "id_personal": id_val,
+            "cod_profesion": prof_val,
+            "nombres": nom_val,
+            "dni": dni_val,
+        })
+
+    resultado = repo.guardar_personal_maestro(registros)
+    return {
+        "mensaje": "Maestro de personal cargado exitosamente en el Data Mart.",
+        "nombre_archivo": file.filename,
+        "total_filas_archivo": len(df),
+        "total_registros_procesados": resultado.get("total_procesados", 0),
+    }
+
+
+@router.get(
+    "/datamart/personal",
+    response_model=List[Dict[str, Any]],
+    status_code=status.HTTP_200_OK,
+    summary="Listar personal de salud registrado en el Data Mart",
+)
+def listar_personal_datamart(
+    cod_profesion: Optional[str] = None,
+    repo: DataMartRepositoryInterface = Depends(get_datamart_repository),
+):
+    return repo.listar_personal(cod_profesion=cod_profesion)
+
+
 @router.delete(
     "/datamart/reiniciar",
     status_code=status.HTTP_200_OK,
