@@ -62,6 +62,7 @@ app.include_router(api_v1_router, prefix="/api/v1")
 # -------------------------------------------------------------
 WEB_DIR = Path(__file__).parent / "app" / "presentation" / "web"
 UI_FILE_PATH = WEB_DIR / "index.html"
+CALCULOS_FILE_PATH = WEB_DIR / "calculos.html"
 
 # Montar directorio estático para servir css/ y js/
 app.mount("/static", StaticFiles(directory=WEB_DIR), name="static")
@@ -73,6 +74,15 @@ def serve_ui():
     if UI_FILE_PATH.exists():
         return HTMLResponse(content=UI_FILE_PATH.read_text(encoding="utf-8"))
     return HTMLResponse(content="<h1>UI en construcción</h1>")
+
+
+@app.get("/calculos", response_class=HTMLResponse, tags=["Frontend UI"])
+@app.get("/calcular-pp", response_class=HTMLResponse, tags=["Frontend UI"])
+def serve_calculos():
+    """Sirve la nueva interfaz del cuadro de cálculos PP y liquidación."""
+    if CALCULOS_FILE_PATH.exists():
+        return HTMLResponse(content=CALCULOS_FILE_PATH.read_text(encoding="utf-8"))
+    return HTMLResponse(content="<h1>Módulo de Cálculos en construcción</h1>")
 
 
 @app.get("/desglose-cie10", include_in_schema=False)

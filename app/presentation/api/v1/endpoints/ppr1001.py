@@ -201,6 +201,38 @@ def listar_personal_datamart(
     return repo.listar_personal(cod_profesion=cod_profesion)
 
 
+@router.get(
+    "/calculos/ups",
+    response_model=Dict[str, Any],
+    status_code=status.HTTP_200_OK,
+    summary="Calcular atenciones (citas únicas) por UPS y por mes",
+    description="Cuenta 1 atención por cada cita médica única, desglosada por UPS y mes, con filtro opcional de profesión (ej: solo médicos).",
+)
+def calcular_atenciones_ups(
+    cod_profesion: Optional[str] = None,
+    anio: Optional[int] = None,
+    repo: DataMartRepositoryInterface = Depends(get_datamart_repository),
+):
+    from app.infrastructure.services.ppr1001_seguimiento import PPR1001SeguimientoService
+
+    # 1. Si se solicita filtrar por profesión, obtener IDs del personal respectivo
+    ids_permitidos = None
+    if cod_profesion and cod_profesion.lower() != "todos":
+        personal_filtrado = repo.listar_personal(cod_profesion=cod_profesion)
+        ids_permitidos = {p["id_personal"] for p in personal_filtrado}
+
+    # 2. Obtener variables acumuladas de la base de datos
+    variables = repo.obtener_variables_acumuladas(anio=anio)
+
+    # 3. Ejecutar cálculo con el servicio de seguimiento
+    service = PPR1001SeguimientoService()
+    resultado = service.calcular_atenciones_por_ups(
+        variables=variables,
+        ids_personal_permitidos=ids_permitidos,
+    )
+    return resultado
+
+
 @router.delete(
     "/datamart/reiniciar",
     status_code=status.HTTP_200_OK,
