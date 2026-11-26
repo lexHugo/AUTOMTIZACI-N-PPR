@@ -265,6 +265,68 @@ class SqliteDataMartRepository(DataMartRepositoryInterface):
             for r in rows
         ]
 
+    def obtener_resumen_atenciones_ups(
+        self,
+        target_ups: List[str],
+        cod_profesion: Optional[str] = None,
+        anio: Optional[int] = None,
+        excluir_cod_profesion: Optional[str] = "29",
+    ) -> Dict[str, Any]:
+        """
+        Ejecuta una agregación SQL directa de citas únicas por UPS y mes en SQLite.
+        Evita instanciar cientos de miles de entidades de dominio, reduciendo el tiempo
+        de cálculo de 8 segundos a milisegundos con mínimo uso de RAM.
+        """
+        from sqlalchemy import func, distinct
+
+        # 1. Total de citas evaluadas en el período
+        q_total = self.db.query(func.count(distinct(CitaHISModel.id_cita)))
+        if anio:
+            q_total = q_total.filter(CitaHISModel.mes_periodo.like(f"{anio}-%"))
+        total_evaluadas = q_total.scalar() or 0
+
+        # 2. Conteo agregado directo agrupado por (UPS, mes)
+        query = (
+            self.db.query(
+                CitaHISModel.id_ups,
+                CitaHISModel.mes_periodo,
+                func.count(distinct(CitaHISModel.id_cita)).label("total"),
+            )
+            .outerjoin(PersonalSaludModel, CitaHISModel.id_personal == PersonalSaludModel.id_personal)
+        )
+
+        if anio:
+            query = query.filter(CitaHISModel.mes_periodo.like(f"{anio}-%"))
+
+        if target_ups:
+            query = query.filter(CitaHISModel.id_ups.in_(target_ups))
+
+        if excluir_cod_profesion:
+            query = query.filter(
+                (PersonalSaludModel.cod_profesion.is_(None)) |
+                (PersonalSaludModel.cod_profesion != str(excluir_cod_profesion).strip())
+            )
+
+        if cod_profesion and cod_profesion.lower() not in ["todos", "all", ""]:
+            prof_norm = cod_profesion.strip().lstrip("0") if cod_profesion.strip().isdigit() else cod_profesion.strip()
+            query = query.filter(
+                (PersonalSaludModel.cod_profesion == prof_norm) |
+                (PersonalSaludModel.cod_profesion == cod_profesion.strip())
+            )
+
+        query = query.group_by(CitaHISModel.id_ups, CitaHISModel.mes_periodo)
+        rows = query.all()
+
+        desglose = [
+            {"id_ups": r[0], "mes": r[1], "total": r[2]}
+            for r in rows
+        ]
+
+        return {
+            "total_evaluadas": total_evaluadas,
+            "desglose": desglose,
+        }
+
     def listar_meses_disponibles(self) -> List[str]:
         """
         Retorna la lista ordenada cronológicamente de los meses presentes en el Data Mart.

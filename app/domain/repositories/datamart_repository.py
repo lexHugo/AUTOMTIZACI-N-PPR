@@ -70,6 +70,20 @@ class DataMartRepositoryInterface(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def obtener_resumen_atenciones_ups(
+        self,
+        target_ups: List[str],
+        cod_profesion: Optional[str] = None,
+        anio: Optional[int] = None,
+        excluir_cod_profesion: Optional[str] = "29",
+    ) -> Dict[str, Any]:
+        """
+        Calcula de forma agregada y directa en la base de datos el conteo de citas únicas
+        por UPS y mes, optimizada para alto rendimiento y cero sobrecarga de memoria.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
     def reiniciar_datamart(self) -> bool:
         """
         Limpia los datos del Data Mart (citas, items, personal y archivos cargados).

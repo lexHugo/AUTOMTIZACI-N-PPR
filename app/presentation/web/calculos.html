@@ -76,9 +76,9 @@
           <div class="flex flex-col gap-1">
             <label class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Profesional Responsable</label>
             <select id="filtroProfesion" class="text-xs font-semibold px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-white focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition">
-              <option value="todos">Todos los Profesionales</option>
-              <option value="01">🩺 Solo Médicos (Cod 01)</option>
-              <option value="02">💉 Solo Enfermeras (Cod 02)</option>
+              <option value="todos">Todos los Profesionales (Excluye Cód 29)</option>
+              <option value="1">🩺 Solo Médicos (Cod 01)</option>
+              <option value="2">💉 Solo Enfermeras (Cod 02)</option>
             </select>
           </div>
 
@@ -173,8 +173,8 @@
             <i class="fa-solid fa-table"></i>
           </div>
           <div>
-            <h3 class="text-sm sm:text-base font-bold text-slate-900">Cuadro Consolidado de Atenciones por Servicio (UPS) Mes a Mes</h3>
-            <p class="text-xs text-slate-500">Un encuentro médico = 1 atención (Nuevo + Reingresante + Continuador acumulados)</p>
+            <h3 class="text-sm sm:text-base font-bold text-slate-900">Cuadro Consolidado de Atenciones: Pediatría y Neonatología</h3>
+            <p class="text-xs text-slate-500">Pediatría (Consolidado de UPSs Pediátricas) y Neonatología mes a mes</p>
           </div>
         </div>
 
@@ -398,12 +398,12 @@
           `;
         });
 
-        // 4. Fila Final de TOTAL GENERAL (Todas las UPS)
+        // 4. Fila Final de TOTAL GENERAL (Pediatría + Neonatología)
         tbodyHtml += `
           <tr class="bg-amber-50/90 font-extrabold border-t-2 border-amber-200">
             <td colspan="2" class="py-3 px-4 text-amber-950 uppercase tracking-wider text-xs border-r border-amber-200">
               <div class="flex items-center justify-between">
-                <span>TOTAL GENERAL (TODAS LAS UPS)</span>
+                <span>TOTAL GENERAL (PEDIATRÍA Y NEONATOLOGÍA)</span>
                 <span class="text-[10px] text-amber-800 font-semibold lowercase">(${data.filas.length} servicios)</span>
               </div>
             </td>

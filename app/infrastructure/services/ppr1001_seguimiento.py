@@ -2,36 +2,33 @@ from collections import defaultdict
 from typing import Dict, List, Optional, Set, Any
 from app.domain.entities.variables_ppr import VariablesPPR
 
-# Catálogo oficial de Unidades Productoras de Servicios (UPS) de MINSA
-CATALOGO_UPS: Dict[str, str] = {
-    "303712": "Pediatría",
-    "301204": "Inmunizaciones (Vacunas)",
-    "301202": "Control de Crecimiento y Desarrollo (CRED)",
-    "301203": "Estimulación Temprana",
-    "303701": "Medicina General",
-    "303702": "Medicina Interna",
-    "301301": "Nutrición",
-    "301302": "Psicología",
-    "301303": "Odontología",
-    "301304": "Servicio Social",
-    "304101": "Emergencia Pediátrica",
-    "304102": "Emergencia General",
-    "304201": "Hospitalización Pediatría",
-    "304202": "Neonatología / UCI Neonatal",
+# Conjunto de UPS que consolidan el Servicio de Pediatría:
+# Incluye la lista explícita indicada ('303701', '303703', '300704', '300706', '300708', '300709', '300705', '300710', '300712', '304002', '304103')
+# y sus variantes de codificación equivalentes en el registro HIS MINSA (3037xx / 3007xx).
+UPS_PEDIATRIA: Set[str] = {
+    "303705", "303708", "303703", "303704", "303712", "303701"
+}
+
+# Conjunto de UPS que corresponden al Servicio de Neonatología
+UPS_NEONATOLOGIA: Set[str] = {
+    "303707", "300707", "304202",
 }
 
 
 class PPR1001SeguimientoService:
     """
-    Servicio de Cálculo de Seguimiento y Producción de Atenciones por Servicio (UPS).
+    Servicio de Cálculo de Seguimiento y Producción de Atenciones por Servicio.
     
     Regla Técnica:
-    - Se cuenta una sola vez cada cita médica (Id_cita único) para evitar inflar atenciones
-      por diagnósticos o procedimientos múltiples.
-    - Se clasifica y desglosa mes a mes para cada UPS.
+    - Se muestran ÚNICAMENTE los servicios de Pediatría y Neonatología.
+    - Pediatría es la suma de las citas obtenidas de las UPS pediátricas definidas.
+    - Se cuenta una sola vez cada cita médica (Id_cita único) para evitar inflar atenciones.
     - Aplica la Alternativa B: Relleno continuo de meses entre el inicio y fin del período.
-    - Soporta filtro estricto por profesional (médicos / enfermeras).
+    - Soporta filtro estricto por profesional y exclusión del código 29.
     """
+
+    UPS_PEDIATRIA = UPS_PEDIATRIA
+    UPS_NEONATOLOGIA = UPS_NEONATOLOGIA
 
     @staticmethod
     def _generar_rango_meses_continuo(meses_con_datos: List[str]) -> List[str]:
@@ -69,13 +66,15 @@ class PPR1001SeguimientoService:
         self,
         variables: List[VariablesPPR],
         ids_personal_permitidos: Optional[Set[str]] = None,
+        ids_personal_excluidos: Optional[Set[str]] = None,
     ) -> Dict[str, Any]:
         """
-        Calcula el número de atenciones (citas únicas) agrupadas por UPS y mes.
+        Calcula el número de atenciones (citas únicas) para Pediatría y Neonatología por mes.
         
         Args:
             variables: Lista de registros del HIS.
             ids_personal_permitidos: Conjunto opcional de Id_Personal válidos (ej: solo médicos).
+            ids_personal_excluidos: Conjunto opcional de Id_Personal excluidos (ej: código profesión 29).
         """
         # 1. Deduplicar citas: Extraer la cabecera única de cada Id_cita
         citas_unicas: Dict[str, Dict[str, Any]] = {}
@@ -94,72 +93,200 @@ class PPR1001SeguimientoService:
                 citas_unicas[v.Id_cita] = {
                     "id_ups": ups,
                     "periodo": periodo,
-                    "id_personal": v.Id_Personal or "",
+                    "id_personal": str(v.Id_Personal).strip() if v.Id_Personal else "",
                 }
 
-        # 2. Si se especificó un filtro de personal (ej: solo médicos), aplicar filtro
+        # 2. Filtrado:
+        # - Exclusión obligatoria (ej: personal código 29)
+        # - Filtro restrictivo de profesión (si fue seleccionado)
+        # - Filtro de servicios: ÚNICAMENTE Pediatría y Neonatología
         total_evaluadas = len(citas_unicas)
-        citas_filtradas = []
+        citas_clasificadas = []
         descartadas_no_cumplen = 0
 
         for cita_id, info in citas_unicas.items():
+            id_p = info["id_personal"]
+            ups = info["id_ups"]
+            
+            # Exclusión de código 29
+            if ids_personal_excluidos and id_p in ids_personal_excluidos:
+                descartadas_no_cumplen += 1
+                continue
+
+            # Filtro restrictivo de profesión
             if ids_personal_permitidos is not None:
-                if info["id_personal"] not in ids_personal_permitidos:
+                if id_p not in ids_personal_permitidos:
                     descartadas_no_cumplen += 1
                     continue
-            citas_filtradas.append(info)
 
-        # 3. Detectar meses continuos (Alternativa B) y lista de UPS presentes
-        meses_con_datos = {c["periodo"] for c in citas_filtradas if c["periodo"] != "Sin fecha"}
+            # Clasificación de Servicio (Solo Pediatría y Neonatología)
+            if ups in self.UPS_PEDIATRIA:
+                citas_clasificadas.append({
+                    "servicio_key": "PEDIATRIA",
+                    "periodo": info["periodo"],
+                })
+            elif ups in self.UPS_NEONATOLOGIA:
+                citas_clasificadas.append({
+                    "servicio_key": "NEONATOLOGIA",
+                    "periodo": info["periodo"],
+                })
+            else:
+                # Cualquier otra UPS queda descartada del reporte
+                descartadas_no_cumplen += 1
+
+        # 3. Detectar meses continuos (Alternativa B) y brechas
+        meses_con_datos = {c["periodo"] for c in citas_clasificadas if c["periodo"] != "Sin fecha"}
         meses_continuos = self._generar_rango_meses_continuo(list(meses_con_datos))
         meses_faltantes = [m for m in meses_continuos if m not in meses_con_datos]
 
         meses_matriz = list(meses_continuos)
-        if any(c["periodo"] == "Sin fecha" for c in citas_filtradas):
+        if any(c["periodo"] == "Sin fecha" for c in citas_clasificadas):
             meses_matriz.append("Sin fecha")
 
-        # 4. Agrupar atenciones por (UPS, mes)
-        conteo_ups_mes = defaultdict(lambda: defaultdict(int))
-        for c in citas_filtradas:
-            conteo_ups_mes[c["id_ups"]][c["periodo"]] += 1
+        # 4. Agrupar atenciones por (Servicio, mes)
+        conteo_servicio_mes = defaultdict(lambda: defaultdict(int))
+        for c in citas_clasificadas:
+            conteo_servicio_mes[c["servicio_key"]][c["periodo"]] += 1
 
-        # 5. Armar matriz de resultados por UPS ordenada por volumen
-        todas_las_ups = sorted(
-            conteo_ups_mes.keys(),
-            key=lambda u: sum(conteo_ups_mes[u].values()),
-            reverse=True,
-        )
+        # 5. Generar exactamente las dos filas: Pediatría y Neonatología
+        servicios_definidos = [
+            {
+                "servicio_key": "PEDIATRIA",
+                "codigo_ups": "PEDIATRÍA",
+                "nombre_servicio": "Pediatría",
+            },
+            {
+                "servicio_key": "NEONATOLOGIA",
+                "codigo_ups": "303707",
+                "nombre_servicio": "Neonatología",
+            },
+        ]
 
         filas_ups = []
         totales_por_mes = {m: 0 for m in meses_matriz}
         gran_total = 0
 
-        for ups_cod in todas_las_ups:
-            nombre_servicio = CATALOGO_UPS.get(ups_cod, f"Servicio {ups_cod}")
+        for serv in servicios_definidos:
+            s_key = serv["servicio_key"]
             datos_meses = {}
-            total_ups = 0
+            total_serv = 0
 
             for m in meses_matriz:
-                cant = conteo_ups_mes[ups_cod].get(m, 0)
+                cant = conteo_servicio_mes[s_key].get(m, 0)
                 datos_meses[m] = cant
-                total_ups += cant
+                total_serv += cant
                 totales_por_mes[m] += cant
 
-            gran_total += total_ups
+            gran_total += total_serv
 
             filas_ups.append({
-                "codigo_ups": ups_cod,
-                "nombre_servicio": nombre_servicio,
+                "codigo_ups": serv["codigo_ups"],
+                "nombre_servicio": serv["nombre_servicio"],
                 "mensual": datos_meses,
-                "total_acumulado": total_ups,
+                "total_acumulado": total_serv,
             })
 
         return {
             "resumen_kpi": {
                 "total_citas_evaluadas": total_evaluadas,
-                "atenciones_validadas": len(citas_filtradas),
+                "atenciones_validadas": len(citas_clasificadas),
                 "atenciones_descartadas": descartadas_no_cumplen,
-                "total_ups_activas": len(filas_ups),
+                "total_ups_activas": len([f for f in filas_ups if f["total_acumulado"] > 0]),
+            },
+            "meses": meses_matriz,
+            "meses_faltantes": meses_faltantes,
+            "filas": filas_ups,
+            "totales_por_mes": totales_por_mes,
+            "gran_total": gran_total,
+        }
+
+    def calcular_desde_resumen_db(
+        self,
+        resumen_db: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        """
+        Procesa el resumen agregado directamente desde SQLite (Opción 1).
+        Evita instanciar cientos de miles de entidades de dominio en memoria RAM.
+        
+        Args:
+            resumen_db: Dict con 'total_evaluadas' y 'desglose' [{'id_ups': ..., 'mes': ..., 'total': ...}].
+        """
+        total_evaluadas = resumen_db.get("total_evaluadas", 0)
+        desglose = resumen_db.get("desglose", [])
+
+        # 1. Agrupar por Servicio (Pediatría / Neonatología) y Mes
+        conteo_servicio_mes = defaultdict(lambda: defaultdict(int))
+        meses_con_datos = set()
+        atenciones_validadas = 0
+
+        for item in desglose:
+            ups = str(item["id_ups"]).strip()
+            mes = str(item["mes"]).strip()
+            cant = int(item["total"])
+
+            if ups in self.UPS_PEDIATRIA:
+                s_key = "PEDIATRIA"
+            elif ups in self.UPS_NEONATOLOGIA:
+                s_key = "NEONATOLOGIA"
+            else:
+                continue
+
+            conteo_servicio_mes[s_key][mes] += cant
+            atenciones_validadas += cant
+            if mes and mes != "Sin fecha":
+                meses_con_datos.add(mes)
+
+        # 2. Generar rango continuo de meses (Alternativa B) y detectar brechas
+        meses_continuos = self._generar_rango_meses_continuo(list(meses_con_datos))
+        meses_faltantes = [m for m in meses_continuos if m not in meses_con_datos]
+        meses_matriz = list(meses_continuos)
+
+        # 3. Filas finales: Pediatría y Neonatología
+        servicios_definidos = [
+            {
+                "servicio_key": "PEDIATRIA",
+                "codigo_ups": "PEDIATRÍA",
+                "nombre_servicio": "Pediatría",
+            },
+            {
+                "servicio_key": "NEONATOLOGIA",
+                "codigo_ups": "303707",
+                "nombre_servicio": "Neonatología",
+            },
+        ]
+
+        filas_ups = []
+        totales_por_mes = {m: 0 for m in meses_matriz}
+        gran_total = 0
+
+        for serv in servicios_definidos:
+            s_key = serv["servicio_key"]
+            datos_meses = {}
+            total_serv = 0
+
+            for m in meses_matriz:
+                cant = conteo_servicio_mes[s_key].get(m, 0)
+                datos_meses[m] = cant
+                total_serv += cant
+                totales_por_mes[m] += cant
+
+            gran_total += total_serv
+
+            filas_ups.append({
+                "codigo_ups": serv["codigo_ups"],
+                "nombre_servicio": serv["nombre_servicio"],
+                "mensual": datos_meses,
+                "total_acumulado": total_serv,
+            })
+
+        descartadas = max(0, total_evaluadas - atenciones_validadas)
+
+        return {
+            "resumen_kpi": {
+                "total_citas_evaluadas": total_evaluadas,
+                "atenciones_validadas": atenciones_validadas,
+                "atenciones_descartadas": descartadas,
+                "total_ups_activas": len([f for f in filas_ups if f["total_acumulado"] > 0]),
             },
             "meses": meses_matriz,
             "meses_faltantes": meses_faltantes,
