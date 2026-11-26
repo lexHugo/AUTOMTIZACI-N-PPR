@@ -99,6 +99,15 @@
             </button>
           </div>
 
+          <!-- Botón de Cargar Maestro de Personal -->
+          <div class="flex flex-col gap-1 sm:self-end">
+            <input type="file" id="fileMaestroPersonal" accept=".xlsx,.xls,.csv" class="hidden" />
+            <button id="btnSubirMaestro" type="button" class="px-3.5 py-2 bg-slate-700 hover:bg-slate-800 text-white font-semibold rounded-xl text-xs flex items-center gap-1.5 transition shadow-xs" title="Cargar catálogo de Médicos y Personal de Salud">
+              <i class="fa-solid fa-cloud-arrow-up text-amber-300"></i>
+              <span>Cargar Maestro Personal</span>
+            </button>
+          </div>
+
         </div>
 
       </div>
@@ -443,6 +452,44 @@
     document.getElementById('btnCalcularCuadro').addEventListener('click', cargarCuadroUps);
     document.getElementById('filtroProfesion').addEventListener('change', cargarCuadroUps);
     document.getElementById('filtroAnio').addEventListener('change', cargarCuadroUps);
+
+    // Carga de Maestro de Personal
+    const btnSubirMaestro = document.getElementById('btnSubirMaestro');
+    const fileMaestroPersonal = document.getElementById('fileMaestroPersonal');
+
+    if (btnSubirMaestro && fileMaestroPersonal) {
+      btnSubirMaestro.addEventListener('click', () => fileMaestroPersonal.click());
+
+      fileMaestroPersonal.addEventListener('change', async (e) => {
+        if (!e.target.files || e.target.files.length === 0) return;
+        const file = e.target.files[0];
+
+        btnSubirMaestro.disabled = true;
+        btnSubirMaestro.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Cargando maestro...</span>';
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+          const res = await fetch('/api/v1/ppr1001/datamart/personal/cargar-maestro', {
+            method: 'POST',
+            body: formData,
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.detail || 'Error al procesar el archivo maestro de personal.');
+
+          alert(`¡Éxito! ${data.mensaje}\nArchivo: ${data.nombre_archivo}\nRegistros procesados: ${data.total_registros_procesados}`);
+          // Recargar cuadro con el nuevo maestro activo
+          cargarCuadroUps();
+        } catch (err) {
+          alert('Error: ' + err.message);
+        } finally {
+          btnSubirMaestro.disabled = false;
+          btnSubirMaestro.innerHTML = '<i class="fa-solid fa-cloud-arrow-up text-amber-300"></i> <span>Cargar Maestro Personal</span>';
+          fileMaestroPersonal.value = '';
+        }
+      });
+    }
 
     // Carga inicial
     document.addEventListener('DOMContentLoaded', cargarCuadroUps);
